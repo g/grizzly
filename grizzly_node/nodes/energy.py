@@ -44,8 +44,8 @@ class EnergyEstimation:
         self.full_bat_cap = 105*48*self.numbatpacks #105 A.h in each battery, x 48v for watt.H x number of battery packs(2 or 4) 
 
         # Timing
-        self.rate = rospy.Rate(rospy.get_param('~hz',50))
-        self.period = 1.0/rospy.get_param('~hz',50)
+        self.rate = rospy.Rate(rospy.get_param('~hz',25))
+        self.period = 1.0/rospy.get_param('~hz',25)
 
         rospy.Subscriber('mcu/status', RawStatus, self.HandleUserStatus)
         rospy.Subscriber('motors/front_right/feedback', Feedback, self.HandleFRFeedback)
