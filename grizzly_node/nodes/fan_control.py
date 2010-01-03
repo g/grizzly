@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-# Fan control. At the moment, full power!
+# Fan control.
 
 import roslib; roslib.load_manifest('grizzly_node')
 import rospy

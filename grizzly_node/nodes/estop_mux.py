@@ -7,6 +7,7 @@ import roslib; roslib.load_manifest('grizzly_node')
 import rospy
 
 from std_msgs.msg import Bool
+
 class EstopWatch:
     def __init__(self):
         rospy.init_node('estop_watchdog')

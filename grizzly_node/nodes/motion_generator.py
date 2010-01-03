@@ -36,8 +36,8 @@ class MotionGenerator:
 
         #Encoder error watchdog parameters
         self.enc_watchdog_period = rospy.get_param('enc_watchdog_period',1/10.0) #default 10hz
-        self.enc_error_time = rospy.get_param('enc_error_time',0.5)
-        self.enc_error_thresh = rospy.get_param('enc_error_thresh',75)
+        self.enc_error_time = rospy.get_param('enc_error_time',1)
+        self.enc_error_thresh = rospy.get_param('enc_error_thresh',1000)
         self.enc_tics_diff_thresh = rospy.get_param('enc_tics_diff_thresh',8)
 
         # Vehicle Parameters
@@ -73,6 +73,7 @@ class MotionGenerator:
         self.mcu_heartbeat_rxd = False 
         self.mcu_dead = False
         self.estop_status = RawStatus.ERROR_ESTOP_RESET
+        self.precharge_malfunction = False
 
         
         self.mot_setting = [0,0,0,0]
@@ -130,8 +131,7 @@ class MotionGenerator:
         #d) Estop is not cleared and/or pre-charge is not completed)
         #e) There is an encoder fault
 
-        #if ((True in self.motor_fault) or (True in self.mot_node_dead) or self.mcu_dead or (self.estop_status!=0) or (True in self.encoder_fault):
-        if ((True in self.motor_fault) or (True in self.mot_node_dead) or self.mcu_dead or (self.estop_status!=0)):
+        if ((True in self.motor_fault) or (True in self.mot_node_dead) or self.mcu_dead or (self.estop_status!=0) or (True in self.encoder_fault)):
             #Turn off power to all motors, until fault is removed
             self.cmd_pub_fr.publish([int(0)])
             self.cmd_pub_fl.publish([int(0)])
@@ -169,15 +169,18 @@ class MotionGenerator:
 
         #if precharge status is active for more than 4 seconds, fire estop. dont reset
         if self.pre_charge_timeout > (4/(self.mcu_watchdog_time)):
+            self.precharge_malfunction = True
             self.cmd_estop.publish(True)
             error_str = "Precharge malfunction. Estop activated. Please reboot all systems"
             rospy.logerr(error_str)
             self.motion_diag.setup_publish_diag(ESTOP_DIAG, DiagnosticStatus.ERROR, error_str,rospy.get_rostime())
         elif self.estop_status!=0:
             warn_str = "EStop is activated. Vehicle will not move"
+            self.precharge_malfunction = False
             rospy.logwarn(warn_str)
             self.motion_diag.setup_publish_diag(ESTOP_DIAG, DiagnosticStatus.WARN, warn_str, rospy.get_rostime())
         else:
+            self.precharge_malfunction = False
             ok_str = "EStop System Open and Functional"
             self.motion_diag.setup_publish_diag(ESTOP_DIAG, DiagnosticStatus.OK, ok_str, rospy.get_rostime())
 
@@ -247,20 +250,23 @@ class MotionGenerator:
                 self.enc_tics_in_error[i]+=1
             else:
                 self.enc_tics_in_error[i]=0
+                self.encoder_fault[i] = False
                 self.num_enc_fault[i]=0
 
             if (self.enc_tics_in_error[i] * self.enc_watchdog_period >= self.enc_error_time):
                 if (self.assess_encoder_fault(i)):
                     self.num_enc_fault[i]+=1
-                    if (self.num_enc_fault[i] > 3):
+                    if (self.num_enc_fault[i] > (3/self.encoder_watchdog_period)):
                         self.encoder_fault[i] = True
 
         if (True in self.encoder_fault):
             t_index = self.encoder_fault.index(True)
             error_string = "Encoder Fault on the " + self.get_motor_string(t_index) + " Motor" 
             self.motion_diag.setup_publish_diag(ENC_DIAG, DiagnosticStatus.ERROR, error_string, rospy.get_rostime())
-            #self.cmd_estop.publish(True)
+            self.cmd_estop.publish(True)
         else:
+            if (not self.precharge_malfunction):
+                self.cmd_estop.publish(False)
             ok_string = "Encoder system is active and functional"
             self.motion_diag.setup_publish_diag(ENC_DIAG, DiagnosticStatus.OK, ok_string, rospy.get_rostime())
 
