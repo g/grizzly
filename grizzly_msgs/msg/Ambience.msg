@@ -1,6 +1,7 @@
 uint8 PATTERN_ON=255
 uint8 PATTERN_FLASH=15
 uint8 PATTERN_DFLASH=9
+uint8 PATTERN_QUICKFLASH=1
 uint8 PATTERN_OFF=0
 
 uint8 position_light    # Signal the status of the GPS system

@@ -126,7 +126,7 @@ class MotionManager:
                 noises.beacon = Ambience.PATTERN_DFLASH
                 noises.headlight = Ambience.PATTERN_DFLASH
                 noises.taillight = Ambience.PATTERN_DFLASH
-                noises.beep = Ambience.PATTERN_FLASH
+                noises.beep = Ambience.PATTERN_DFLASH
                 self.cmd_lights.publish(noises)
 
                 # Leave warning state?
@@ -167,7 +167,8 @@ class MotionManager:
 
                 # Flash lights and make noises appropriately
                 noises = Ambience()
-                noises.beacon = Ambience.PATTERN_FLASH
+                noises.beacon = Ambience.PATTERN_QUICKFLASH
+                noises.beep = Ambience.PATTERN_QUICKFLASH
                 noises.headlight = Ambience.PATTERN_ON
                 if brakelight or self.cmd.linear.x < 0:
                     noises.taillight = Ambience.PATTERN_ON

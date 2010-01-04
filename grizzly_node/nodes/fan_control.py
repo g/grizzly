@@ -5,7 +5,7 @@
 import roslib; roslib.load_manifest('grizzly_node')
 import rospy
 
-from std_msgs.msg import Bool
+from std_msgs.msg import Bool, Float32
 from roboteq_msgs.msg import Status
 
 FR = 0
@@ -20,10 +20,12 @@ class FanControl:
         self.safe_motor_temp = rospy.get_param('safe_motor_temp',60)
         self.safe_ch_temp = rospy.get_param('safe_ch_temp',50)
         self.safe_ic_temp = rospy.get_param('safe_ic_temp',50)
+        self.safe_body_temp = rospy.get_param('safe_body_temp',50)
         self.hyst_size = rospy.get_param('hyst_size',10)
 
         self.fan_state = False
 
+        self.body_temp = 0
         self.channel1_temp = [0,0,0,0]
         self.channel2_temp = [0,0,0,0]
         self.ic_temp = [0,0,0,0]
@@ -36,18 +38,20 @@ class FanControl:
 
         # Publishers & subscribers
         self.cmd_fan = rospy.Publisher('mcu/fan', Bool)
+        rospy.Subscriber('mcu/body_temp', Float32, self.HandleBodyTempStatus)
         rospy.Subscriber('motors/front_right/status', Status, self.HandleFRStatus)
         rospy.Subscriber('motors/front_left/status', Status, self.HandleFLStatus)
         rospy.Subscriber('motors/rear_left/status', Status, self.HandleRLStatus)
         rospy.Subscriber('motors/rear_right/status', Status, self.HandleRRStatus)
-
-
 
         while not rospy.is_shutdown():
             """ Main state machine loop """
             self.check_temps()
             self.cmd_fan.publish(int(self.fan_state))
             self.rate.sleep()
+
+    def HandleBodyTempStatus(self, data):
+        self.body_temp = data.data
 
     def HandleFRStatus(self, data):
         self.process_temps(data,FR) 
@@ -68,7 +72,7 @@ class FanControl:
         self.ic_temp[motor_num] = data.ic_temperature
         
     def check_temps(self):
-        motor_safe = ic_safe = ch_safe = 0
+        motor_safe = ic_safe = ch_safe = body_safe = 0
 
         #TODO:Is there a cleaner way of doing this check?
         for i in range(4):
@@ -94,9 +98,15 @@ class FanControl:
 
             if (self.channel1_temp[i] < (self.safe_ch_temp - self.hyst_size)):
                 ch_safe = ch_safe + 1  
+        
+        # Body temperature check
+        if (self.body_temp > self.safe_body_temp):
+            self.fan_state = True
+        if (self.body_temp < (self.safe_body_temp - self.hyst_size)):
+            body_safe = body_safe + 1
 
         #if all motors,ics and channels are fine, turn off fan
-        if (motor_safe > 3 and ic_safe > 3 and ch_safe > 3):
+        if (motor_safe > 3 and ic_safe > 3 and ch_safe > 3 and body_safe > 0):
             self.fan_state = False
 
 if __name__ == "__main__": 
