@@ -1,8 +1,4 @@
 <launch>
-  <!-- declare arguments with default values -->
-  <arg name="pcap" default="" />
-  <arg name="calibration" default="$(find velodyne_pointcloud)/params/32db.yaml"/>
-
   <!-- start nodelet manager and load driver nodelet -->
   <node machine="user" pkg="nodelet" type="nodelet" name="velodyne_nodelet_manager"
         args="manager" />
@@ -15,7 +11,7 @@
   <!-- start cloud nodelet -->
   <node machine="user" pkg="nodelet" type="nodelet" name="cloud_nodelet"
         args="load velodyne_pointcloud/CloudNodelet velodyne_nodelet_manager">
-    <param name="calibration" value="$(arg calibration)"/>
+    <param name="calibration" value="/home/administrator/ros/32db.yaml"/>
   </node>
 
 

@@ -1,7 +1,7 @@
 <launch>
   <group ns="lidar">
     <node machine="user" pkg="LMS1xx" type="LMS100" name="lidar">
-      <param name="host" value="192.168.1.201" />
+      <param name="host" value="192.168.1.200" />
     </node>
   </group>
 </launch>
