@@ -1,0 +1,10 @@
+<stack>
+  <description brief="grizzly">grizzly</description>
+  <author>Maintained by Ryan Gariepy</author>
+  <license>BSD</license>  
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/grizzly</url>
+  <depend stack="ros" />
+  <depend stack="ros_comm" />
+
+</stack>
