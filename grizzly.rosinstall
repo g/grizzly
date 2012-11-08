@@ -9,3 +9,4 @@
 - git: {local-name: grizzly_simulator, uri: 'ssh://internal.clearpathrobotics.com:1222/git/CPR/grizzly_simulator.git', version: master}
 - git: {local-name: grizzly_firmware, uri: 'ssh://internal.clearpathrobotics.com:1222/git/CPR/grizzly_firmware.git', version: master}
 - git: {local-name: grizzly_apps, uri: 'ssh://internal.clearpathrobotics.com:1222/git/CPR/grizzly_apps.git', version: master}
+- git: {local-name: roboteq, uri: 'ssh://internal.clearpathrobotics.com:1222/git/CPR/roboteq.git'}
