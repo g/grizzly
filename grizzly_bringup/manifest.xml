@@ -1,0 +1,15 @@
+<package>
+  <description brief="grizzly_bringup">
+
+     grizzly_bringup
+
+  </description>
+  <author>Administrator</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/grizzly_bringup</url>
+  <depend package="rospy"/>
+
+</package>
+
+

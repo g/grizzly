@@ -1,0 +1,4 @@
+ATTRS{product}=="AVR*", SYMLINK+="arduino", MODE="0666"
+ATTRS{product}=="LUFA*", SYMLINK+="arduino", MODE="0666"
+ATTRS{product}=="Pro Micro*", SYMLINK+="arduino", MODE="0666"
+SUBSYSTEM=="tty", ATTRS{product}=="Arduino*", SYMLINK+="arduino", MODE="0666"
