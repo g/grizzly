@@ -5,18 +5,27 @@
 # USAGE: sudo ./install.bash
 #
 
+if [ "$(id -u)" != "0" ]; then
+    echo "Re-executing self as root."
+    sudo $0
+    exit 0
+fi
 
 robot=grizzly
 user=administrator
 release=$(ls /opt/ros/ | tail -n1)
 
+mkdir -p /etc/ros
+rm -rf /etc/ros/setup.bash
 ln -s /home/${user}/ros/setup.bash /etc/ros/setup.bash
 source /etc/ros/setup.bash
 pushd `rospack find ${robot}_bringup` > /dev/null
 
-# Copy udev rules and udev helper to the usual spots
+echo "Install udev rules and naming helper."
 cp udev/* /etc/udev/rules.d/
 cp scripts/clearpath-name /usr/sbin/
+
+service udev restart
 
 function do_subs {
   # source file, dest file, interface, robot, job, release
