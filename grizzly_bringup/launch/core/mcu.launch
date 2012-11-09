@@ -1,0 +1,5 @@
+<launch>
+    <node pkg="rosserial_python" type="serial_node.py" name="grizzly_rosserial" args="/dev/arduino" respawn="true" ns="mcu">
+    </node>
+</launch>
+
