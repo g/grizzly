@@ -1,0 +1,14 @@
+<package>
+  <description brief="grizzly_teleop">
+     The grizzly_teleop package contains basic nodes used to quickly launch your Clearpath Robotics Grizzly platform with a joystick control.
+  </description>
+  <author>Ryan Gariepy</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/grizzly_teleop</url>
+  <depend package="rospy"/>
+  <depend package="sensor_msgs"/>
+  <depend package="geometry_msgs"/>
+</package>
+
+

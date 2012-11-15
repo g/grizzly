@@ -1,0 +1,18 @@
+<package>
+  <description brief="grizzly_node">
+
+     grizzly_node
+
+  </description>
+  <author>Ryan Gariepy</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/grizzly_node</url>
+  <depend package="rospy"/>
+  <depend package="geometry_msgs"/>
+  <depend package="grizzly_msgs"/>
+  <depend package="roboteq_msgs"/>
+
+</package>
+
+
