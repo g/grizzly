@@ -32,10 +32,6 @@ class Teleop:
             rate.sleep()
             if self.cmd:
                 cmd_pub.publish(self.cmd)
-            else:
-                # TODO: Move this out to motion_manager
-                # This will add robustness to motion_manager
-                cmd_pub.publish(Twist())
             """ As long as we're active, give it e-stop data
             A manual reset is required once an e-stop is asserted
             anyway, and having to reset everytime we let go of the

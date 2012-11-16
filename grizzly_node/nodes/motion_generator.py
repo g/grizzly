@@ -14,13 +14,15 @@ class MotionGenerator:
         rospy.init_node('motion_generator')
 
         # Scale up angular rate to compensate for skid?
-        self.turn_scale = rospy.get_param('~turn_compensation', 1)
+        #self.turn_scale = rospy.get_param('~turn_compensation', 1)
 
         # Width of our vehicle
-        self.width = rospy.get_param('~vehicle_width')
+        self.width = rospy.get_param('~vehicle_width',1.27)
 
         # 1 m/s equals what Roboteq float32 value?
-        self.roboteq_scale = rospy.get_param('~roboteq_scale')
+        # 1000 / v_max (according to the Roboteq RPM max value)
+        # Right now, Max RPM = 1500, which corresponds to 2.07345 m/s
+        self.roboteq_scale = rospy.get_param('~roboteq_scale', 482.287)
 
         # Publishers & subscribers
         self.cmd_pub_fr = rospy.Publisher('motors/front_right/cmd', Command)
@@ -40,10 +42,10 @@ class MotionGenerator:
         left_speed = data.linear.x - data.angular.z*self.width/2;
 
         # Scale to whatever Roboteq needs
-        self.cmd_pub_fr.publish([right_speed*self.roboteq_scale])
-        self.cmd_pub_fl.publish([left_speed*self.roboteq_scale])
-        self.cmd_pub_rr.publish([right_speed*self.roboteq_scale])
-        self.cmd_pub_rl.publish([left_speed*self.roboteq_scale])
+        self.cmd_pub_fr.publish([-int(right_speed*self.roboteq_scale)])
+        self.cmd_pub_fl.publish([int(left_speed*self.roboteq_scale)])
+        self.cmd_pub_rr.publish([-int(right_speed*self.roboteq_scale)])
+        self.cmd_pub_rl.publish([int(left_speed*self.roboteq_scale)])
 
 if __name__ == "__main__": 
     MotionGenerator()

@@ -1,6 +1,6 @@
 <launch>
-  <arg name="drive_speed" default="1.0" />
-  <arg name="turn_speed" default="1.0" />
+  <arg name="drive_speed" default="2.0" />
+  <arg name="turn_speed" default="2.0" />
   <arg name="joy_dev" default="/dev/input/js0" />
   <arg name="cmd_topic" default="cmd_vel" />
 

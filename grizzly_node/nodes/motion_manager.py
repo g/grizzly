@@ -44,11 +44,9 @@ class MotionManager:
  
         # Max trans acceleration [m/s^2]
         self.trans_accel = rospy.get_param('~trans_accel', 0.5)
-        self.trans_decel = rospy.get_param('~trans_decel', 2)
     
         # Max rot acceleration [rad/s^2]
         self.rot_accel = rospy.get_param('~rot_accel', 0.5)
-        self.rot_decel = rospy.get_param('~rot_accel', 2)
 
         # Command timeout [s]
         self.no_cmd_timeout = rospy.get_param('~no_cmd_timeout', 0.1)
@@ -153,12 +151,8 @@ class MotionManager:
                 # Translational
                 delta = self.cmd_ref.linear.x - self.cmd.linear.x
                 if abs(self.cmd_ref.linear.x) > abs(self.cmd.linear.x):
-                    # We are increasing our target speed
-                    accel = self.trans_accel
-                else:
-                    # We are decreasing our target speed
-                    accel = self.trans_decel
-                delta = copysign(min(abs(delta), accel*self.period), delta)
+                    # We are increasing our target speed, limit it
+                    delta = copysign(min(abs(delta), self.trans_accel*self.period), delta)
                 self.cmd.linear.x += delta
                 if delta < 0:
                     brakelight = True
@@ -166,12 +160,8 @@ class MotionManager:
                 # Rotational
                 delta = self.cmd_ref.angular.z - self.cmd.angular.z
                 if abs(self.cmd_ref.angular.z) > abs(self.cmd.angular.z):
-                    # We are increasing our target speed
-                    accel = self.rot_accel
-                else:
-                    # We are decreasing our target speed
-                    accel = self.rot_decel
-                delta = copysign(min(abs(delta), accel*self.period), delta)
+                    # We are increasing our target speed, limit it
+                    delta = copysign(min(abs(delta), self.rot_accel*self.period), delta)
                 self.cmd.angular.z += delta
                 self.cmd_vel.publish(self.cmd)
 
@@ -199,10 +189,15 @@ class MotionManager:
             self.last_error_time = rospy.get_time()
             rospy.loginfo("Board Control Error")
             return True
+        # Haven't received any command for a (short) while
+        if rospy.get_time() > self.last_cmd_time + self.no_cmd_timeout:
+            self.last_error_time = rospy.get_time()
+            rospy.loginfo("Command Timeout Error")
+            return True
         # Haven't moved for a while
         if rospy.get_time() > self.last_motion_time + self.no_motion_timeout:
             self.last_error_time = rospy.get_time()
-            rospy.loginfo("Command Timeout Error (No Motion)")
+            rospy.loginfo("Motion Timeout Error")
             return True
         return False
    
