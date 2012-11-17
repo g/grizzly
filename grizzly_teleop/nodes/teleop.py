@@ -23,7 +23,7 @@ class Teleop:
         self.cmd = None
         cmd_pub = rospy.Publisher('cmd_vel', Twist)
         self.estop = False
-        cmd_estop = rospy.Publisher('stop', Bool)
+        cmd_estop = rospy.Publisher('/mcu/estop', Bool)
 
         rospy.Subscriber("joy", Joy, self.callback)
         rate = rospy.Rate(rospy.get_param('~hz', 20))
