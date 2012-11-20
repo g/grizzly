@@ -117,7 +117,7 @@ class MotionManager:
                     continue
             elif motion_state == 1:
                 # State: 
-                rospy.loginfo("Vehicle Startup In Process")
+                #rospy.loginfo("Vehicle Startup In Process")
                 # Reset last command setpoint
                 self.cmd = Twist()
                 self.cmd_vel.publish(self.cmd) 
@@ -132,7 +132,7 @@ class MotionManager:
                 # Leave warning state?
                 # -> Error
                 if self.is_error():
-                    rospy.loginfo("Vehicle Startup Interrupted")
+                #    rospy.loginfo("Vehicle Startup Interrupted")
                     motion_state = 0
                     continue
                 # -> Motion

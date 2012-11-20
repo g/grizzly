@@ -21,4 +21,6 @@
     </node>
     <node pkg="grizzly_node" type="motion_manager.py" name="motion_manager">
     </node>
+    <node pkg="grizzly_node" type="fan_control.py" name="fan_control">
+    </node>
 </launch>
