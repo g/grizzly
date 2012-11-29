@@ -1,0 +1,11 @@
+<launch>
+   
+  
+ 
+    <node pkg="rosbag" type="record" name="record" output="screen" args="-a -o ../bagfile/grizzlytests">
+       
+       
+    </node>
+
+
+</launch>
