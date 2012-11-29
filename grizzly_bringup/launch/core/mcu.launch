@@ -1,5 +1,7 @@
 <launch>
-    <node pkg="rosserial_python" type="serial_node.py" name="grizzly_rosserial" args="/dev/arduino" respawn="true" ns="mcu">
-    </node>
+    <group ns="mcu">
+        <node pkg="rosserial_python" type="serial_node.py" name="grizzly_rosserial" args="/dev/arduino" respawn="true" />
+        <node pkg="grizzly_node" type="diagnostics.py" name="grizzly_diagnostics" />
+    </group>
 </launch>
 
