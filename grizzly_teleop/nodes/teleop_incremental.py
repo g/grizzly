@@ -42,7 +42,7 @@ class IncrementalTeleop:
 
         rospy.Subscriber("joy", Joy, self.callback)
         rate = rospy.Rate(rospy.get_param('~hz', 20))
-        period = rospy.get_param('~hz',20))
+        period = rospy.get_param('~hz',20)
         
         while not rospy.is_shutdown():
             rate.sleep()
