@@ -4,6 +4,7 @@
     <arg name="turn_speed" default="2.0" />
     <arg name="joy_dev" default="/dev/input/js0" />
     <arg name="cmd_topic" default="cmd_vel" />
+    <arg name="roboteq_speed_scale" default="500"/>
 
     <node pkg="joy" type="joy_node" name="joy_node">
     <param name="dev" value="$(arg joy_dev)" />
@@ -18,9 +19,22 @@
 
     <!-- Motion -->
     <node pkg="grizzly_node" type="motion_generator.py" name="motion_generator">
+        <param name="roboteq_scale" value="$(arg roboteq_speed_scale)"/>
     </node>
     <node pkg="grizzly_node" type="motion_manager.py" name="motion_manager">
     </node>
     <node pkg="grizzly_node" type="fan_control.py" name="fan_control">
+        <param name="safe_motor_temp" value="60"/>
+        <param name="safe_ch_temp" value="50"/>
+        <param name="safe_ic_temp" value="50"/> 
+        <param name="hyst_size" value="10"/> 
     </node>
+
+    <node pkg="grizzly_node" type="energy.py" name="energy">
+        <param name="numbatpacks" value="4"/>
+    </node>
+
+    <node pkg="grizzly_node" type="dead_reckoning.py" name="dead_reckoning">
+    </node>
+
 </launch>

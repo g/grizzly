@@ -1,0 +1,8 @@
+<launch>
+  <!-- Start NMEA GPS driver -->
+  <node ns="gps" pkg="nmea_gps_driver" type="nmea_gps_driver.py" name="nmea_gps" output="screen">
+    <param name="port" value="/dev/ublox" />
+    <param name="baud" value="19200" />
+    <param name="useRMC" value="true" />
+  </node>
+</launch>
