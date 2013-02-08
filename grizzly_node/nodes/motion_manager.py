@@ -154,7 +154,7 @@ class MotionManager:
                     # We are increasing our target speed, limit it
                     delta = copysign(min(abs(delta), self.trans_accel*self.period), delta)
                 self.cmd.linear.x += delta
-                if delta < 0:
+                if delta < 0 or self.cmd.linear.x < 0:
                     brakelight = True
                 
                 # Rotational
