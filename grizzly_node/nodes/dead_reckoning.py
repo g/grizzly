@@ -54,6 +54,13 @@ class DeadReckoning(object):
         self.gear_down = rospy.get_param('~gearing', 50.0)
         self.wheel_radius = rospy.get_param('~wheel_radius',0.333)
 
+        # Initialize odometry message
+        self.odom = Odometry()
+        self.odom.header.frame_id = "odom_combined"
+        self.odom.child_frame_id = "base_footprint" 
+        self.last_encoder = []
+
+
         # Publishers and Subscribers
         self.pub_enc_odom = rospy.Publisher('encoder',Odometry);
         rospy.Subscriber('motors/front_right/feedback', Feedback, self.HandleFREnc)
@@ -62,11 +69,6 @@ class DeadReckoning(object):
         rospy.Subscriber('motors/rear_left/feedback', Feedback, self.HandleRLEnc)
 
 
-        # Initialize odometry message
-        self.odom = Odometry()
-        self.odom.header.frame_id = "odom_combined"
-        self.odom.child_frame_id = "base_footprint" 
-        self.last_encoder = []
 
 
     #Callbacks gear down RPM data and report new data

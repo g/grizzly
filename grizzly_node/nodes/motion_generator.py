@@ -60,6 +60,13 @@ class MotionGenerator:
         self.encreading = [0,0,0,0]
         self.enc_violations = [0,0,0,0] #track number of consecutive encoder error violations
 
+        #Serious faults where every motor should turn off
+        self.serious_fault = [Status.FAULT_OVERHEAT, Status.FAULT_OVERVOLTAGE, Status.FAULT_SHORT_CIRCUIT, Status.FAULT_MOSFET_FAILURE]
+
+        #Assume there are no motor faults
+        self.motor_fault = [False,False,False,False] #0-fr,1-fl,rr-2,rl-3
+
+
         rospy.Subscriber('motors/front_right/status',Status, self.fr_statCallback)
         rospy.Subscriber('motors/front_left/status',Status, self.fl_statCallback)
         rospy.Subscriber('motors/rear_right/status',Status, self.rr_statCallback)
@@ -75,12 +82,7 @@ class MotionGenerator:
         rospy.Timer(rospy.Duration(self.enc_watchdog_period), self.encoder_watchdog)
         rospy.Timer(rospy.Duration(1), self.mcu_watchdog)
 
-        #Serious faults where every motor should turn off
-        self.serious_fault = [Status.FAULT_OVERHEAT, Status.FAULT_OVERVOLTAGE, Status.FAULT_SHORT_CIRCUIT, Status.FAULT_MOSFET_FAILURE]
-
-        #Assume there are no motor faults
-        self.motor_fault = [False,False,False,False] #0-fr,1-fl,rr-2,rl-3
-
+        
         rospy.Subscriber("safe_cmd_vel", Twist, self.callback)
 
         rospy.spin()
@@ -98,7 +100,7 @@ class MotionGenerator:
         self.mot_setting[RR] = -right_speed * self.roboteq_scale
         self.mot_setting[RL] = left_speed * self.roboteq_scale
 
-        if (True in self.motor_fault and not self.mcu_dead): # make sure none of the motors are faulted
+        if (True in self.motor_fault or self.mcu_dead): # make sure none of the motors are faulted and/or the mcu is not dead
             #Turn off power to all motors, until fault is removed
             self.cmd_pub_fr.publish([int(0)])
             self.cmd_pub_fl.publish([int(0)])
@@ -119,6 +121,7 @@ class MotionGenerator:
             self.mcu_dead = True
             rospy.logerr("MCU Comm is dead. Vehicle has been deactivated. Please reset systems")
         else:
+            self.mcu_heartbeat_rxd = False
             self.mcu_dead = False
 
 

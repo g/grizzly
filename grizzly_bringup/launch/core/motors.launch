@@ -6,23 +6,64 @@
             baud: 115200
         </rosparam>
     </node>
+    <group ns="front_right">
+    <node pkg="roboteq_driver" type="diagnostics.py" name="diag_front_right" output="screen">
+        <rosparam>
+            motor_desc: 'Front Right'
+        </rosparam>
+    </node>
+    </group>
+    
+    
     <node pkg="roboteq_driver" type="driver" name="front_left" output="screen">
         <rosparam>
             port: /dev/roboteq/front-left
             baud: 115200
         </rosparam>
     </node>
+    <group ns="front_left">
+    <node pkg="roboteq_driver" type="diagnostics.py" name="diag_front_left" output="screen">
+        <rosparam>
+            motor_desc: 'Front Left'
+        </rosparam>
+    </node>
+    </group>
+ 
+
+
+
     <node pkg="roboteq_driver" type="driver" name="rear_right" output="screen">
         <rosparam>
             port: /dev/roboteq/rear-right
             baud: 115200
         </rosparam>
     </node>
+    <group ns="rear_right">
+    <node pkg="roboteq_driver" type="diagnostics.py" name="diag_rear_right" output="screen">
+        <rosparam>
+            motor_desc: 'Rear Right'
+        </rosparam>
+    </node>
+    </group>
+
+
+
+
+
     <node pkg="roboteq_driver" type="driver" name="rear_left" output="screen">
         <rosparam>
             port: /dev/roboteq/rear-left
             baud: 115200
         </rosparam>
     </node>
+    <group ns="rear_left">
+    <node pkg="roboteq_driver" type="diagnostics.py" name="diag_rear_left" output="screen">
+        <rosparam>
+            motor_desc: 'Rear Left'
+        </rosparam>
+    </node>
     </group>
+
+    </group>
+
 </launch>

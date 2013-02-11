@@ -15,10 +15,12 @@
         <param name="turn_scale" value="$(arg turn_speed)" />
         <param name="drive_scale" value="$(arg drive_speed)" />
         <remap from="cmd_vel" to="$(arg cmd_topic)" />
+        <param name="deadman_button" value="8" />
+        <param name="estop_button" value="10" />
     </node>
 
     <!-- Motion -->
-    <node pkg="grizzly_node" type="motion_generator.py" name="motion_generator">
+    <node pkg="grizzly_node" type="motion_generator.py" name="motion_generator" output="screen">
         <param name="roboteq_scale" value="$(arg roboteq_speed_scale)"/>
     </node>
     <node pkg="grizzly_node" type="motion_manager.py" name="motion_manager">
