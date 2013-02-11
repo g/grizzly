@@ -10,6 +10,7 @@ import math
 from geometry_msgs.msg import Twist
 from roboteq_msgs.msg import Command
 from roboteq_msgs.msg import Status,Feedback
+from grizzly_msgs.msg import RawStatus
 
 #motor indices
 FR = 0
@@ -24,7 +25,6 @@ class MotionGenerator:
         # Scale up angular rate to compensate for skid?
         #self.turn_scale = rospy.get_param('~turn_compensation', 1)
 
-
         #Encoder error watchdog parameters
         self.enc_watchdog_period = rospy.get_param('enc_watchdog_period',1/10.0) #default 10hz
         self.enc_error_time = rospy.get_param('enc_error_time',2)
@@ -36,6 +36,9 @@ class MotionGenerator:
         self.gear_down = rospy.get_param('~gearing', 50.0)
         self.wheel_radius = rospy.get_param('~wheel_radius',0.333)
         self.max_rpm = rospy.get_param('~max_rpm',3500.0) #max command (1000) sent to roboteq attains this RPM value
+
+        self.mcu_heartbeat_rxd = False 
+        self.mcu_dead = False
         
         # 1 m/s equals how many RPMs at the wheel?
         rpm_scale = 1
@@ -67,8 +70,10 @@ class MotionGenerator:
         rospy.Subscriber('motors/rear_right/feedback',Feedback, self.rr_fbCallback)
         rospy.Subscriber('motors/rear_left/feedback',Feedback, self.rl_fbCallback)
 
-        rospy.Timer(rospy.Duration(self.enc_watchdog_period), self.encoder_watchdog)  
+        rospy.Subscriber('mcu/status',RawStatus,self.mcu_heartbeat)
 
+        rospy.Timer(rospy.Duration(self.enc_watchdog_period), self.encoder_watchdog)
+        rospy.Timer(rospy.Duration(1), self.mcu_watchdog)
 
         #Serious faults where every motor should turn off
         self.serious_fault = [Status.FAULT_OVERHEAT, Status.FAULT_OVERVOLTAGE, Status.FAULT_SHORT_CIRCUIT, Status.FAULT_MOSFET_FAILURE]
@@ -87,14 +92,13 @@ class MotionGenerator:
         right_speed = data.linear.x + data.angular.z*self.width/2;
         left_speed = data.linear.x - data.angular.z*self.width/2;
 
-
         # Scale to whatever Roboteq needs
         self.mot_setting[FR] = -right_speed * self.roboteq_scale
         self.mot_setting[FL] = left_speed * self.roboteq_scale
         self.mot_setting[RR] = -right_speed * self.roboteq_scale
         self.mot_setting[RL] = left_speed * self.roboteq_scale
 
-        if (True in self.motor_fault): # make sure none of the motors are faulted
+        if (True in self.motor_fault and not self.mcu_dead): # make sure none of the motors are faulted
             #Turn off power to all motors, until fault is removed
             self.cmd_pub_fr.publish([int(0)])
             self.cmd_pub_fl.publish([int(0)])
@@ -106,6 +110,18 @@ class MotionGenerator:
             self.cmd_pub_rr.publish([int(self.mot_setting[RR])])
             self.cmd_pub_rl.publish([int(self.mot_setting[RL])])
             
+
+    def mcu_heartbeat(self,data):
+        self.mcu_heartbeat_rxd = True
+
+    def mcu_watchdog(self, event):
+        if (not self.mcu_heartbeat_rxd):
+            self.mcu_dead = True
+            rospy.logerr("MCU Comm is dead. Vehicle has been deactivated. Please reset systems")
+        else:
+            self.mcu_dead = False
+
+
 
     #TODO: Combine into one callback? Callback data will need motor description
     def fr_statCallback(self, data):
@@ -143,8 +159,6 @@ class MotionGenerator:
     def encoder_watchdog(self, event):
         for i in range(0,4):
             error = math.fabs(self.mot_setting[i]*(self.max_rpm/1000.0) - self.encreading[i])
-            if i==0:
-                print error
             if (error > self.enc_error_thresh):
                 self.enc_violations[i]+=1
             else:
