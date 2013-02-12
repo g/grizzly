@@ -23,5 +23,5 @@ fi
 
 LAUNCH_FILENAME=/tmp/robot-job.launch
 /usr/sbin/mklaunch /etc/ros/release/robot/job.d > $LAUNCH_FILENAME
-
+rosrun ps3joy ps3joy.py&
 setuidgid user roslaunch $LAUNCH_FILENAME
