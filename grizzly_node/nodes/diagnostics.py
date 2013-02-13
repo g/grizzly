@@ -77,7 +77,7 @@ class Diagnostics(object):
                     KeyValue('reset required', str((error & RawStatus.ERROR_ESTOP_RESET) != 0)),
                     KeyValue('undervoltage', str((error & RawStatus.ERROR_UNDERVOLT) != 0)),
                     KeyValue('command timeout', str((error & RawStatus.ERROR_COMMAND_TIMEOUT) != 0)),
-                    KeyValue('motor driver error', str((error & RawStatus.ERROR_MOTOR_FAULT) != 0)),
+                    KeyValue('brake (pre-charge) detect', str((error & RawStatus.ERROR_BRK_DET) != 0)),
                     ]
 
             self.pub.publish(self.msg)
