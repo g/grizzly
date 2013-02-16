@@ -22,12 +22,6 @@ class FanControl:
         self.safe_ic_temp = rospy.get_param('safe_ic_temp',50)
         self.hyst_size = rospy.get_param('hyst_size',10)
 
-        # Publishers & subscribers
-        self.cmd_fan = rospy.Publisher('/mcu/fan', Bool)
-        rospy.Subscriber('motors/front_right/status', Status, self.HandleFRStatus)
-        rospy.Subscriber('motors/front_left/status', Status, self.HandleFLStatus)
-        rospy.Subscriber('motors/rear_left/status', Status, self.HandleRLStatus)
-        rospy.Subscriber('motors/rear_right/status', Status, self.HandleRRStatus)
 
         self.fan_state = False
 
@@ -36,9 +30,20 @@ class FanControl:
         self.ic_temp = [0,0,0,0]
         self.motor_temp = [0,0,0,0]
 
+
+
         # Timing
         self.rate = rospy.Rate(rospy.get_param('~hz',10))
         self.period = 1.0/rospy.get_param('~hz',10)
+
+        # Publishers & subscribers
+        self.cmd_fan = rospy.Publisher('/mcu/fan', Bool)
+        rospy.Subscriber('motors/front_right/status', Status, self.HandleFRStatus)
+        rospy.Subscriber('motors/front_left/status', Status, self.HandleFLStatus)
+        rospy.Subscriber('motors/rear_left/status', Status, self.HandleRLStatus)
+        rospy.Subscriber('motors/rear_right/status', Status, self.HandleRRStatus)
+
+
 
         while not rospy.is_shutdown():
             """ Main state machine loop """

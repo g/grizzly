@@ -48,18 +48,19 @@ class MotionGenerator:
         #Convert rpms to roboteq input units (1000 units to get to max rpm)
         calc_scale = rpm_scale *  (1000.0/self.max_rpm)
         self.roboteq_scale = rospy.get_param('~roboteq_scale',calc_scale)
-        self.mcu_watchdog_time = rospy.get_param('~mcu_watchdog_time',1)
+        self.mcu_watchdog_time = rospy.get_param('~mcu_watchdog_time',0.5)
+        self.mot_watchdog_time = rospy.get_param('~mot_watchdog_time',2)
+
 
         # Publishers & subscribers
         self.cmd_pub_fr = rospy.Publisher('motors/front_right/cmd', Command)
         self.cmd_pub_fl = rospy.Publisher('motors/front_left/cmd', Command)
         self.cmd_pub_rr = rospy.Publisher('motors/rear_right/cmd', Command)
         self.cmd_pub_rl = rospy.Publisher('motors/rear_left/cmd', Command)
-        self.cmd_estop = rospy.Publisher('mcu/estop', Bool)
+        self.cmd_estop = rospy.Publisher('system_estop', Bool)
 
         #Serious faults where every motor should turn off
         self.serious_fault = [Status.FAULT_OVERHEAT, Status.FAULT_OVERVOLTAGE, Status.FAULT_SHORT_CIRCUIT, Status.FAULT_MOSFET_FAILURE]
-
 
         self.mcu_heartbeat_rxd = False 
         self.mcu_dead = False
@@ -90,7 +91,8 @@ class MotionGenerator:
 
         rospy.Timer(rospy.Duration(self.enc_watchdog_period), self.encoder_watchdog)
         rospy.Timer(rospy.Duration(self.mcu_watchdog_time), self.mcu_watchdog)
-        rospy.Timer(rospy.Duration(2), self.mcu_watchdog)
+        rospy.Timer(rospy.Duration(self.mot_watchdog_time), self.mot_watchdog)
+
         
         rospy.Subscriber("safe_cmd_vel", Twist, self.callback)
 
@@ -108,8 +110,8 @@ class MotionGenerator:
         self.mot_setting[FL] = left_speed * self.roboteq_scale
         self.mot_setting[RR] = -right_speed * self.roboteq_scale
         self.mot_setting[RL] = left_speed * self.roboteq_scale
-
-        
+         
+         
         #Dont send the command if 
         #a) Motor is faulted
         #b) Motor node is dead
@@ -138,6 +140,7 @@ class MotionGenerator:
             self.mcu_dead = True
             rospy.logerr("MCU Comm is dead. Vehicle has been deactivated. Please reset systems")
         else:
+            rospy.loginfo("MCU Node is fine")
             self.mcu_heartbeat_rxd = False
             self.mcu_dead = False
 
@@ -151,7 +154,7 @@ class MotionGenerator:
         #if precharge status is active for more than 4 seconds, fire estop. dont reset
         if self.pre_charge_timeout > (4/(self.mcu_watchdog_time)):
             rospy.logerr("Precharge malfunction. Estop activated. Please reboot all systems")
-            cmd_estop.publish(True)
+            self.cmd_estop.publish(True)
 
      
     #TODO: Combine into one callback? Callback data will need motor description
