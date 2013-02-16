@@ -26,7 +26,7 @@ class MotionGenerator:
         #self.turn_scale = rospy.get_param('~turn_compensation', 1)
 
         #Encoder error watchdog parameters
-        self.enc_watchdog_period = rospy.get_param('enc_watchdog_period',1/10.0) #default 10hz
+        self.enc_watchdog_period = rospy.get_param('enc_watchdog_period',1/5.0) #default 10hz
         self.enc_error_time = rospy.get_param('enc_error_time',2)
         self.enc_error_thresh = rospy.get_param('enc_error_thresh',1500)
 
@@ -71,17 +71,16 @@ class MotionGenerator:
         rospy.Subscriber('motors/front_left/status',Status, self.fl_statCallback)
         rospy.Subscriber('motors/rear_right/status',Status, self.rr_statCallback)
         rospy.Subscriber('motors/rear_left/status',Status, self.rl_statCallback)
-
+        
         rospy.Subscriber('motors/front_right/feedback',Feedback, self.fr_fbCallback)
         rospy.Subscriber('motors/front_left/feedback',Feedback, self.fl_fbCallback)
         rospy.Subscriber('motors/rear_right/feedback',Feedback, self.rr_fbCallback)
         rospy.Subscriber('motors/rear_left/feedback',Feedback, self.rl_fbCallback)
-
+        
         rospy.Subscriber('mcu/status',RawStatus,self.mcu_heartbeat)
 
         rospy.Timer(rospy.Duration(self.enc_watchdog_period), self.encoder_watchdog)
-        rospy.Timer(rospy.Duration(1), self.mcu_watchdog)
-
+        rospy.Timer(rospy.Duration(2), self.mcu_watchdog)
         
         rospy.Subscriber("safe_cmd_vel", Twist, self.callback)
 

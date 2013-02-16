@@ -37,8 +37,8 @@ class FanControl:
         self.motor_temp = [0,0,0,0]
 
         # Timing
-        self.rate = rospy.Rate(rospy.get_param('~hz',50))
-        self.period = 1.0/rospy.get_param('~hz',50)
+        self.rate = rospy.Rate(rospy.get_param('~hz',10))
+        self.period = 1.0/rospy.get_param('~hz',10)
 
         while not rospy.is_shutdown():
             """ Main state machine loop """
