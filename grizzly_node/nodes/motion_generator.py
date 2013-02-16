@@ -11,6 +11,7 @@ from geometry_msgs.msg import Twist
 from roboteq_msgs.msg import Command
 from roboteq_msgs.msg import Status,Feedback
 from grizzly_msgs.msg import RawStatus
+from std_msgs.msg import Bool
 
 #motor indices
 FR = 0
@@ -37,9 +38,7 @@ class MotionGenerator:
         self.wheel_radius = rospy.get_param('~wheel_radius',0.333)
         self.max_rpm = rospy.get_param('~max_rpm',3500.0) #max command (1000) sent to roboteq attains this RPM value
 
-        self.mcu_heartbeat_rxd = False 
-        self.mcu_dead = False
-        
+               
         # 1 m/s equals how many RPMs at the wheel?
         rpm_scale = 1
         rpm_scale /= (2*math.pi*self.wheel_radius) #convert m/s to rotations at the wheel
@@ -49,23 +48,33 @@ class MotionGenerator:
         #Convert rpms to roboteq input units (1000 units to get to max rpm)
         calc_scale = rpm_scale *  (1000.0/self.max_rpm)
         self.roboteq_scale = rospy.get_param('~roboteq_scale',calc_scale)
+        self.mcu_watchdog_time = rospy.get_param('~mcu_watchdog_time',1)
 
         # Publishers & subscribers
         self.cmd_pub_fr = rospy.Publisher('motors/front_right/cmd', Command)
         self.cmd_pub_fl = rospy.Publisher('motors/front_left/cmd', Command)
         self.cmd_pub_rr = rospy.Publisher('motors/rear_right/cmd', Command)
         self.cmd_pub_rl = rospy.Publisher('motors/rear_left/cmd', Command)
-        
-        self.mot_setting = [0,0,0,0]
-        self.encreading = [0,0,0,0]
-        self.enc_violations = [0,0,0,0] #track number of consecutive encoder error violations
+        self.cmd_estop = rospy.Publisher('mcu/estop', Bool)
 
         #Serious faults where every motor should turn off
         self.serious_fault = [Status.FAULT_OVERHEAT, Status.FAULT_OVERVOLTAGE, Status.FAULT_SHORT_CIRCUIT, Status.FAULT_MOSFET_FAILURE]
 
+
+        self.mcu_heartbeat_rxd = False 
+        self.mcu_dead = False
+        self.estop_status = RawStatus.ERROR_ESTOP_RESET
+
+        
+        self.mot_setting = [0,0,0,0]
+        self.encreading = [0,0,0,0]
+        self.enc_violations = [0,0,0,0] #track number of consecutive encoder error violations
+        self.mot_heartbeat_rxd = [False, False, False, False]
+        self.mot_node_dead = [True, True, True, True]
+
+
         #Assume there are no motor faults
         self.motor_fault = [False,False,False,False] #0-fr,1-fl,rr-2,rl-3
-
 
         rospy.Subscriber('motors/front_right/status',Status, self.fr_statCallback)
         rospy.Subscriber('motors/front_left/status',Status, self.fl_statCallback)
@@ -76,10 +85,11 @@ class MotionGenerator:
         rospy.Subscriber('motors/front_left/feedback',Feedback, self.fl_fbCallback)
         rospy.Subscriber('motors/rear_right/feedback',Feedback, self.rr_fbCallback)
         rospy.Subscriber('motors/rear_left/feedback',Feedback, self.rl_fbCallback)
-        
-        rospy.Subscriber('mcu/status',RawStatus,self.mcu_heartbeat)
+
+        rospy.Subscriber('mcu/status',RawStatus,self.mcu_statCallback)
 
         rospy.Timer(rospy.Duration(self.enc_watchdog_period), self.encoder_watchdog)
+        rospy.Timer(rospy.Duration(self.mcu_watchdog_time), self.mcu_watchdog)
         rospy.Timer(rospy.Duration(2), self.mcu_watchdog)
         
         rospy.Subscriber("safe_cmd_vel", Twist, self.callback)
@@ -99,7 +109,14 @@ class MotionGenerator:
         self.mot_setting[RR] = -right_speed * self.roboteq_scale
         self.mot_setting[RL] = left_speed * self.roboteq_scale
 
-        if (True in self.motor_fault or self.mcu_dead): # make sure none of the motors are faulted and/or the mcu is not dead
+        
+        #Dont send the command if 
+        #a) Motor is faulted
+        #b) Motor node is dead
+        #c) Mcu node is dead
+        #d) Estop is not cleared and/or pre-charge is not completed)
+
+        if ((True in self.motor_fault) or (True in self.mot_node_dead) or self.mcu_dead or (self.estop_status!=0)):
             #Turn off power to all motors, until fault is removed
             self.cmd_pub_fr.publish([int(0)])
             self.cmd_pub_fl.publish([int(0)])
@@ -112,8 +129,9 @@ class MotionGenerator:
             self.cmd_pub_rl.publish([int(self.mot_setting[RL])])
             
 
-    def mcu_heartbeat(self,data):
+    def mcu_statCallback(self,data):
         self.mcu_heartbeat_rxd = True
+        self.estop_status = data.error 
 
     def mcu_watchdog(self, event):
         if (not self.mcu_heartbeat_rxd):
@@ -124,19 +142,44 @@ class MotionGenerator:
             self.mcu_dead = False
 
 
+        #if pre charge status is activated, keep count
+        if self.estop_status == RawStatus.ERROR_BRK_DET:
+            self.pre_charge_timeout+=1
+        else:
+            self.pre_charge_timeout = 0
 
+        #if precharge status is active for more than 4 seconds, fire estop. dont reset
+        if self.pre_charge_timeout > (4/(self.mcu_watchdog_time)):
+            rospy.logerr("Precharge malfunction. Estop activated. Please reboot all systems")
+            cmd_estop.publish(True)
+
+     
     #TODO: Combine into one callback? Callback data will need motor description
     def fr_statCallback(self, data):
         self.check_motor(data.fault,0)
+        self.mot_heartbeat_rxd[FR] = True
 
     def fl_statCallback(self, data):
         self.check_motor(data.fault,1)
+        self.mot_heartbeat_rxd[FL] = True
 
     def rr_statCallback(self, data):
         self.check_motor(data.fault,2)
+        self.mot_heartbeat_rxd[RR] = True
 
     def rl_statCallback(self, data):
         self.check_motor(data.fault,3)
+        self.mot_heartbeat_rxd[RL] = True
+
+    def mot_watchdog(self, event): 
+        if (False in self.mot_heartbeat_rxd): #its been 0.5 seconds since we've received data from the motor controllers, kill all motion
+            f_index = self.mot_heartbeat_rxd.index(False )
+            self.mot_node_dead[f_index] = True
+            rospy.logerr(self.get_motor_string(f_index) + " motor controller node is dead. Vehicle has been deactivated. Please reset systems")
+        else:
+            self.mot_heartbeat_rxd = [False, False, False, False]
+            self.mot_node_dead = [False, False, False, False]
+            
 
     def fr_fbCallback(self, data):
         self.encreading[FR] = data.encoder_rpm[0]
