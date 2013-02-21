@@ -35,11 +35,10 @@ class MotionGenerator:
         #self.turn_scale = rospy.get_param('~turn_compensation', 1)
 
         #Encoder error watchdog parameters
-        self.enc_watchdog_period = rospy.get_param('enc_watchdog_period',1/5.0) #default 10hz
-        self.enc_error_time = rospy.get_param('enc_error_time',2.0)
-        self.enc_error_thresh = rospy.get_param('enc_error_thresh',2000)
-        self.enc_fault
-        
+        self.enc_watchdog_period = rospy.get_param('enc_watchdog_period',1/10.0) #default 10hz
+        self.enc_error_time = rospy.get_param('enc_error_time',0.5)
+        self.enc_error_thresh = rospy.get_param('enc_error_thresh',75)
+        self.enc_tics_diff_thresh = rospy.get_param('enc_tics_diff_thresh',8)
 
         # Vehicle Parameters
         self.width = rospy.get_param('~vehicle_width',1.01)
@@ -78,7 +77,9 @@ class MotionGenerator:
         
         self.mot_setting = [0,0,0,0]
         self.encreading = [0,0,0,0]
-        self.enc_violations = [0,0,0,0] #track number of consecutive encoder error violations
+        self.enc_tics_in_error = [0,0,0,0] #track number of consecutive error measurements that were too large
+        self.encoder_fault = [False, False, False, False] #assume encoders are okay
+        self.num_enc_fault = [0,0,0,0] #track consecutive encoder faults
         self.mot_heartbeat_rxd = [False, False, False, False]
         self.mot_node_dead = [True, True, True, True]
 
@@ -127,7 +128,9 @@ class MotionGenerator:
         #b) Motor node is dead
         #c) Mcu node is dead
         #d) Estop is not cleared and/or pre-charge is not completed)
+        #e) There is an encoder fault
 
+        #if ((True in self.motor_fault) or (True in self.mot_node_dead) or self.mcu_dead or (self.estop_status!=0) or (True in self.encoder_fault):
         if ((True in self.motor_fault) or (True in self.mot_node_dead) or self.mcu_dead or (self.estop_status!=0)):
             #Turn off power to all motors, until fault is removed
             self.cmd_pub_fr.publish([int(0)])
@@ -239,20 +242,40 @@ class MotionGenerator:
     def encoder_watchdog(self, event):
         for i in range(0,4):
             error = math.fabs(self.mot_setting[i]*(self.max_rpm/1000.0) - self.encreading[i])
-            if (error > self.enc_error_thresh):
-                self.enc_violations[i]+=1
-            else:
-                self.enc_violations[i]=0
 
-            if (self.enc_violations[i] * self.enc_watchdog_period >= self.enc_error_time):
-                error_string = "Encoder Fault on the " + self.get_motor_string(i) + " Motor" 
-                self.motion_diag.setup_publish_diag(ENC_DIAG, DiagnosticStatus.ERROR, error_string, rospy.get_rostime())
-                self.motor_fault[i] = True
-                self.cmd_estop.publish(True)
+            if (error > self.enc_error_thresh):
+                self.enc_tics_in_error[i]+=1
             else:
-                ok_string = "Encoder system is active and functional"
-                self.motion_diag.setup_publish_diag(ENC_DIAG, DiagnosticStatus.OK, ok_string, rospy.get_rostime())
-                self.motor_fault[i] = False
+                self.enc_tics_in_error[i]=0
+                self.num_enc_fault[i]=0
+
+            if (self.enc_tics_in_error[i] * self.enc_watchdog_period >= self.enc_error_time):
+                if (self.assess_encoder_fault(i)):
+                    self.num_enc_fault[i]+=1
+                    if (self.num_enc_fault[i] > 3):
+                        self.encoder_fault[i] = True
+
+        if (True in self.encoder_fault):
+            t_index = self.encoder_fault.index(True)
+            error_string = "Encoder Fault on the " + self.get_motor_string(t_index) + " Motor" 
+            self.motion_diag.setup_publish_diag(ENC_DIAG, DiagnosticStatus.ERROR, error_string, rospy.get_rostime())
+            #self.cmd_estop.publish(True)
+        else:
+            ok_string = "Encoder system is active and functional"
+            self.motion_diag.setup_publish_diag(ENC_DIAG, DiagnosticStatus.OK, ok_string, rospy.get_rostime())
+
+    def assess_encoder_fault(self, mot_num): #function to check if the other motors (other than mot_num) also have similar levels of encoder errors
+        err_motor_count = 3 #assume all other motors have large errors as well and therefore the error in the current motors is not a problem
+        for i in range(0,4): #go through all the motors
+            if (i!=mot_num): #except the one in question
+                enc_diff = math.fabs(self.enc_tics_in_error[mot_num] - self.enc_tics_in_error[i]) #calculate the difference in the tics in error
+                if (enc_diff > self.enc_tics_diff_thresh): #if the difference is over a certain value, decrement the number of motors
+                    err_motor_count-=1
+        
+        if (err_motor_count == 0): #if > 0 then there is atleast one other motor behaving the same way as this motor (probably not an encoder fault) 
+            return True
+        else:
+            return False
 
     def get_motor_string(self, mot):
         return {
