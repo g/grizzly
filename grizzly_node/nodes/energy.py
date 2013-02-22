@@ -115,8 +115,10 @@ class EnergyEstimation:
 
     def process_first_voltage(self):
         if (not (False in self.first_motor_volt_rxd) and self.first_user_volt_rxd): #get first estimate of SOC from voltages
-            avg_meas_volt = sum(self.first_motor_volts)/float(len(self.first_motor_volts))
-            avg_meas_volt = (avg_meas_volt + self.first_user_volt)/2.0
+            #initial voltage from motor controllers to low if Estop is pressed. ignore it
+#            avg_meas_volt = sum(self.first_motor_volts)/float(len(self.first_motor_volts))
+#            avg_meas_volt = (avg_meas_volt + self.first_user_volt)/2.0
+            avg_meas_volt = self.first_user_volt
             if (avg_meas_volt >= h_thresh):
                 self.init_soc = 1.000
             elif (avg_meas_volt <= l_thresh):
