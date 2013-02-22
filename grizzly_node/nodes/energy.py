@@ -5,7 +5,7 @@
 import roslib; roslib.load_manifest('grizzly_node')
 import rospy
 
-from std_msgs.msg import Float64
+from std_msgs.msg import Float32
 from roboteq_msgs.msg import Feedback
 from grizzly_msgs.msg import RawStatus
 from math import exp
@@ -24,7 +24,7 @@ class EnergyEstimation:
         self.numbatpacks = rospy.get_param('numbatpacks',2)
         
         # Publishers & subscribers
-        self.energy_pub = rospy.Publisher('energy', Float64)
+        self.energy_pub = rospy.Publisher('energy', Float32)
 
         self.first_motor_volt_rxd = [False, False, False, False]
         self.first_user_volt_rxd = False
@@ -58,7 +58,7 @@ class EnergyEstimation:
             self.rate.sleep()
 
 
-        total_wattage = Float64()
+        total_wattage = Float32()
         while not rospy.is_shutdown():
             """ Main state machine loop """
             total_wattage.data = self.init_soc - self.total_wattage_used/float(self.full_bat_cap)
