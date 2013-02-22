@@ -24,7 +24,7 @@ class EnergyEstimation:
         self.numbatpacks = rospy.get_param('numbatpacks',2)
         
         # Publishers & subscribers
-        self.energy_pub = rospy.Publisher('energy', Float32)
+        self.energy_pub = rospy.Publisher('mcu/energy', Float32)
 
         self.first_motor_volt_rxd = [False, False, False, False]
         self.first_user_volt_rxd = False
