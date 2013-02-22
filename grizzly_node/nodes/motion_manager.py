@@ -60,10 +60,10 @@ class MotionManager:
         # Publishers & subscribers
         self.cmd_vel = rospy.Publisher('safe_cmd_vel', Twist)
 
-        self.cmd_lights = rospy.Publisher('/mcu/ambience', Ambience)
+        self.cmd_lights = rospy.Publisher('mcu/ambience', Ambience)
 
         rospy.Subscriber("cmd_vel", Twist, self.vel_callback)
-        rospy.Subscriber("/mcu/status", RawStatus, self.status_callback)
+        rospy.Subscriber("mcu/status", RawStatus, self.status_callback)
 
         # Timing
         self.rate = rospy.Rate(rospy.get_param('~hz',50))

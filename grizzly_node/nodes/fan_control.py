@@ -22,7 +22,6 @@ class FanControl:
         self.safe_ic_temp = rospy.get_param('safe_ic_temp',50)
         self.hyst_size = rospy.get_param('hyst_size',10)
 
-
         self.fan_state = False
 
         self.channel1_temp = [0,0,0,0]

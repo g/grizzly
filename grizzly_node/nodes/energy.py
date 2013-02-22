@@ -5,7 +5,7 @@
 import roslib; roslib.load_manifest('grizzly_node')
 import rospy
 
-from std_msgs.msg import Float64
+from std_msgs.msg import Float32
 from roboteq_msgs.msg import Feedback
 from grizzly_msgs.msg import RawStatus
 from math import exp
@@ -24,7 +24,7 @@ class EnergyEstimation:
         self.numbatpacks = rospy.get_param('numbatpacks',2)
         
         # Publishers & subscribers
-        self.energy_pub = rospy.Publisher('mcu/energy', Float64)
+        self.energy_pub = rospy.Publisher('mcu/energy', Float32)
 
         self.first_motor_volt_rxd = [False, False, False, False]
         self.first_user_volt_rxd = False
@@ -58,7 +58,7 @@ class EnergyEstimation:
             self.rate.sleep()
 
 
-        total_wattage = Float64()
+        total_wattage = Float32()
         while not rospy.is_shutdown():
             """ Main state machine loop """
             total_wattage.data = self.init_soc - self.total_wattage_used/float(self.full_bat_cap)
@@ -115,8 +115,10 @@ class EnergyEstimation:
 
     def process_first_voltage(self):
         if (not (False in self.first_motor_volt_rxd) and self.first_user_volt_rxd): #get first estimate of SOC from voltages
-            avg_meas_volt = sum(self.first_motor_volts)/float(len(self.first_motor_volts))
-            avg_meas_volt = (avg_meas_volt + self.first_user_volt)/2.0
+            #initial voltage from motor controllers to low if Estop is pressed. ignore it
+#            avg_meas_volt = sum(self.first_motor_volts)/float(len(self.first_motor_volts))
+#            avg_meas_volt = (avg_meas_volt + self.first_user_volt)/2.0
+            avg_meas_volt = self.first_user_volt
             if (avg_meas_volt >= h_thresh):
                 self.init_soc = 1.000
             elif (avg_meas_volt <= l_thresh):
