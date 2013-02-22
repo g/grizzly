@@ -68,8 +68,8 @@ class Diagnostics(object):
             self.status_cooling.message = "OK"
             self.status_cooling.level = DiagnosticStatus.OK
             self.status_cooling.values = [
-                    KeyValue('body temperature (deg C)', str(self.latest_temp),
-                    KeyValue('fans on', str(self.latest(lambda m: m.fans_on))),
+                    KeyValue('body temperature (deg C)', str(self.latest_temp)),
+                    KeyValue('fans on', str(self.latest(lambda m: m.fans_on)))
                     ]
 
             error = self.latest(lambda m: m.error)
