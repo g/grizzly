@@ -31,13 +31,12 @@ class FanControl:
         self.motor_temp = [0,0,0,0]
 
 
-
         # Timing
         self.rate = rospy.Rate(rospy.get_param('~hz',10))
         self.period = 1.0/rospy.get_param('~hz',10)
 
         # Publishers & subscribers
-        self.cmd_fan = rospy.Publisher('/mcu/fan', Bool)
+        self.cmd_fan = rospy.Publisher('mcu/fan', Bool)
         rospy.Subscriber('motors/front_right/status', Status, self.HandleFRStatus)
         rospy.Subscriber('motors/front_left/status', Status, self.HandleFLStatus)
         rospy.Subscriber('motors/rear_left/status', Status, self.HandleRLStatus)

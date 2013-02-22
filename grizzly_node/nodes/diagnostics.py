@@ -70,7 +70,7 @@ class Diagnostics(object):
             self.status_faults.message = "OK"
             self.status_faults.level = DiagnosticStatus.OK
             if error != 0:
-                self.status_faults.message = "see flags"
+                self.status_faults.message = "See Error information below"
                 self.status_faults.level = DiagnosticStatus.ERROR
             self.status_faults.values = [
                     KeyValue('e-stop', str((error & RawStatus.ERROR_ESTOP) != 0)),

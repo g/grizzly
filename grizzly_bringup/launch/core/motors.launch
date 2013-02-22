@@ -1,6 +1,6 @@
 <launch>
     <group ns="motors">
-    <node pkg="roboteq_driver" type="driver" name="front_right" output="screen">
+    <node pkg="roboteq_driver" type="driver" name="front_right" output="screen" respawn="true">
         <rosparam>
             port: /dev/roboteq/front-right
             baud: 115200
@@ -15,7 +15,7 @@
     </group>
     
     
-    <node pkg="roboteq_driver" type="driver" name="front_left" output="screen">
+    <node pkg="roboteq_driver" type="driver" name="front_left" output="screen" respawn="true">
         <rosparam>
             port: /dev/roboteq/front-left
             baud: 115200
@@ -32,7 +32,7 @@
 
 
 
-    <node pkg="roboteq_driver" type="driver" name="rear_right" output="screen">
+    <node pkg="roboteq_driver" type="driver" name="rear_right" output="screen" respawn="true">
         <rosparam>
             port: /dev/roboteq/rear-right
             baud: 115200
@@ -49,8 +49,7 @@
 
 
 
-
-    <node pkg="roboteq_driver" type="driver" name="rear_left" output="screen">
+    <node pkg="roboteq_driver" type="driver" name="rear_left" output="screen" respawn="true">
         <rosparam>
             port: /dev/roboteq/rear-left
             baud: 115200
