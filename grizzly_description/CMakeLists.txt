@@ -30,7 +30,4 @@ set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 #rosbuild_add_executable(example examples/example.cpp)
 #target_link_libraries(example ${PROJECT_NAME})
 
-# Build simulator plugin
-rosbuild_add_library(${PROJECT_NAME} src/grizzly_plugin.cpp)
-
 #rosbuild_link_boost(${PROJECT_NAME} thread)

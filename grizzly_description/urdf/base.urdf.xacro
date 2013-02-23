@@ -153,7 +153,7 @@ This program contains the description of the robot base model for the Clearpath 
     </gazebo>
 
     <gazebo>
-		<controller:grizzly_plugin name="grizzly_diff_controller" plugin="libgrizzly_description.so">
+		<controller:grizzly_plugin name="grizzly_diff_controller" plugin="libgrizzly_gazebo_plugins.so">
 		        <alwaysOn>true</alwaysOn>
 		        <updateRate>100.0</updateRate>
 		        <backLeftJoint>joint_back_left_wheel</backLeftJoint>
