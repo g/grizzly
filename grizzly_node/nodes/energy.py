@@ -25,11 +25,6 @@ class EnergyEstimation:
         
         # Publishers & subscribers
         self.energy_pub = rospy.Publisher('energy', Float64)
-        rospy.Subscriber('mcu/status', RawStatus, self.HandleUserStatus)
-        rospy.Subscriber('motors/front_right/feedback', Feedback, self.HandleFRFeedback)
-        rospy.Subscriber('motors/front_left/feedback', Feedback, self.HandleFLFeedback)
-        rospy.Subscriber('motors/rear_left/feedback', Feedback, self.HandleRLFeedback)
-        rospy.Subscriber('motors/rear_right/feedback', Feedback, self.HandleRRFeedback)
 
         self.first_motor_volt_rxd = [False, False, False, False]
         self.first_user_volt_rxd = False
@@ -51,6 +46,13 @@ class EnergyEstimation:
         # Timing
         self.rate = rospy.Rate(rospy.get_param('~hz',50))
         self.period = 1.0/rospy.get_param('~hz',50)
+
+        rospy.Subscriber('mcu/status', RawStatus, self.HandleUserStatus)
+        rospy.Subscriber('motors/front_right/feedback', Feedback, self.HandleFRFeedback)
+        rospy.Subscriber('motors/front_left/feedback', Feedback, self.HandleFLFeedback)
+        rospy.Subscriber('motors/rear_left/feedback', Feedback, self.HandleRLFeedback)
+        rospy.Subscriber('motors/rear_right/feedback', Feedback, self.HandleRRFeedback)
+
 
         while (not self.process_first_voltage() and (not rospy.is_shutdown())):
             self.rate.sleep()

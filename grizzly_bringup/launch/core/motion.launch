@@ -39,4 +39,7 @@
     <node pkg="grizzly_node" type="dead_reckoning.py" name="dead_reckoning">
     </node>
 
+    <node pkg="grizzly_node" type="estop_mux.py" name="estop_mux">
+    </node>
+
 </launch>
