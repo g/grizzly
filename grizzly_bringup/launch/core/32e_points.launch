@@ -1,0 +1,22 @@
+<launch>
+  <!-- declare arguments with default values -->
+  <arg name="pcap" default="" />
+  <arg name="calibration" default="$(find velodyne_pointcloud)/params/32db.yaml"/>
+
+  <!-- start nodelet manager and load driver nodelet -->
+  <node machine="user" pkg="nodelet" type="nodelet" name="velodyne_nodelet_manager"
+        args="manager" />
+  <node machine="user" pkg="nodelet" type="nodelet" name="driver_nodelet"
+        args="load velodyne_driver/DriverNodelet velodyne_nodelet_manager" >
+    <param name="model" value="32E"/>
+    <param name="pcap" value=""/>
+  </node>
+
+  <!-- start cloud nodelet -->
+  <node machine="user" pkg="nodelet" type="nodelet" name="cloud_nodelet"
+        args="load velodyne_pointcloud/CloudNodelet velodyne_nodelet_manager">
+    <param name="calibration" value="$(arg calibration)"/>
+  </node>
+
+
+</launch>

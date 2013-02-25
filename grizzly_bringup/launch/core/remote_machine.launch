@@ -1,0 +1,5 @@
+<!-- Defines a remote machine -->
+<launch>
+  <machine name="user" address="192.168.1.101" env-loader="/home/administrator/ros/env.sh" user="administrator" password="clearpath" default="true"/>
+
+</launch>
