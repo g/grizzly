@@ -31,8 +31,8 @@ class FanControl:
 
 
         # Timing
-        self.rate = rospy.Rate(rospy.get_param('~hz',10))
-        self.period = 1.0/rospy.get_param('~hz',10)
+        self.rate = rospy.Rate(rospy.get_param('~hz',50))
+        self.period = 1.0/rospy.get_param('~hz',50)
 
         # Publishers & subscribers
         self.cmd_fan = rospy.Publisher('mcu/fan', Bool)
@@ -46,7 +46,7 @@ class FanControl:
         while not rospy.is_shutdown():
             """ Main state machine loop """
             self.check_temps()
-            self.cmd_fan.publish(bool(self.fan_state))
+            self.cmd_fan.publish(int(self.fan_state))
             self.rate.sleep()
 
     def HandleFRStatus(self, data):

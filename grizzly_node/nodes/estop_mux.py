@@ -7,7 +7,6 @@ import roslib; roslib.load_manifest('grizzly_node')
 import rospy
 
 from std_msgs.msg import Bool
-
 class EstopWatch:
     def __init__(self):
         rospy.init_node('estop_watchdog')
@@ -19,7 +18,7 @@ class EstopWatch:
         rospy.Subscriber("teleop_estop",Bool,self.telestop_callback)
 
         self.estop_pub = rospy.Publisher("mcu/estop",Bool)
-        rospy.Timer(rospy.Duration(1/10.0), self.estop_watchdog)
+        rospy.Timer(rospy.Duration(1/50.0), self.estop_watchdog)
 
         rospy.spin()
 
