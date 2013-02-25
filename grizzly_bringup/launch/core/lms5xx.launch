@@ -1,0 +1,5 @@
+<launch>
+  <group ns="lidar">
+    <node machine="user" pkg="sicktoolbox_wrapper2" type="sicklms_5xx" name="lidar"/>
+  </group>
+</launch>
