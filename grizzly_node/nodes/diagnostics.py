@@ -5,6 +5,7 @@ import rospy
 
 from grizzly_msgs.msg import RawStatus
 from diagnostic_msgs.msg import DiagnosticArray, DiagnosticStatus, KeyValue
+from std_msgs.msg import Float32
 
 
 class Diagnostics(object):
@@ -19,12 +20,17 @@ class Diagnostics(object):
         self.status_cooling = DiagnosticStatus(name=tmpl % "Cooling Status")
         self.status_faults = DiagnosticStatus(name=tmpl % "System Faults")
         self.msg = DiagnosticArray(status=[self.status_power, self.status_cooling, self.status_faults])
+        self.latest_temp = 0
 
         rospy.Subscriber('status', RawStatus, self._status_callback)
+        rospy.Subscriber('body_temp',Float32, self._temp_callback)
         self.statuses = []
     
     def _status_callback(self, msg):
         self.statuses.append(msg)
+
+    def _temp_callback(self, msg):
+        self.latest_temp = msg.data
     
     def latest(self, field_fn):
         return field_fn(self.statuses[-1])
@@ -62,15 +68,15 @@ class Diagnostics(object):
             self.status_cooling.message = "OK"
             self.status_cooling.level = DiagnosticStatus.OK
             self.status_cooling.values = [
-                    KeyValue('body temperature (deg C)', str(self.avg(lambda m: m.body_temp))),
-                    KeyValue('fans on', str(self.latest(lambda m: m.fans_on))),
+                    KeyValue('body temperature (deg C)', str(self.latest_temp)),
+                    KeyValue('fans on', str(self.latest(lambda m: m.fans_on)))
                     ]
 
             error = self.latest(lambda m: m.error)
             self.status_faults.message = "OK"
             self.status_faults.level = DiagnosticStatus.OK
             if error != 0:
-                self.status_faults.message = "see flags"
+                self.status_faults.message = "See Error information below"
                 self.status_faults.level = DiagnosticStatus.ERROR
             self.status_faults.values = [
                     KeyValue('e-stop', str((error & RawStatus.ERROR_ESTOP) != 0)),

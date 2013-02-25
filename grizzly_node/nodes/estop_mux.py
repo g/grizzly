@@ -19,7 +19,7 @@ class EstopWatch:
         rospy.Subscriber("teleop_estop",Bool,self.telestop_callback)
 
         self.estop_pub = rospy.Publisher("mcu/estop",Bool)
-        rospy.Timer(rospy.Duration(1/10.0), self.estop_watchdog)
+        rospy.Timer(rospy.Duration(1/50.0), self.estop_watchdog)
 
         rospy.spin()
 

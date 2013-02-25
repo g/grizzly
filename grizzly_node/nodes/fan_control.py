@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-# Fan control. At the moment, full power!
+# Fan control.
 
 import roslib; roslib.load_manifest('grizzly_node')
 import rospy
@@ -22,7 +22,6 @@ class FanControl:
         self.safe_ic_temp = rospy.get_param('safe_ic_temp',50)
         self.hyst_size = rospy.get_param('hyst_size',10)
 
-
         self.fan_state = False
 
         self.channel1_temp = [0,0,0,0]
@@ -31,13 +30,12 @@ class FanControl:
         self.motor_temp = [0,0,0,0]
 
 
-
         # Timing
-        self.rate = rospy.Rate(rospy.get_param('~hz',10))
-        self.period = 1.0/rospy.get_param('~hz',10)
+        self.rate = rospy.Rate(rospy.get_param('~hz',50))
+        self.period = 1.0/rospy.get_param('~hz',50)
 
         # Publishers & subscribers
-        self.cmd_fan = rospy.Publisher('/mcu/fan', Bool)
+        self.cmd_fan = rospy.Publisher('mcu/fan', Bool)
         rospy.Subscriber('motors/front_right/status', Status, self.HandleFRStatus)
         rospy.Subscriber('motors/front_left/status', Status, self.HandleFLStatus)
         rospy.Subscriber('motors/rear_left/status', Status, self.HandleRLStatus)
@@ -48,7 +46,7 @@ class FanControl:
         while not rospy.is_shutdown():
             """ Main state machine loop """
             self.check_temps()
-            self.cmd_fan.publish(bool(self.fan_state))
+            self.cmd_fan.publish(int(self.fan_state))
             self.rate.sleep()
 
     def HandleFRStatus(self, data):
