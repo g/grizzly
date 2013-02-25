@@ -1,0 +1,18 @@
+<launch>
+  <!-- first camera and associated image pipeline -->
+    <node machine="user" pkg="camera1394" type="camera1394_node" name="camera1394_node"
+        output="screen">
+      <param name="guid" value="" />
+      <param name="video_mode" value="format7_mode3" />
+      <param name="multicam" value="stereo_interlaced" />
+      <param name="frame_id" value="bumblebee" />
+      <param name="format7_color_coding" value="raw16"/>
+
+      <!--     <param name="left_camera_info_url"
+          value="$(find bumblebee1394)/camera_info/left.yaml" />
+      <param name="right_camera_info_url"
+          value="$(find bumblebee1394)/camera_info/right.yaml" />
+          -->
+    </node>
+
+</launch>

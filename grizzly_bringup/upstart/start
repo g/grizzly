@@ -21,6 +21,7 @@ if [ "$ROS_IP" = "" ]; then
     exit 1
 fi
 
+export ROSLAUNCH_SSH_UNKNOWN=1   #For launching remote nodes
 LAUNCH_FILENAME=/tmp/robot-job.launch
 /usr/sbin/mklaunch /etc/ros/release/robot/job.d > $LAUNCH_FILENAME
 rosrun ps3joy ps3joy.py&
