@@ -5,7 +5,7 @@
 import roslib; roslib.load_manifest('grizzly_node')
 import rospy
 
-from std_msgs.msg import Int8
+from std_msgs.msg import Bool
 from roboteq_msgs.msg import Status
 
 FR = 0
@@ -35,7 +35,7 @@ class FanControl:
         self.period = 1.0/rospy.get_param('~hz',10)
 
         # Publishers & subscribers
-        self.cmd_fan = rospy.Publisher('mcu/fan', Int8)
+        self.cmd_fan = rospy.Publisher('mcu/fan', Bool)
         rospy.Subscriber('motors/front_right/status', Status, self.HandleFRStatus)
         rospy.Subscriber('motors/front_left/status', Status, self.HandleFLStatus)
         rospy.Subscriber('motors/rear_left/status', Status, self.HandleRLStatus)

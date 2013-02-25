@@ -4,6 +4,7 @@
 
 log_file=/tmp/robot-upstart.log
 DATE=`date`
+sudo killall ps3joy.py
 echo "$DATE: robot job stop" >> $log_file
 
 # echo "$DATE: robot job using setup file /etc/ros/setup.bash" >> $log_file

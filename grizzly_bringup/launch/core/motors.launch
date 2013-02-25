@@ -48,8 +48,6 @@
 
 
 
-
-
     <node pkg="roboteq_driver" type="driver" name="rear_left" output="screen" respawn="true">
         <rosparam>
             port: /dev/roboteq/rear-left
