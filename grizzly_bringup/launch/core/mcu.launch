@@ -1,6 +1,6 @@
 <launch>
     <group ns="mcu">
-        <node pkg="rosserial_python" type="serial_node.py" name="grizzly_rosserial" args="/dev/arduino" respawn="true" />
+        <node pkg="rosserial_python" type="serial_node.py" name="grizzly_rosserial" args="/dev/arduino" respawn="true" output="screen" />
         <node pkg="grizzly_node" type="diagnostics.py" name="grizzly_diagnostics" />
         <node pkg="grizzly_avr" type="temp_adc_interpreter.py" name="temp_adc_interpreter"/>
     </group>

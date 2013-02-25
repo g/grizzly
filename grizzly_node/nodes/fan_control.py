@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-# Fan control. At the moment, full power!
+# Fan control.
 
 import roslib; roslib.load_manifest('grizzly_node')
 import rospy
@@ -31,8 +31,8 @@ class FanControl:
 
 
         # Timing
-        self.rate = rospy.Rate(rospy.get_param('~hz',10))
-        self.period = 1.0/rospy.get_param('~hz',10)
+        self.rate = rospy.Rate(rospy.get_param('~hz',50))
+        self.period = 1.0/rospy.get_param('~hz',50)
 
         # Publishers & subscribers
         self.cmd_fan = rospy.Publisher('mcu/fan', Bool)
