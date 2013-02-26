@@ -13,7 +13,7 @@ try:
   import multicast
 except ImportError:
   print "Script requires py-multicast. Please install:"
-  print "  sudo apt-get install pip"
+  print "  sudo apt-get install python-pip"
   print "  sudo pip install py-multicast"
   exit(1)
 

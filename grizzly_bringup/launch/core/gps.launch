@@ -1,6 +1,6 @@
 <launch>
     <!-- Start NMEA GPS driver -->
-    <node machine="user" ns="gps" pkg="nmea_gps_driver" type="nmea_gps_driver.py" name="nmea_gps" output="screen">
+    <node machine="user" ns="gps" pkg="nmea_gps_driver" type="nmea_gps_driver.py" name="nmea_gps" output="screen" respawn="true">
         <param name="port" value="/dev/clearpath/gps" />
         <param name="baud" value="57600" />
         <param name="useRMC" value="true" />
