@@ -1,0 +1,10 @@
+<launch>
+  <!-- App manager for Android devices -->
+  <param name="robot/name" value="grizzly"/>
+  <param name="robot/type" value="grizzly"/>
+  <node pkg="app_manager" type="appmaster" name="appmaster" args="-p 11312"/>
+
+  <node pkg="app_manager" type="app_manager" name="app_manager" args="--applist $(find grizzly_bringup)/apps" output="screen">
+        <param name="interface_master" value="http://192.168.1.100:11312"/>
+  </node>
+</launch>

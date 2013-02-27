@@ -55,7 +55,7 @@ class MotionGenerator:
 
         #Convert rpms to roboteq input units (1000 units to get to max rpm)
         calc_scale = rpm_scale *  (1000.0/self.max_rpm)
-        self.roboteq_scale = rospy.get_param('~roboteq_scale',calc_scale)
+        self.roboteq_scale = calc_scale #rospy.get_param('~roboteq_scale',calc_scale)
         self.mcu_watchdog_time = rospy.get_param('~mcu_watchdog_time',0.5)
         self.mot_watchdog_time = rospy.get_param('~mot_watchdog_time',2)
 
