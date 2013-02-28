@@ -22,6 +22,8 @@ class Teleop:
         self.fast_button = rospy.get_param('~fast_button', 1)
         self.estop_button = rospy.get_param('~estop_button', 2)
         self.estop_button2 = rospy.get_param('~estop_button2', 3)
+        self.fwd_axis = rospy.get_param('~fwd_axis', 1)
+        self.turn_axis = rospy.get_param('~turn_axis', 0)
 
         self.cmd = None
         cmd_pub = rospy.Publisher('cmd_vel', Twist)
@@ -47,14 +49,14 @@ class Teleop:
         cmd = Twist()
 
         if data.buttons[self.deadman_button] == 1:
-            cmd.linear.x = data.axes[1] * self.drive_scale / self.slow_scale
-            cmd.angular.z = data.axes[0] * self.turn_scale / self.slow_scale
+            cmd.linear.x = data.axes[self.fwd_axis] * self.drive_scale / self.slow_scale
+            cmd.angular.z = data.axes[self.turn_axis] * self.turn_scale / self.slow_scale
             self.cmd = cmd
         # Only allow fast motion when the regular deadman isn't pressed
         # Pressing both will result in slow motion
         elif data.buttons[self.fast_button] == 1:
-            cmd.linear.x = data.axes[1] * self.drive_scale
-            cmd.angular.z = data.axes[0] * self.turn_scale 
+            cmd.linear.x = data.axes[self.fwd_axis] * self.drive_scale
+            cmd.angular.z = data.axes[self.turn_axis] * self.turn_scale 
             self.cmd = cmd
         else:
             self.cmd = None
