@@ -7,5 +7,5 @@
     </node>
 
     <!-- Start serial forwarder -->
-    <node machine="user" pkg="grizzly_bringup" type="serial_bridge.py" name="rtk_forwarder" args="/dev/clearpath/rtcm -d eth0" respawn="true"/>
+    <node machine="user" pkg="grizzly_bringup" type="serial_bridge" name="rtk_forwarder" respawn="true"/>
 </launch>
