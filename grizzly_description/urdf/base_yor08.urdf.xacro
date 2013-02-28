@@ -49,22 +49,22 @@ This program contains the description of the robot base model for the Clearpath 
 
     <!-- Bumblebee -->
     <grizzly_tf parent="base_link" name="bumblebee"
-          translateX="0.24" translateY="0.0" translateZ="${0.4 + base_z_origin_offset}" 
+          translateX="0.24" translateY="0.0" translateZ="${0.31 + 0.3 + base_z_origin_offset}" 
           rotateX="0.0" rotateY="0.0" rotateZ="0.0"/>
 
     <!-- Velodyne -->
     <grizzly_tf parent="base_link" name="velodyne"
-          translateX="0.24" translateY="0.0" translateZ="${0.54 + base_z_origin_offset}" 
+          translateX="0.24" translateY="0.0" translateZ="${0.55 + 0.3 + base_z_origin_offset}" 
           rotateX="0.0" rotateY="0.0" rotateZ="0.0"/>
 
     <!-- Smart V1-G -->
     <grizzly_tf parent="base_link" name="gps" 
           translateX="0.24" translateY="0.24" translateZ="${0.54 + base_z_origin_offset}" 
-          rotateX="0.0" rotateY="0.0" rotateZ="0.0"/>
+          rotateX="0.0" rotateY="-0.0" rotateZ="0.0"/>
 
     <!-- LMS151 -->
-    <grizzly_tf parent="base_link" name="sick"
-          translateX="0.8" translateY="0.0" translateZ="${0.35 + base_z_origin_offset}" 
-          rotateX="0.0" rotateY="0.0" rotateZ="0.0"/>
+    <grizzly_tf parent="base_link" name="laser"
+          translateX="0.8" translateY="0.0" translateZ="${0.05 + 0.3 + base_z_origin_offset}" 
+          rotateX="0.0" rotateY="0.25" rotateZ="0.0"/>
         
 </robot>

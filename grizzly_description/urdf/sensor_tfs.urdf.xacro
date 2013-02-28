@@ -54,10 +54,10 @@ incorporate collision.
 		    <origin xyz="${translateX} ${translateY} ${translateZ}" 
 		            rpy="${rotateX} ${rotateY} ${rotateZ}" />
 		    <parent link="${parent}" />
-		    <child link="${parent}_${name}_tf" />
+		    <child link="${name}" />
 		</joint>
 		
-		<link name="${parent}_${name}_tf">
+		<link name="${name}">
 			<inertial>
 				<mass value="${mass}" />
 				<origin xyz="${x_com} ${y_com} ${z_com}" />
