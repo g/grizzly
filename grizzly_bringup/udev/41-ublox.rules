@@ -1,2 +1,0 @@
-# First is blank device
-SUBSYSTEM=="tty", ATTRS{product}=="u-blox*", SYMLINK="ublox", MODE="0666"

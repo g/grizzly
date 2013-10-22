@@ -1,4 +1,0 @@
-#!/bin/sh
-cd $(rospack find grizzly_bringup)
-python bin/serial_bridge.py /dev/clearpath/rtcm -d wlan1
-

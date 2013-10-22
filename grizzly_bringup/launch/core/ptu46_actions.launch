@@ -1,9 +1,0 @@
-<launch>
-	<node machine="user" name="ptu" pkg="ptu46" type="ptu46" output="screen">
-		<param name="port" value="/dev/prolific"/>
-	</node>
-	<node machine="user" name="ptu_action_server" pkg="ptu46" type="ptu_action_server.py" output="screen">
-		<remap from="cmd" to="/ptu/cmd"/>
-		<remap from="state" to="/ptu/state"/>
-	</node>
-</launch>

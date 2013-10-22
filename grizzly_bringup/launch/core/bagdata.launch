@@ -1,5 +1,0 @@
-<launch>
-    <!-- Logging -->
-    <!-- If you uncomment this, be careful about the topics you subscribe to - Velodyne and camera data logs can get big -->
-    <!-- <node machine="user" pkg="rosbag" type="record" name="record" output="screen" args="-a -o /home/administrator/ros/logs/grizzly"/> -->
-</launch>

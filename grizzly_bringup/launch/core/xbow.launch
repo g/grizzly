@@ -1,7 +1,0 @@
-<launch>
-    <node machine="user" pkg="xbow440" type="xbow_driver" name="xbow">
-        <remap from="imu/data" to="xbow/data"/>
-        <param name="frame_id" value="xbow_frame"/>
-    </node>
-</launch>
-~          
