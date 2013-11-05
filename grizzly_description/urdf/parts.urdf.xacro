@@ -71,7 +71,7 @@ incorporate collision.
 			<visual>
 				<origin xyz="0 0 0" rpy="0 0 0" />
 				<geometry>
-					<mesh filename="package://grizzly_description/Media/models/${mesh}.stl" />
+					<mesh filename="package://grizzly_description/meshes/${mesh}.stl" />
 				</geometry>
 				<material name="${colour}" />
 			</visual>
