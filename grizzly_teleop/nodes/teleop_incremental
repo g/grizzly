@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 """ If we're using the usual Logitech gamepad, suggest using "X" mode
 via the switch on the front. That will map the buttons to "Green=GO, 

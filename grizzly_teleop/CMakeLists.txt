@@ -7,8 +7,8 @@ catkin_package()
 
 
 install(PROGRAMS
-  nodes/teleop.py
-  nodes/teleop_incremental.py
+  nodes/teleop
+  nodes/teleop_incremental
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
