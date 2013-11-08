@@ -1,10 +1,9 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(husky_base)
+project(grizzly_teleop)
 
 find_package(catkin)
 
 catkin_package()
-
 
 install(PROGRAMS
   nodes/teleop
