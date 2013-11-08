@@ -23,53 +23,70 @@ WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWIS
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <ros/ros.h>
+#include "grizzly_motion/motion_safety.h"
+#include "grizzly_motion/encoders_monitor.h"
+
 #include <grizzly_msgs/Ambience.h>
 #include <grizzly_msgs/Drive.h>
 #include <grizzly_msgs/RawStatus.h>
+
+#include <diagnostic_updater/diagnostic_updater.h>
+#include <diagnostic_updater/publisher.h>
+
+using diagnostic_updater::DiagnosticStatusWrapper;
+using diagnostic_updater::FrequencyStatusParam;
+using diagnostic_updater::HeaderlessTopicDiagnostic;
+using diagnostic_updater::Updater;
+
+MotionSafety::MotionSafety() : nh_("")
+{
+  pub_safe_drive_ = nh_.advertise<grizzly_msgs::Drive>("safe_cmd_drive", 1);
+  pub_ambience_ = nh_.advertise<grizzly_msgs::Ambience>("mcu/ambience", 1);
+  sub_drive_ = nh_.subscribe("cmd_drive", 1, &MotionSafety::drive_callback, this);
+  sub_mcu_status_ = nh_.subscribe("mcu/status", 1, &MotionSafety::mcu_status_callback, this);
+
+  //ros::param::param<double>("~vehicle_width", width_, 1.01);
+  //ros::param::param<double>("~wheel_radius", radius_, 0.333);
+
+  // Set up the diagnostic updater to run at 10Hz.
+  diagnostic_updater_.reset(new Updater());
+  diagnostic_updater_->setHardwareID("grizzly");
+  diagnostic_update_timer_ = nh_.createTimer(ros::Duration(0.1),
+        boost::bind(&Updater::update, diagnostic_updater_));
+
+  // Frequency report on statuses coming from the MCU.
+  expected_mcu_status_frequency_ = 10;
+  diag_mcu_status_freq_.reset(new HeaderlessTopicDiagnostic("MCU status", *diagnostic_updater_,
+      FrequencyStatusParam(&expected_mcu_status_frequency_, &expected_mcu_status_frequency_, 0.01, 5.0)));
+
+  // Frequency report on drive messages coming from upstream.
+  min_cmd_drive_freq_ = 10;
+  max_cmd_drive_freq_ = 50;
+  diag_cmd_drive_freq_.reset(new HeaderlessTopicDiagnostic("Drive command", *diagnostic_updater_, 
+      FrequencyStatusParam(&min_cmd_drive_freq_, &max_cmd_drive_freq_, 0.01, 5.0)));
+
+  // More specialized monitoring for encoders. 
+  encoders_monitor_.reset(new EncodersMonitor());
+  diagnostic_updater_->add("Encoders", encoders_monitor_.get(), &EncodersMonitor::diagnostic);
+}
 
 /**
  * Manages a pass-through of Grizzly Drive messages, ensuring that the appropriate
  * delays are observed before allowing the chassis to move, including activating
  * the chassis lights and beeper. Also monitors encoders for possible failure.
  */
-class MotionSafety
-{
-public:
-  MotionSafety() : nh_("")
-  {
-    //ros::param::param<double>("~vehicle_width", width_, 1.01);
-    //ros::param::param<double>("~wheel_radius", radius_, 0.333);
-
-    pub_safe_drive_ = nh_.advertise<grizzly_msgs::Drive>("safe_cmd_drive", 1);
-    pub_ambience_ = nh_.advertise<grizzly_msgs::Ambience>("mcu/ambience", 1);
-
-    sub_drive_ = nh_.subscribe("cmd_drive", 1, &MotionSafety::drive_callback, this);
-    sub_encoders_ = nh_.subscribe("encoders", 1, &MotionSafety::encoders_callback, this);
-    sub_mcu_status_ = nh_.subscribe("mcu/status", 1, &MotionSafety::mcu_status_callback, this);
-  }
-
-protected:
-  void drive_callback(const grizzly_msgs::DriveConstPtr&);
-  void encoders_callback(const grizzly_msgs::DriveConstPtr&);
-  void mcu_status_callback(const grizzly_msgs::RawStatus&);
-  
-  ros::NodeHandle nh_;
-  ros::Publisher pub_safe_drive_, pub_ambience_;
-  ros::Subscriber sub_drive_, sub_encoders_, sub_mcu_status_;
-};
-
 void MotionSafety::drive_callback(const grizzly_msgs::DriveConstPtr& drive_commanded)
 {
-  pub_safe_drive_.publish(drive_commanded);
-}
+  diag_cmd_drive_freq_->tick();
 
-void MotionSafety::encoders_callback(const grizzly_msgs::DriveConstPtr& encoders)
-{
+  if (!encoders_monitor_->ok()) return;
+
+  pub_safe_drive_.publish(drive_commanded);
 }
 
 void MotionSafety::mcu_status_callback(const grizzly_msgs::RawStatus& status)
 {
+  diag_mcu_status_freq_->tick();
 }
 
 /**
@@ -81,3 +98,4 @@ int main (int argc, char ** argv)
   MotionSafety ms;
   ros::spin();
 }
+

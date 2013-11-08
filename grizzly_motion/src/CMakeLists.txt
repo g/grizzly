@@ -4,7 +4,7 @@ target_link_libraries(${PROJECT_NAME}_motion_generator ${catkin_LIBRARIES})
 set_target_properties(${PROJECT_NAME}_motion_generator
                       PROPERTIES OUTPUT_NAME motion_generator PREFIX "")
 
-add_executable(${PROJECT_NAME}_motion_safety motion_safety)
+add_executable(${PROJECT_NAME}_motion_safety motion_safety encoders_monitor)
 target_link_libraries(${PROJECT_NAME}_motion_safety ${catkin_LIBRARIES})
 set_target_properties(${PROJECT_NAME}_motion_safety
                       PROPERTIES OUTPUT_NAME motion_safety PREFIX "")
