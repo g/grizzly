@@ -36,8 +36,8 @@ class MotionGenerator
 public:
   MotionGenerator() : nh_("")
   {
-    ros::param::param<double>("~vehicle_width", width_, 1.01);
-    ros::param::param<double>("~wheel_radius", radius_, 0.333);
+    ros::param::get("vehicle_width", width_);
+    ros::param::get("wheel_radius", radius_);
 
     pub_ = nh_.advertise<grizzly_msgs::Drive>("cmd_drive", 1);
     sub_ = nh_.subscribe("cmd_vel", 1, &MotionGenerator::twist_callback, this);
