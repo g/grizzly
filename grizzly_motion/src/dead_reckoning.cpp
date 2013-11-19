@@ -24,52 +24,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "ros/ros.h"
+#include "tf/transform_datatypes.h"
 
-#include "eigen_conversions/eigen_msg.h"
-//#include "geometry_msgs/Quaternion.h"
-//#include "geometry_msgs/Point.h"
-#include "nav_msgs/Odometry.h"
-#include "grizzly_msgs/Drive.h"
-
-#include <Eigen/Core>
-
-using Eigen::Vector2f;
-
-/**
- */
-class DeadReckoning
-{
-public:
-  DeadReckoning() : nh_(""), max_dt_(0.2)
-  {
-    ros::param::get("vehicle_width", width_);
-    ros::param::get("wheel_radius", radius_);
-
-    pub_ = nh_.advertise<nav_msgs::Odometry>("odom_encoder", 1);
-    sub_ = nh_.subscribe("encoders", 1, &DeadReckoning::encodersCallback, this);
-  }
-
-protected:
-  void encodersCallback(const grizzly_msgs::DriveConstPtr&);
-
-  // ROS interface
-  ros::NodeHandle nh_;
-  ros::Publisher pub_;
-  ros::Subscriber sub_;
-
-  // Maintaining state between encoder updates.
-  ros::Time last_time_;
-  Vector2f last_vels_;
-  /*geometry_msgs::Point position_; 
-  geometry_msgs::Twist twist_; 
-  double yaw_;*/
-  Eigen::Affine3d pose_;
-  Eigen::Matrix<double,6,1> twist_;
-
-  // Configuration
-  double width_, radius_;
-  ros::Duration max_dt_;
-};
+#include "grizzly_motion/dead_reckoning.h"
 
 /**
  * Open-loop mapping between linear/angular commands and individual wheel speed
@@ -78,6 +35,16 @@ protected:
  */
 void DeadReckoning::encodersCallback(const grizzly_msgs::DriveConstPtr& encoders)
 {
+  nav_msgs::Odometry odom;
+  if (nextEncoders(encoders, &odom)) {
+    pub_.publish(odom);
+  }
+}
+
+bool DeadReckoning::nextEncoders(const grizzly_msgs::DriveConstPtr& encoders, nav_msgs::Odometry* odom)
+{
+  bool success = false;
+
   // Angular velocity per-side in rad/s, velocity per-size in m/s
   Vector2f avg_rotations((encoders->front_left + encoders->rear_left) / 2,
                          (encoders->front_right + encoders->rear_right) / 2);
@@ -86,42 +53,31 @@ void DeadReckoning::encodersCallback(const grizzly_msgs::DriveConstPtr& encoders
   ros::Duration dt = encoders->header.stamp - last_time_;
   if (dt <= max_dt_) {
     // Integrate position based on previous yaw and speed
-    // position_.x += cos(yaw_) * twist_.linear.x * dt.toSec();
-    // position_.y += sin(yaw_) * twist_.linear.y * dt.toSec();
-    //pose_ = pose_.translate();
+     position_.x += cos(yaw_) * twist_.linear.x * dt.toSec();
+     position_.y += sin(yaw_) * twist_.linear.y * dt.toSec();
 
     // Update heading by integrating previous angular velocity.
-    // yaw_ += twist_.angular.z * dt.toSec();
-    // Matrix3f m = AngleAxisf(yaw_, Vector3f::UnitZ());
+     yaw_ += twist_.angular.z * dt.toSec();
 
     // Update linear and angular velocity
-    //twist_.linear.x = vels.mean();
-    //twist_.angular.z = (vels[1] - vels[0]) / width_;
+    twist_.linear.x = vels.mean();
+    twist_.angular.z = (vels[1] - vels[0]) / width_;
     
     // Timestamp from encoder message, set frames correctly.
-    nav_msgs::Odometry odom;
-    odom.header = encoders->header;
-    odom.header.frame_id = "odom_combined";
-    odom.child_frame_id = "base_footprint"; 
-    tf::twistEigenToMsg(twist_, odom.twist.twist);
-    tf::poseEigenToMsg(pose_, odom.pose.pose);
-    pub_.publish(odom);
+    odom->header = encoders->header;
+    odom->header.frame_id = "odom_combined";
+    odom->child_frame_id = "base_footprint"; 
+    odom->pose.pose.position = position_;
+    odom->pose.pose.orientation = tf::createQuaternionMsgFromRollPitchYaw(0, 0, yaw_);
+    odom->twist.twist = twist_;
+    success = true;
   } else {
     static bool first = true;
-    ROS_WARN_COND(first, "Gap between encoders messages is too large, not publishing odom.");
+    ROS_WARN_COND(first, "Gap between encoders messages is too large, no odom generated.");
     first = false;
   }
 
   last_time_ = encoders->header.stamp;
   last_vels_ = vels;
-}
-
-/**
- * Main entry point.
- */
-int main (int argc, char ** argv)
-{
-  ros::init(argc, argv, "grizzly_dead_reckoning"); 
-  DeadReckoning dr;
-  ros::spin();
+  return success;
 }
