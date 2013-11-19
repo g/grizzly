@@ -47,7 +47,7 @@ bool DeadReckoning::next(const grizzly_msgs::DriveConstPtr& encoders, nav_msgs::
   if (dt <= max_dt_) {
     // Integrate position based on previous yaw and speed
      position_.x += cos(yaw_) * twist_.linear.x * dt.toSec();
-     position_.y += sin(yaw_) * twist_.linear.y * dt.toSec();
+     position_.y += sin(yaw_) * twist_.linear.x * dt.toSec();
 
     // Update heading by integrating previous angular velocity.
      yaw_ += twist_.angular.z * dt.toSec();

@@ -9,3 +9,7 @@ catkin_package(DEPENDS Eigen)
 include_directories(include ${catkin_INCLUDE_DIRS} ${Eigen_INCLUDE_DIRS})
 
 add_subdirectory(src)
+
+if(CATKIN_ENABLE_TESTING)
+  add_subdirectory(test)
+endif()
