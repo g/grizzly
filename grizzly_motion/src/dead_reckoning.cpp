@@ -25,23 +25,16 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "ros/ros.h"
 #include "tf/transform_datatypes.h"
-
 #include "grizzly_motion/dead_reckoning.h"
+
+using Eigen::Vector2f;
 
 /**
  * Open-loop mapping between linear/angular commands and individual wheel speed
  * commands. Currently very naive, but in the future may provide some further
  * intelligence, though not closed-loop control.
  */
-void DeadReckoning::encodersCallback(const grizzly_msgs::DriveConstPtr& encoders)
-{
-  nav_msgs::Odometry odom;
-  if (nextEncoders(encoders, &odom)) {
-    pub_.publish(odom);
-  }
-}
-
-bool DeadReckoning::nextEncoders(const grizzly_msgs::DriveConstPtr& encoders, nav_msgs::Odometry* odom)
+bool DeadReckoning::next(const grizzly_msgs::DriveConstPtr& encoders, nav_msgs::Odometry* odom)
 {
   bool success = false;
 

@@ -26,13 +26,30 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "ros/ros.h"
 #include "grizzly_motion/dead_reckoning.h"
 
+void encodersCallback(DeadReckoning* dr, ros::Publisher* pub, const grizzly_msgs::DriveConstPtr encoders)
+{
+  nav_msgs::Odometry odom;
+  if (dr->next(encoders, &odom)) {
+    pub->publish(odom);
+  }
+}
+
 /**
  * Main entry point.
  */
-int main (int argc, char ** argv)
+int main(int argc, char ** argv)
 {
+  double vehicle_width, wheel_radius;
+
   ros::init(argc, argv, "grizzly_dead_reckoning"); 
-  DeadReckoning dr;
-  dr.initializeROS();
+  ros::param::get("vehicle_width", vehicle_width);
+  ros::param::get("wheel_radius", wheel_radius);
+
+  DeadReckoning dr(vehicle_width, wheel_radius);
+  ros::NodeHandle nh("");
+  ros::Publisher pub(nh.advertise<nav_msgs::Odometry>("odom_encoder", 1));
+  ros::Subscriber(nh.subscribe<grizzly_msgs::Drive>("encoders", 1, boost::bind(
+          encodersCallback, &dr, &pub, _1)));
+
   ros::spin();
 }
