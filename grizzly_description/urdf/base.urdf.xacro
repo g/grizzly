@@ -66,16 +66,16 @@ This program contains the description of the robot base model for the Clearpath 
     <!--Weight of the base-->
     <property name="base_mass" value="33.45489000" /> <!-- in kg-->
 
-    <!--Weight of the front axel-->
-    <property name="front_axel_mass" value="0.45489000" /> <!-- in kg-->
+    <!--Weight of the front axle-->
+    <property name="front_axle_mass" value="0.45489000" /> <!-- in kg-->
 
-    <!--Inertial values for the front_axel at center of mass, aligned with coordinate system. Units are kg*m^2-->
-    <property name="front_axel_ixx_com_cs" value="0.60216370" />
-    <property name="front_axel_ixy_com_cs" value="-0.02364198" />
-    <property name="front_axel_ixz_com_cs" value="-0.11972132" />
-    <property name="front_axel_iyy_com_cs" value="1.73859574" />
-    <property name="front_axel_iyz_com_cs" value="-0.00154437" />
-    <property name="front_axel_izz_com_cs" value="2.02955229" />
+    <!--Inertial values for the front_axle at center of mass, aligned with coordinate system. Units are kg*m^2-->
+    <property name="front_axle_ixx_com_cs" value="0.60216370" />
+    <property name="front_axle_ixy_com_cs" value="-0.02364198" />
+    <property name="front_axle_ixz_com_cs" value="-0.11972132" />
+    <property name="front_axle_iyy_com_cs" value="1.73859574" />
+    <property name="front_axle_iyz_com_cs" value="-0.00154437" />
+    <property name="front_axle_izz_com_cs" value="2.02955229" />
 
     <!--Inertial values for the base at center of mass, aligned with coordinate system. Units are kg*m^2-->
     <property name="base_ixx_com_cs" value="0.60216370" />
@@ -161,27 +161,27 @@ This program contains the description of the robot base model for the Clearpath 
 	<grizzly_wheel fb="back" lr="right" parent="base_link" translateX="-1.75" translateY="-1.75" translateZ="0" flipY="1"/>
 
     <!-- Front wheels -->
-    <joint name="front_axel_joint" type="revolute">
+    <joint name="front_axle_joint" type="revolute">
 		<origin xyz="0.4375 0 0" rpy="0 0 0" />
         <parent link="base_link"/>
-        <child link="front_axel_link" />		
+        <child link="front_axle_link" />		
         <axis xyz="1 0 0" rpy="0 0 0" />
         <limit effort="10" lower="-0.2" upper="0.2" velocity="0.5"/>
     </joint>
 
-    <!-- Front axel link -->
-    <link name="front_axel_link">
+    <!-- Front axle link -->
+    <link name="front_axle_link">
         <inertial>
-            <mass value="${front_axel_mass}" />
+            <mass value="${front_axle_mass}" />
             <origin xyz="0 0 0" />
-            <inertia ixx="${front_axel_ixx_com_cs}" ixy="${front_axel_ixy_com_cs}" ixz="${front_axel_ixz_com_cs}"
-                iyy="${front_axel_iyy_com_cs}" iyz="${front_axel_iyz_com_cs}" izz="${front_axel_izz_com_cs}" /> 
+            <inertia ixx="${front_axle_ixx_com_cs}" ixy="${front_axle_ixy_com_cs}" ixz="${front_axle_ixz_com_cs}"
+                iyy="${front_axle_iyy_com_cs}" iyz="${front_axle_iyz_com_cs}" izz="${front_axle_izz_com_cs}" /> 
         </inertial>
         
         <visual>
             <origin xyz="-0.2 0 0.45" rpy="0 ${M_PI} ${M_PI/2}" />
             <geometry>
-                <mesh filename="package://grizzly_description/meshes/front_axel.stl" />
+                <mesh filename="package://grizzly_description/meshes/front_axle.stl" />
             </geometry>
             <material name="Black" />
         </visual>
@@ -193,12 +193,12 @@ This program contains the description of the robot base model for the Clearpath 
             </geometry>
         </collision>     
     </link>
-    <gazebo reference="front_axel_link">
+    <gazebo reference="front_axle_link">
         <material>Gazebo/FlatBlack</material>
         <turnGravityOff>false</turnGravityOff>
     </gazebo>		
-	<grizzly_wheel fb="front" lr="left" parent="front_axel_link" translateX="0" translateY="1.75" translateZ="0" flipY="0"/>
-	<grizzly_wheel fb="front" lr="right" parent="front_axel_link" translateX="0" translateY="-1.75" translateZ="0" flipY="1"/>
+	<grizzly_wheel fb="front" lr="left" parent="front_axle_link" translateX="0" translateY="1.75" translateZ="0" flipY="0"/>
+	<grizzly_wheel fb="front" lr="right" parent="front_axle_link" translateX="0" translateY="-1.75" translateZ="0" flipY="1"/>
 
     <gazebo>
 	    <plugin name="grizzly_diff_controller" filename="libgrizzly_gazebo_plugins.so">
@@ -208,7 +208,7 @@ This program contains the description of the robot base model for the Clearpath 
             <backRightJoint>joint_back_right_wheel</backRightJoint>
             <frontLeftJoint>joint_front_left_wheel</frontLeftJoint>
             <frontRightJoint>joint_front_right_wheel</frontRightJoint>
-            <frontAxelJoint>front_axel_joint</frontAxelJoint>
+            <frontAxleJoint>front_axle_joint</frontAxleJoint>
             <wheelSeparation>${base_y_size}</wheelSeparation>
             <wheelDiameter>${wheel_x_size}</wheelDiameter>
             <torque>35</torque>
