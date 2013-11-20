@@ -1,7 +1,7 @@
 /**
 Software License Agreement (BSD)
 
-\file      motion_safety.cpp
+\file      motion_safety_node.cpp
 \authors   Mike Purvis <mpurvis@clearpathrobotics.com
 \copyright Copyright (c) 2013, Clearpath Robotics, Inc., All rights reserved.
 
