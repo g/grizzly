@@ -45,8 +45,8 @@ MotionSafety::MotionSafety() : nh_("")
   sub_drive_ = nh_.subscribe("cmd_drive", 1, &MotionSafety::drive_callback, this);
   sub_mcu_status_ = nh_.subscribe("mcu/status", 1, &MotionSafety::mcu_status_callback, this);
 
-  //ros::param::param<double>("~vehicle_width", width_, 1.01);
-  //ros::param::param<double>("~wheel_radius", radius_, 0.333);
+  ros::param::get("~vehicle_width", width_);
+  ros::param::get("~wheel_radius", radius_);
 
   // Set up the diagnostic updater to run at 10Hz.
   diagnostic_updater_.reset(new Updater());

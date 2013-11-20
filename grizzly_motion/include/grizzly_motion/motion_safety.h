@@ -48,6 +48,10 @@ protected:
 
   // Separate class for monitoring encoders for sanity.
   shared_ptr<EncodersMonitor> encoders_monitor_; 
+
+  double width_;
+  double radius_;
+  
 };
 
 
