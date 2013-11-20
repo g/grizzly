@@ -1,0 +1,8 @@
+<launch>
+  <rosparam>
+    vehicle_width: 1.01
+    wheel_radius: 0.333
+  </rosparam>
+  <node pkg="grizzly_motion" type="motion_generator" name="grizzly_motion_generator" />
+  <node pkg="grizzly_motion" type="motion_safety" name="grizzly_motion_safety" />
+</launch>
