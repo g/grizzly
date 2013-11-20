@@ -13,11 +13,11 @@ TEST(DeadReckoning, simple_straight)
   nav_msgs::Odometry odom;
   grizzly_msgs::DrivePtr encoders(new grizzly_msgs::Drive);
   encoders->header.stamp = start;
-  encoders->front_left = encoders->rear_left =
+  encoders->front_left = encoders->rear_left = 1.1;
   encoders->front_right = encoders->rear_right = 1.1;  // rad/s
   dr.next(encoders, &odom);
 
-  // 10 seconds of travel
+  // 10 seconds of travel at 50 Hz
   for(int step = 0; step < 500; step++)
   {
     encoders->header.stamp += ros::Duration(0.02);
@@ -26,7 +26,7 @@ TEST(DeadReckoning, simple_straight)
 
   // Expected travel is time * rad/s * wheel radius
   EXPECT_NEAR(10 * 1.1 * wheel_radius, odom.pose.pose.position.x, 0.005);
-  EXPECT_DOUBLE_EQ(0.0, odom.pose.pose.position.y);
+  EXPECT_NEAR(0.0, odom.pose.pose.position.y, 0.005);
   EXPECT_EQ(odom.header.stamp, encoders->header.stamp);
 }
 
@@ -37,8 +37,8 @@ TEST(DeadReckoning, curved_path)
   double wheel_radius = 0.1;
   double vehicle_width = 1.0;
 
-  /* The travels specified here drive a 1m-wide robot around 1/4 of a 3m circle. The
-   * left wheel has the longer path, so the path curved into quadrant 4. */
+  // The travels specified here drive a 1m-wide robot around 1/4 of a 3m circle. The
+  // left wheel has the longer path, so the path curved into quadrant 4.
   double left_travel = 3.5*2 * M_PI / 4;
   double right_travel = 2.5*2 * M_PI / 4;
 
@@ -59,7 +59,8 @@ TEST(DeadReckoning, curved_path)
     ROS_DEBUG_STREAM("POSE " << odom.pose.pose.position.x << " " << odom.pose.pose.position.y);
   } 
 
-  // 10 seconds * 1.0m/s = 10m expected travel.
+  // Check that the final position matches our expectations, given the wheel velocities
+  // and timeframe which were commanded.
   EXPECT_NEAR(3, odom.pose.pose.position.x, 0.05);
   EXPECT_NEAR(-3, odom.pose.pose.position.y, 0.05);
   EXPECT_EQ(odom.header.stamp, encoders->header.stamp);
@@ -77,9 +78,11 @@ TEST(DeadReckoning, timeout)
   DeadReckoning dr(1.0, 1.0);
   dr.next(encoders, &odom);
 
+  // This one should not time out.
   encoders->header.stamp += ros::Duration(0.09);
   EXPECT_TRUE(dr.next(encoders, &odom));
 
+  // This one should.
   encoders->header.stamp += ros::Duration(0.11);
   EXPECT_FALSE(dr.next(encoders, &odom));
 }
