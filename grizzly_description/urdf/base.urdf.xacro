@@ -179,10 +179,9 @@ This program contains the description of the robot base model for the Clearpath 
         </inertial>
         
         <visual>
-            <origin xyz="0 0 0" rpy="${M_PI/2} 0 0" />
+            <origin xyz="-0.2 0 0.45" rpy="0 ${M_PI} ${M_PI/2}" />
             <geometry>
-                <!--mesh filename="package://grizzly_description/meshes/front_axel_link.stl" /-->
-				<cylinder length="1.0" radius="0.13" />
+                <mesh filename="package://grizzly_description/meshes/front_axel.stl" />
             </geometry>
             <material name="Black" />
         </visual>
