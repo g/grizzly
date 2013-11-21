@@ -46,10 +46,15 @@ public:
       // If time difference is too great, make output field zero.
       msg_out->*field_ = 0;
     } else {
-      double diff_value = last_msg_.*field_ - msg_in->*field_;
-      diff_value = std::min(diff_value, max_change_per_second_ / diff_secs);
-      diff_value = std::max(diff_value, -max_change_per_second_ / diff_secs);
-      msg_out->*field_ += diff_value;
+      double diff_value = msg_in->*field_ - last_msg_.*field_;
+      double max_change = max_change_per_second_ * diff_secs;
+      if (fabs(diff_value) < max_change) {
+        msg_out->*field_ = msg_in->*field_;
+      } else if (diff_value > 0) {
+        msg_out->*field_ = last_msg_.*field_ + max_change;
+      } else {
+        msg_out->*field_ = last_msg_.*field_ - max_change;
+      }
     }
     last_msg_ = *msg_out;
   }
