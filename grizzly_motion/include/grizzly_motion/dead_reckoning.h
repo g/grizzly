@@ -27,28 +27,63 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "grizzly_msgs/Drive.h"
 
 #include <Eigen/Core>
+#include <Eigen/Dense>
+
+const Eigen::MatrixXd ODOM_POSE_COVAR_MOTION = (Eigen::MatrixXd(6, 6) << 
+            1e-3, 0,    0,   0,   0,   0, 
+            0,    1e-1, 0,   0,   0,   0,
+            0,    0,    1e6, 0,   0,   0,
+            0,    0,    0,   1e6, 0,   0,
+            0,    0,    0,   0,   1e6, 0,
+            0,    0,    0,   0,   0,   0.174).finished();
+
+const Eigen::MatrixXd ODOM_POSE_COVAR_NOMOVE = (Eigen::MatrixXd(6, 6) << 
+            1e-9, 0,    0,   0,   0,   0, 
+            0,    1e-9, 0,   0,   0,   0,
+            0,    0,    1e6, 0,   0,   0,
+            0,    0,    0,   1e6, 0,   0,
+            0,    0,    0,   0,   1e6, 0,
+            0,    0,    0,   0,   0,   1e-9).finished();
+
+const Eigen::MatrixXd ODOM_TWIST_COVAR_MOTION = (Eigen::MatrixXd(6, 6) << 
+            1e-3, 0,    0,   0,   0,   0, 
+            0,    1e-1, 0,   0,   0,   0,
+            0,    0,    1e6, 0,   0,   0,
+            0,    0,    0,   1e6, 0,   0,
+            0,    0,    0,   0,   1e6, 0,
+            0,    0,    0,   0,   0,   0.174).finished();
+
+const Eigen::MatrixXd ODOM_TWIST_COVAR_NOMOVE = (Eigen::MatrixXd(6, 6) << 
+            1e-9, 0,    0,   0,   0,   0, 
+            0,    1e-9, 0,   0,   0,   0,
+            0,    0,    1e6, 0,   0,   0,
+            0,    0,    0,   1e6, 0,   0,
+            0,    0,    0,   0,   1e6, 0,
+            0,    0,    0,   0,   0,   1e-9).finished();
+
 
 class DeadReckoning
 {
 public:
-  DeadReckoning(double vehicle_width, double wheel_radius) 
-    : max_dt_(0.1), width_(vehicle_width), radius_(wheel_radius)
-  {
-  }
 
-  bool next(const grizzly_msgs::DriveConstPtr& encoders, nav_msgs::Odometry* odom);
+    DeadReckoning(double vehicle_width, double wheel_radius) 
+    : max_dt_(0.1), width_(vehicle_width), radius_(wheel_radius)
+    {
+    }
+
+    bool next(const grizzly_msgs::DriveConstPtr& encoders, nav_msgs::Odometry* odom);
  
 protected:
+    // Maintaining state between encoder updates.
+    ros::Time last_time_;
+    Eigen::Vector2f last_vels_;
 
-  // Maintaining state between encoder updates.
-  ros::Time last_time_;
-  Eigen::Vector2f last_vels_;
+    geometry_msgs::Point position_; 
+    geometry_msgs::Twist twist_; 
+    double yaw_;
 
-  geometry_msgs::Point position_; 
-  geometry_msgs::Twist twist_; 
-  double yaw_;
-
-  // Configuration
-  double width_, radius_;
-  ros::Duration max_dt_;
+    // Configuration
+    double width_, radius_;
+    ros::Duration max_dt_;
 };
+
