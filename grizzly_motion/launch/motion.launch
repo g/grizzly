@@ -5,4 +5,5 @@
   </rosparam>
   <node pkg="grizzly_motion" type="motion_generator" name="grizzly_motion_generator" />
   <node pkg="grizzly_motion" type="motion_safety" name="grizzly_motion_safety" />
+  <node pkg="grizzly_motion" type="dead_reckoning" name="grizzly_dead_reckoning" />
 </launch>

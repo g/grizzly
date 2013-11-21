@@ -6,7 +6,7 @@
 
 EncodersMonitor::EncodersMonitor() : nh_("")
 {
-  sub_encoders_ = nh_.subscribe("encoders", 1, &EncodersMonitor::encoders_callback, this);
+  sub_encoders_ = nh_.subscribe("motors/encoders", 1, &EncodersMonitor::encoders_callback, this);
   sub_drive_ = nh_.subscribe("safe_cmd_drive", 1, &EncodersMonitor::drive_callback, this); 
 
   double encoders_timeout_seconds;

@@ -48,7 +48,7 @@ int main(int argc, char ** argv)
   DeadReckoning dr(vehicle_width, wheel_radius);
   ros::NodeHandle nh("");
   ros::Publisher pub(nh.advertise<nav_msgs::Odometry>("encoder", 1));
-  ros::Subscriber(nh.subscribe<grizzly_msgs::Drive>("motors/encoders", 1, boost::bind(
+  ros::Subscriber sub(nh.subscribe<grizzly_msgs::Drive>("motors/encoders", 1, boost::bind(
           encodersCallback, &dr, &pub, _1)));
 
   ros::spin();
