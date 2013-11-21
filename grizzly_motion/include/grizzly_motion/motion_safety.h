@@ -1,6 +1,7 @@
 
 
 #include <ros/ros.h>
+#include "grizzly_motion/change_limiter.h"
 
 using boost::shared_ptr;
 
@@ -16,6 +17,8 @@ class HeaderlessTopicDiagnostic;
 
 class EncodersMonitor;
 
+typedef ChangeLimiter<grizzly_msgs::Drive> DriveChangeLimiter;
+
 class MotionSafety
 {
 public:
@@ -25,8 +28,8 @@ protected:
   ros::NodeHandle nh_;
 
   // Topics directly monitored in this node.
-  void drive_callback(const grizzly_msgs::DriveConstPtr&);
-  void mcu_status_callback(const grizzly_msgs::RawStatus&);
+  void driveCallback(const grizzly_msgs::DriveConstPtr&);
+  void mcuStatusCallback(const grizzly_msgs::RawStatus&);
   ros::Subscriber sub_drive_, sub_mcu_status_; 
 
   // Publish cmd_drive through to safe_cmd_drive.
@@ -48,10 +51,11 @@ protected:
 
   // Separate class for monitoring encoders for sanity.
   shared_ptr<EncodersMonitor> encoders_monitor_; 
+  shared_ptr<DriveChangeLimiter> accel_limiters_[4];
 
   double width_;
   double radius_;
-  
+  double max_accel_; 
 };
 
 
