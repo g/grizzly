@@ -2,7 +2,7 @@
   <rosparam>
     vehicle_width: 1.01      # meters
     wheel_radius: 0.333      # meters
-    max_acceleration: 0.25   # meters / s^2
+    max_acceleration: 0.5    # meters / s^2
   </rosparam>
   <node pkg="grizzly_motion" type="motion_generator" name="grizzly_motion_generator" />
   <node pkg="grizzly_motion" type="motion_safety" name="grizzly_motion_safety" />
