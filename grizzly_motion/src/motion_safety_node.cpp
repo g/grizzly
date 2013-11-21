@@ -25,6 +25,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "grizzly_motion/motion_safety.h"
 #include "grizzly_motion/encoders_monitor.h"
+#include "grizzly_motion/change_limiter.h"
 
 #include <grizzly_msgs/Ambience.h>
 #include <grizzly_msgs/Drive.h>
@@ -40,13 +41,14 @@ using diagnostic_updater::Updater;
 
 MotionSafety::MotionSafety() : nh_("")
 {
+  ros::param::get("vehicle_width", width_);
+  ros::param::get("wheel_radius", radius_);
+  ros::param::get("max_acceleration", max_accel_);  // m/s^2
+
   pub_safe_drive_ = nh_.advertise<grizzly_msgs::Drive>("safe_cmd_drive", 1);
   pub_ambience_ = nh_.advertise<grizzly_msgs::Ambience>("mcu/ambience", 1);
-  sub_drive_ = nh_.subscribe("cmd_drive", 1, &MotionSafety::drive_callback, this);
-  sub_mcu_status_ = nh_.subscribe("mcu/status", 1, &MotionSafety::mcu_status_callback, this);
-
-  ros::param::get("~vehicle_width", width_);
-  ros::param::get("~wheel_radius", radius_);
+  sub_drive_ = nh_.subscribe("cmd_drive", 1, &MotionSafety::driveCallback, this);
+  sub_mcu_status_ = nh_.subscribe("mcu/status", 1, &MotionSafety::mcuStatusCallback, this);
 
   // Set up the diagnostic updater to run at 10Hz.
   diagnostic_updater_.reset(new Updater());
@@ -68,6 +70,12 @@ MotionSafety::MotionSafety() : nh_("")
   // More specialized monitoring for encoders. 
   encoders_monitor_.reset(new EncodersMonitor());
   diagnostic_updater_->add("Encoders", encoders_monitor_.get(), &EncodersMonitor::diagnostic);
+
+  // Rate-of-change limiter for wheel speed commands.
+  accel_limiters_[0].reset(new DriveChangeLimiter(max_accel_ / radius_, &grizzly_msgs::Drive::front_left));
+  accel_limiters_[1].reset(new DriveChangeLimiter(max_accel_ / radius_, &grizzly_msgs::Drive::front_right));
+  accel_limiters_[2].reset(new DriveChangeLimiter(max_accel_ / radius_, &grizzly_msgs::Drive::rear_left));
+  accel_limiters_[3].reset(new DriveChangeLimiter(max_accel_ / radius_, &grizzly_msgs::Drive::rear_right));
 }
 
 /**
@@ -75,16 +83,24 @@ MotionSafety::MotionSafety() : nh_("")
  * delays are observed before allowing the chassis to move, including activating
  * the chassis lights and beeper. Also monitors encoders for possible failure.
  */
-void MotionSafety::drive_callback(const grizzly_msgs::DriveConstPtr& drive_commanded)
+void MotionSafety::driveCallback(const grizzly_msgs::DriveConstPtr& drive_commanded)
 {
   diag_cmd_drive_freq_->tick();
 
+  // Sanity checks.
   if (!encoders_monitor_->ok()) return;
+  //if (!mcu_monitor->ok()) return;
+  //if (!motor_drivers_monitor->ok()) return;
+  
+  grizzly_msgs::Drive drive_safe;
+  drive_safe.header = drive_commanded->header;
+  for (int wheel = 0; wheel < 4; wheel++) 
+    accel_limiters_[wheel]->apply(drive_commanded.get(), &drive_safe);
 
-  pub_safe_drive_.publish(drive_commanded);
+  pub_safe_drive_.publish(drive_safe);
 }
 
-void MotionSafety::mcu_status_callback(const grizzly_msgs::RawStatus& status)
+void MotionSafety::mcuStatusCallback(const grizzly_msgs::RawStatus& status)
 {
   diag_mcu_status_freq_->tick();
 }
@@ -92,7 +108,7 @@ void MotionSafety::mcu_status_callback(const grizzly_msgs::RawStatus& status)
 /**
  * Node entry point.
  */
-int main (int argc, char ** argv)
+int main(int argc, char ** argv)
 {
   ros::init(argc, argv, "grizzly_motion_safety"); 
   MotionSafety ms;
