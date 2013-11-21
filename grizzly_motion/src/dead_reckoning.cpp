@@ -58,11 +58,23 @@ bool DeadReckoning::next(const grizzly_msgs::DriveConstPtr& encoders, nav_msgs::
     
     // Timestamp from encoder message, set frames correctly.
     odom->header = encoders->header;
-    odom->header.frame_id = "odom_combined";
+    odom->header.frame_id = "odom";
     odom->child_frame_id = "base_footprint"; 
     odom->pose.pose.position = position_;
     odom->pose.pose.orientation = tf::createQuaternionMsgFromRollPitchYaw(0, 0, yaw_);
     odom->twist.twist = twist_;
+
+    Eigen::Map<Eigen::MatrixXd> poseCov(odom->pose.covariance.data(), 6, 6);
+    Eigen::Map<Eigen::MatrixXd> twistCov(odom->twist.covariance.data(), 6, 6);
+
+    if(twist_.linear.x <= 1e-3 && twist_.angular.z <= 1e-3) {
+        poseCov = ODOM_POSE_COVAR_NOMOVE;
+        twistCov = ODOM_TWIST_COVAR_NOMOVE;
+    } else {
+        poseCov = ODOM_POSE_COVAR_MOTION;
+        twistCov = ODOM_TWIST_COVAR_MOTION;
+    }
+
     success = true;
   } else {
     static bool first = true;
