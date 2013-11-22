@@ -32,6 +32,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <string>
 
 typedef Eigen::Vector4f VectorDrive;
+static const float default_stationary_threshold(0.001);
 
 namespace grizzly_msgs
 {
@@ -71,6 +72,16 @@ static inline std::string nameFromDriveIndex(VectorDrive::Index field)
     default:
       throw std::out_of_range("Passed field number not in range 0..3");
   }
+}
+
+static inline bool isStationary(const VectorDrive& vec, float threshold=default_stationary_threshold)
+{ 
+  return vec.cwiseAbs().maxCoeff() >= threshold;
+}
+
+static inline bool isStationary(const Drive& msg, float threshold=default_stationary_threshold)
+{
+  return isStationary(vectorFromDriveMsg(msg), threshold);
 }
 
 }
