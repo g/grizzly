@@ -30,7 +30,7 @@ Extended Kalman FIlter for Clearpath Grizzly
 -->
 
 <launch>
-    <node pkg="robot_pose_ekf" type="robot_pose_ekf" name="robot_pose_ekf" output="screen">
+    <node pkg="robot_pose_ekf" type="robot_pose_ekf" name="robot_pose_ekf">
         <rosparam>
             freq: 30.0
             sensor_timeout: 1.0
