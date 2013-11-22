@@ -69,6 +69,7 @@ MotionSafety::MotionSafety() : nh_("")
 
   // More specialized monitoring for encoders. 
   encoders_monitor_.reset(new EncodersMonitor());
+  encoders_monitor_->initROS(nh_);
   diagnostic_updater_->add("Encoders", encoders_monitor_.get(), &EncodersMonitor::diagnostic);
 
   // Rate-of-change limiter for wheel speed commands.
@@ -88,10 +89,14 @@ void MotionSafety::driveCallback(const grizzly_msgs::DriveConstPtr& drive_comman
   diag_cmd_drive_freq_->tick();
 
   // Sanity checks.
-  if (!encoders_monitor_->ok()) return;
+  if (!encoders_monitor_->ok()) {
+    ROS_ERROR_THROTTLE(1, "Not passing drive message due to encoders not-ok.");
+    return;
+  }
   //if (!mcu_monitor->ok()) return;
   //if (!motor_drivers_monitor->ok()) return;
   
+  ROS_INFO("drive!");
   grizzly_msgs::Drive drive_safe;
   drive_safe.header = drive_commanded->header;
   for (int wheel = 0; wheel < 4; wheel++) 

@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(grizzly_msgs)
 find_package(catkin REQUIRED COMPONENTS message_generation std_msgs)
+find_package(Eigen REQUIRED)
 
 add_message_files(
   FILES
@@ -13,4 +14,11 @@ generate_messages(
 )
 catkin_package(
   CATKIN_DEPENDS message_runtime
+  INCLUDE_DIRS include ${Eigen_INCLUDE_DIRS} 
+  DEPENDS eigen
+)
+
+# Install the helper header of Eigen/msg conversions.
+install(DIRECTORY include/${PROJECT_NAME}/
+  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
 )

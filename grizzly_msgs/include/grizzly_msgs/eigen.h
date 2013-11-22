@@ -1,7 +1,7 @@
 /**
 Software License Agreement (BSD)
 
-\file      acceleration_limiter.cpp
+\file      grizzly_msgs/eigen.h
 \authors   Mike Purvis <mpurvis@clearpathrobotics.com
 \copyright Copyright (c) 2013, Clearpath Robotics, Inc., All rights reserved.
 
@@ -23,51 +23,56 @@ WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWIS
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef GRIZZLY_MOTION_CHANGE_LIMITER_H
-#define GRIZZLY_MOTION_CHANGE_LIMITER_H
+#ifndef GRIZZLY_MSGS_EIGEN_H
+#define GRIZZLY_MSGS_EIGEN_H
 
-template<class Msg>
-class ChangeLimiter
+#include "grizzly_msgs/Drive.h"
+#include <Eigen/Core>
+#include <stdexcept>
+#include <string>
+
+typedef Eigen::Vector4f VectorDrive;
+
+namespace grizzly_msgs
 {
-public:
-  ChangeLimiter(double max_change_per_second, float Msg::*field_ptr)
-    : max_change_per_second_(max_change_per_second), field_(field_ptr)
-  {
-  }
 
-  void apply(const Msg* msg_in, Msg* msg_out)
-  {
-    double diff_secs = (msg_in->header.stamp - last_msg_.header.stamp).toSec();
-    if (diff_secs <= 0) {
-      ROS_ERROR("Change limiter passed sequential drive messages with zero or negative timestamp differential.");
-      return;
-    }
-    if (diff_secs > 0.1) {
-      // If time difference is too great, make output field zero.
-      msg_out->*field_ = 0;
-    } else {
-      double diff_value = msg_in->*field_ - last_msg_.*field_;
-      double max_change = max_change_per_second_ * diff_secs;
-      if (fabs(diff_value) < max_change) {
-        msg_out->*field_ = msg_in->*field_;
-      } else if (diff_value > 0) {
-        msg_out->*field_ = last_msg_.*field_ + max_change;
-      } else {
-        msg_out->*field_ = last_msg_.*field_ - max_change;
-      }
-    }
-    last_msg_ = *msg_out;
-  }
+VectorDrive vectorFromDriveMsg(const Drive& msg)
+{
+  return VectorDrive(
+      msg.front_left,
+      msg.front_right,
+      msg.rear_left,
+      msg.rear_right);
+}
 
-  void setMaxChange(double max_change_per_second)
-  {
-    max_change_per_second_ = max_change_per_second;
-  }
+void fillDriveMsgFromVector(const VectorDrive& vec, Drive* msg)
+{
+  msg->front_left = vec[0];
+  msg->front_right = vec[1];
+  msg->rear_left = vec[2];
+  msg->rear_right = vec[3];
+}
 
-protected:
-  double max_change_per_second_;
-  float Msg::*field_;
-  Msg last_msg_;
-};
+Drive driveMsgFromVector(const VectorDrive& vec)
+{
+  Drive msg;
+  fillDriveMsgFromVector(vec, &msg);
+  return msg;
+}
+
+std::string nameFromDriveIndex(VectorDrive::Index field)
+{
+  switch(field)
+  {
+    case 0: return "front-left";
+    case 1: return "front-right";
+    case 2: return "rear-left";
+    case 3: return "rear-right";
+    default:
+      throw std::out_of_range("Passed field number not in range 0..3");
+  }
+}
+
+}
 
 #endif
