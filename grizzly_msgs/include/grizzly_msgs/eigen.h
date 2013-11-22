@@ -36,7 +36,7 @@ typedef Eigen::Vector4f VectorDrive;
 namespace grizzly_msgs
 {
 
-VectorDrive vectorFromDriveMsg(const Drive& msg)
+static inline VectorDrive vectorFromDriveMsg(const Drive& msg)
 {
   return VectorDrive(
       msg.front_left,
@@ -45,7 +45,7 @@ VectorDrive vectorFromDriveMsg(const Drive& msg)
       msg.rear_right);
 }
 
-void fillDriveMsgFromVector(const VectorDrive& vec, Drive* msg)
+static inline void fillDriveMsgFromVector(const VectorDrive& vec, Drive* msg)
 {
   msg->front_left = vec[0];
   msg->front_right = vec[1];
@@ -53,14 +53,14 @@ void fillDriveMsgFromVector(const VectorDrive& vec, Drive* msg)
   msg->rear_right = vec[3];
 }
 
-Drive driveMsgFromVector(const VectorDrive& vec)
+static inline Drive driveMsgFromVector(const VectorDrive& vec)
 {
   Drive msg;
   fillDriveMsgFromVector(vec, &msg);
   return msg;
 }
 
-std::string nameFromDriveIndex(VectorDrive::Index field)
+static inline std::string nameFromDriveIndex(VectorDrive::Index field)
 {
   switch(field)
   {
