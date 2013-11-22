@@ -37,6 +37,16 @@ static const float default_stationary_threshold(0.001);
 namespace grizzly_msgs
 {
 
+namespace Drives
+{
+  enum {
+    FrontLeft = 0,
+    FrontRight = 1,
+    RearLeft = 2,
+    RearRight = 3
+  };
+}
+
 static inline VectorDrive vectorFromDriveMsg(const Drive& msg)
 {
   return VectorDrive(
@@ -48,10 +58,10 @@ static inline VectorDrive vectorFromDriveMsg(const Drive& msg)
 
 static inline void fillDriveMsgFromVector(const VectorDrive& vec, Drive* msg)
 {
-  msg->front_left = vec[0];
-  msg->front_right = vec[1];
-  msg->rear_left = vec[2];
-  msg->rear_right = vec[3];
+  msg->front_left = vec[Drives::FrontLeft];
+  msg->front_right = vec[Drives::FrontRight];
+  msg->rear_left = vec[Drives::RearLeft];
+  msg->rear_right = vec[Drives::RearRight];
 }
 
 static inline Drive driveMsgFromVector(const VectorDrive& vec)
@@ -65,10 +75,10 @@ static inline std::string nameFromDriveIndex(VectorDrive::Index field)
 {
   switch(field)
   {
-    case 0: return "front-left";
-    case 1: return "front-right";
-    case 2: return "rear-left";
-    case 3: return "rear-right";
+    case Drives::FrontLeft: return "front-left";
+    case Drives::FrontRight: return "front-right";
+    case Drives::RearLeft: return "rear-left";
+    case Drives::RearRight: return "rear-right";
     default:
       throw std::out_of_range("Passed field number not in range 0..3");
   }
