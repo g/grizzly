@@ -2,20 +2,16 @@
 #include "grizzly_motion/encoders_monitor.h"
 #include "diagnostic_updater/publisher.h"
 
-EncodersMonitor::EncodersMonitor()
+/**
+ * Separate ROS initialization step for better testability.
+ */
+EncodersMonitor::EncodersMonitor(ros::NodeHandle* nh)
   : encoders_timeout_(0.05),
     encoder_speed_error_diff_threshold_(0.5),
     encoder_fault_time_to_failure_(1.0)
 {
-}
-
-/**
- * Separate ROS initialization step for better testability.
- */
-void EncodersMonitor::initROS(ros::NodeHandle& nh)
-{
-  sub_encoders_ = nh.subscribe("motors/encoders", 1, &EncodersMonitor::encodersCallback, this);
-  sub_drive_ = nh.subscribe("safe_cmd_drive", 1, &EncodersMonitor::driveCallback, this); 
+  sub_encoders_ = nh->subscribe("motors/encoders", 1, &EncodersMonitor::encodersCallback, this);
+  sub_drive_ = nh->subscribe("safe_cmd_drive", 1, &EncodersMonitor::driveCallback, this); 
 
   double encoders_timeout_seconds;
   ros::param::param<double>("~encoders_timeout", encoders_timeout_seconds, encoders_timeout_.toSec());
@@ -36,23 +32,27 @@ static inline ros::Duration age(M msg)
 bool EncodersMonitor::detectFailedEncoderCandidate(VectorDrive::Index* candidate)
 {
   // Attempt to detect a failed encoder. The symptom will be that the reported velocity will
-  // be zero or very near it despite a non-zero commanded velocity. So we compute a vector
-  // of differentials between commanded and reported speeds, take the absolute values, and then
-  // subtract the mean error from each element. This should expose an outlier scenario where the
-  // error in one wheel greatly exceeds that of the other, which could indicate a fault.
+  // be zero or very near it despite a non-zero commanded velocity. To avoid a false positive
+  // due to motors under heavy load/stall, only flag the error when it greatly exceeds that 
+  // of the second-most-erroneous wheel--- this is on the theory that typical operation is
+  // unlikely to stall a single wheel.
   VectorDrive wheelSpeedMeasured = grizzly_msgs::vectorFromDriveMsg(*last_received_encoders_);
   VectorDrive wheelSpeedCommanded = grizzly_msgs::vectorFromDriveMsg(*last_received_drive_);
   VectorDrive wheelSpeedError = (wheelSpeedMeasured - wheelSpeedCommanded).cwiseAbs();
-  wheelSpeedError -= VectorDrive::Constant(wheelSpeedError.mean());
   
   // Find the index with maximum error, which is our failed encoder candidate.
   double max_error = wheelSpeedError.maxCoeff(candidate);
+
+  // Now set that one to zero and use the new max to get the difference between greatest and
+  // second-greatest error amounts.
+  wheelSpeedError[*candidate] = 0;
+  double max_error_diff = max_error - wheelSpeedError.maxCoeff();
 
   // If the measured speed is not small, then it's not a failure. A failed encoder will be either
   // still, or buzzing back and forth.
   if (wheelSpeedMeasured[*candidate] > 0.01) return false;
 
-  // If the error does not exceed a certain threshold, then is not a candidate failure.
+  // If the error difference does not exceed a threshold, then not an error.
   if (max_error < encoder_speed_error_diff_threshold_) return false;
 
   // Candidate failure is valid. Calling function will assert error if

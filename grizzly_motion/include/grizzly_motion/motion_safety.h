@@ -22,10 +22,11 @@ typedef ChangeLimiter<grizzly_msgs::Drive> DriveChangeLimiter;
 class MotionSafety
 {
 public:
-  MotionSafety();
+  MotionSafety() {}
+  MotionSafety(ros::NodeHandle* nh);
 
 protected:
-  ros::NodeHandle nh_;
+  ros::NodeHandle* nh_;
 
   // Topics directly monitored in this node.
   void driveCallback(const grizzly_msgs::DriveConstPtr&);

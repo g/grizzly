@@ -36,8 +36,8 @@ class DiagnosticStatusWrapper;
 
 class EncodersMonitor {
 public:
-  EncodersMonitor();
-  void initROS(ros::NodeHandle& nh);
+  EncodersMonitor() {}
+  EncodersMonitor(ros::NodeHandle* nh);
 
   bool ok();
   void diagnostic(diagnostic_updater::DiagnosticStatusWrapper&);

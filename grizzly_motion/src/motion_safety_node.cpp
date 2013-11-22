@@ -39,21 +39,22 @@ using diagnostic_updater::FrequencyStatusParam;
 using diagnostic_updater::HeaderlessTopicDiagnostic;
 using diagnostic_updater::Updater;
 
-MotionSafety::MotionSafety() : nh_("")
+MotionSafety::MotionSafety(ros::NodeHandle* nh)
+  : nh_(nh)
 {
   ros::param::get("vehicle_width", width_);
   ros::param::get("wheel_radius", radius_);
   ros::param::get("max_acceleration", max_accel_);  // m/s^2
 
-  pub_safe_drive_ = nh_.advertise<grizzly_msgs::Drive>("safe_cmd_drive", 1);
-  pub_ambience_ = nh_.advertise<grizzly_msgs::Ambience>("mcu/ambience", 1);
-  sub_drive_ = nh_.subscribe("cmd_drive", 1, &MotionSafety::driveCallback, this);
-  sub_mcu_status_ = nh_.subscribe("mcu/status", 1, &MotionSafety::mcuStatusCallback, this);
+  pub_safe_drive_ = nh_->advertise<grizzly_msgs::Drive>("safe_cmd_drive", 1);
+  pub_ambience_ = nh_->advertise<grizzly_msgs::Ambience>("mcu/ambience", 1);
+  sub_drive_ = nh_->subscribe("cmd_drive", 1, &MotionSafety::driveCallback, this);
+  sub_mcu_status_ = nh_->subscribe("mcu/status", 1, &MotionSafety::mcuStatusCallback, this);
 
   // Set up the diagnostic updater to run at 10Hz.
   diagnostic_updater_.reset(new Updater());
   diagnostic_updater_->setHardwareID("grizzly");
-  diagnostic_update_timer_ = nh_.createTimer(ros::Duration(0.1),
+  diagnostic_update_timer_ = nh_->createTimer(ros::Duration(0.1),
         boost::bind(&Updater::update, diagnostic_updater_));
 
   // Frequency report on statuses coming from the MCU.
@@ -68,8 +69,7 @@ MotionSafety::MotionSafety() : nh_("")
       FrequencyStatusParam(&min_cmd_drive_freq_, &max_cmd_drive_freq_, 0.01, 5.0)));
 
   // More specialized monitoring for encoders. 
-  encoders_monitor_.reset(new EncodersMonitor());
-  encoders_monitor_->initROS(nh_);
+  encoders_monitor_.reset(new EncodersMonitor(nh_));
   diagnostic_updater_->add("Encoders", encoders_monitor_.get(), &EncodersMonitor::diagnostic);
 
   // Rate-of-change limiter for wheel speed commands.
@@ -116,7 +116,8 @@ void MotionSafety::mcuStatusCallback(const grizzly_msgs::RawStatus& status)
 int main(int argc, char ** argv)
 {
   ros::init(argc, argv, "grizzly_motion_safety"); 
-  MotionSafety ms;
+  ros::NodeHandle nh("");
+  MotionSafety ms(&nh);
   ros::spin();
 }
 
