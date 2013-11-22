@@ -39,6 +39,5 @@ Extended Kalman FIlter for Clearpath Grizzly
             vo_used: false
             output_frame: odom_combined
         </rosparam>
-        <remap to="encoder" from="odom"/>
     </node>
 </launch>
