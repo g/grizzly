@@ -6,7 +6,7 @@ find_package(catkin)
 catkin_package()
 
 install(
-  DIRECTORY launch Media urdf
+  DIRECTORY launch meshes urdf
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )
 
