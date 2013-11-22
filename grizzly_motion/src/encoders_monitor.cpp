@@ -3,10 +3,8 @@
 
 #include <diagnostic_updater/publisher.h>
 #include <grizzly_msgs/Drive.h>
+#include <grizzly_msgs/eigen.h>
 
-#include <Eigen/Core>
-
-using Eigen::Vector4f;
 
 EncodersMonitor::EncodersMonitor() : encoders_timeout_(0.05)
 {
@@ -38,15 +36,13 @@ bool EncodersMonitor::detectFailedEncoderCandidate()
   // of differentials between commanded and reported speeds, take the absolute values, and then
   // subtract the mean error from each element. This should expose an outlier scenario where the
   // error in one wheel greatly exceeds that of the other, which could indicate a fault.
-  Vector4f wheelSpeedError(last_received_drive_->front_left - last_received_encoders_->front_left,
-                           last_received_drive_->front_right - last_received_encoders_->front_right,
-                           last_received_drive_->rear_left - last_received_encoders_->rear_left,
-                           last_received_drive_->rear_right - last_received_encoders_->rear_right);
+  VectorDrive wheelSpeedError = grizzly_msgs::vectorFromDriveMsg(*last_received_encoders_) - 
+                                grizzly_msgs::vectorFromDriveMsg(*last_received_drive_);
   wheelSpeedError = wheelSpeedError.cwiseAbs();
-  wheelSpeedError -= Vector4f::Constant(wheelSpeedError.mean());
+  wheelSpeedError -= VectorDrive::Constant(wheelSpeedError.mean());
   
   // Find the index with maximum error, which is our failed encoder candidate.
-  Vector4f::Index maxErrorIndex;
+  VectorDrive::Index maxErrorIndex;
   double max_error = wheelSpeedError.maxCoeff(&maxErrorIndex);
 
   // If
