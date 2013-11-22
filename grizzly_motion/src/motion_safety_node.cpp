@@ -69,6 +69,7 @@ MotionSafety::MotionSafety() : nh_("")
 
   // More specialized monitoring for encoders. 
   encoders_monitor_.reset(new EncodersMonitor());
+  encoders_monitor_->initROS(nh_);
   diagnostic_updater_->add("Encoders", encoders_monitor_.get(), &EncodersMonitor::diagnostic);
 
   // Rate-of-change limiter for wheel speed commands.
