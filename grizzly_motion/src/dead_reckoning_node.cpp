@@ -49,7 +49,7 @@ int main(int argc, char ** argv)
   ros::NodeHandle nh("");
   ros::Publisher pub(nh.advertise<nav_msgs::Odometry>("odom", 1));
   ros::Subscriber sub(nh.subscribe<grizzly_msgs::Drive>("motors/encoders", 1, boost::bind(
-      encodersCallback, &dr, &pub, _1)));
+    encodersCallback, &dr, &pub, _1)));
 
   ros::spin();
 }

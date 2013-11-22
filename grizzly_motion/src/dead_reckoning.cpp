@@ -68,11 +68,11 @@ bool DeadReckoning::next(const grizzly_msgs::DriveConstPtr& encoders, nav_msgs::
     Eigen::Map<Eigen::MatrixXd> twistCov(odom->twist.covariance.data(), 6, 6);
 
     if(twist_.linear.x <= 1e-3 && twist_.angular.z <= 1e-3) {
-        poseCov = ODOM_POSE_COVAR_NOMOVE;
-        twistCov = ODOM_TWIST_COVAR_NOMOVE;
+      poseCov = ODOM_POSE_COVAR_NOMOVE;
+      twistCov = ODOM_TWIST_COVAR_NOMOVE;
     } else {
-        poseCov = ODOM_POSE_COVAR_MOTION;
-        twistCov = ODOM_TWIST_COVAR_MOTION;
+      poseCov = ODOM_POSE_COVAR_MOTION;
+      twistCov = ODOM_TWIST_COVAR_MOTION;
     }
 
     success = true;
