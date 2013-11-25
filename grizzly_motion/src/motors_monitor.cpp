@@ -10,25 +10,19 @@
 MotorsMonitor::MotorsMonitor() : nh_("")
 {
 
-/*  sub_encoders_ = nh_.subscribe("motors/encoders", 1, &EncodersMonitor::encoders_callback, this);
-  sub_drive_ = nh_.subscribe("safe_cmd_drive", 1, &EncodersMonitor::drive_callback, this); */
-
   double motors_timeout_seconds;
   ros::param::param<double>("~motors_timeout", motors_timeout_seconds, 0.1);
   motors_timeout_ = ros::Duration(motors_timeout_seconds);
-  fb_sub_[0] = nh_.subscribe<roboteq_msgs::Feedback>("/motors/front_right/feedback",1,boost::bind(&MotorsMonitor::motor_feedback,this,_1,grizzly_msgs::Drives::FrontRight));
-//  fb_sub_[1] = nh_.subscribe<grizzly_msgs::Feedback>("/motors/front_left/feedback",1,boost::bind(&MotorsMonitor::motor_feedback,this,_1,grizzly_msgs::Drives::FrontLeft));
-//  fb_sub_[2] = nh_.subscribe<grizzly_msgs::Feedback>("/motors/rear_right/feedback",1,boost::bind(&MotorsMonitor::motor_feedback,this,_1,grizzly_msgs::Drives::RearRight));
-//  fb_sub_[3] = nh_.subscribe<grizzly_msgs::Feedback>("/motors/rear_left/feedback",1,boost::bind(&MotorsMonitor::motor_feedback,this,_1,grizzly_msgs::Drives::RearLeft));
 
-  stat_sub_[0] = nh_.subscribe<roboteq_msgs::Feedback>("/motors/front_right/feedback",1,boost::bind(&MotorsMonitor::motor_feedback,this,_1,grizzly_msgs::Drives::FrontRight));
-//  stat_sub_[1] = nh_.subscribe<grizzly_msgs::Feedback>("/motors/front_left/feedback",1,boost::bind(&MotorsMonitor::motor_feedback,this,_1,grizzly_msgs::Drives::FrontLeft));
-//  stat_sub_[2] = nh_.subscribe<grizzly_msgs::Feedback>("/motors/rear_right/feedback",1,boost::bind(&MotorsMonitor::motor_feedback,this,_1,grizzly_msgs::Drives::RearRight));
-//  stat_sub_[3] = nh_.subscribe<grizzly_msgs::Feedback>("/motors/rear_left/feedback",1,boost::bind(&MotorsMonitor::motor_feedback,this,_1,grizzly_msgs::Drives::RearLeft));
-  
-  clean_status_ = true; //assume status is fine 
+  fb_sub_[0] = nh_.subscribe<roboteq_msgs::Feedback>("/motors/front_right/feedback",1,boost::bind(&MotorsMonitor::motor_feedback,this,_1,(int)grizzly_msgs::Drives::FrontLeft));
+  fb_sub_[1] = nh_.subscribe<roboteq_msgs::Feedback>("/motors/front_left/feedback",1,boost::bind(&MotorsMonitor::motor_feedback,this,_1,(int)grizzly_msgs::Drives::FrontRight));
+  fb_sub_[2] = nh_.subscribe<roboteq_msgs::Feedback>("/motors/rear_right/feedback",1,boost::bind(&MotorsMonitor::motor_feedback,this,_1,(int)grizzly_msgs::Drives::RearLeft));
+  fb_sub_[3] = nh_.subscribe<roboteq_msgs::Feedback>("/motors/rear_left/feedback",1,boost::bind(&MotorsMonitor::motor_feedback,this,_1,(int)grizzly_msgs::Drives::RearRight));
 
-
+  stat_sub_[0] = nh_.subscribe<roboteq_msgs::Status>("/motors/front_right/status",1,boost::bind(&MotorsMonitor::motor_status,this,_1,(int)grizzly_msgs::Drives::FrontLeft));
+  stat_sub_[1] = nh_.subscribe<roboteq_msgs::Status>("/motors/front_left/status",1,boost::bind(&MotorsMonitor::motor_status,this,_1,(int)grizzly_msgs::Drives::FrontRight));
+  stat_sub_[2] = nh_.subscribe<roboteq_msgs::Status>("/motors/rear_right/status",1,boost::bind(&MotorsMonitor::motor_status,this,_1,(int)grizzly_msgs::Drives::RearLeft));
+  stat_sub_[3] = nh_.subscribe<roboteq_msgs::Status>("/motors/rear_left/status",1,boost::bind(&MotorsMonitor::motor_status,this,_1,(int)grizzly_msgs::Drives::RearRight));
 }
 
 template<class M>
@@ -56,87 +50,91 @@ bool MotorsMonitor::ok()
  */
 void MotorsMonitor::diagnostic(diagnostic_updater::DiagnosticStatusWrapper& stat)
 {
-  for (int i=0;i<4;i++) {
+  for (int i=grizzly_msgs::Drives::FrontLeft;i<=grizzly_msgs::Drives::RearRight;i++) {
     if (!last_received_status_[i] || !last_received_feedback_[i])
     {
-      stat.summary(2, "Motor driver status and/or feedback message not received");
+      stat.summary(2, "Motor " + grizzly_msgs::nameFromDriveIndex(i) + " driver status and/or feedback message not received");
       return;
     } 
     if (age(last_received_status_[i]) > motors_timeout_)
     {
-      stat.summary(2, "Last motor status message is stale (%f seconds old). Check motor driver connectivity.",
-          age(last_received_status_).toSec());
+      stat.summaryf(2, "Last motor %s status message is stale (%f seconds old). Check motor driver connectivity.",grizzly_msgs::nameFromDriveIndex(i).c_str(),age(last_received_status_[i]).toSec());
       return;
     }
   }
 
   int fault_level = 0;
-  std::string fault_string = "";
-  std::string fault_output = "No Motor Faults";
+  std::string fault_output = "";
 
-  for (int i=0;i<4;i++) {
+  for (int i=grizzly_msgs::Drives::FrontLeft;i<=grizzly_msgs::Drives::RearRight;i++) {
     if(last_received_status_[i]->status != 0) {
-      fault_level = lookForSeriousFault(last_received_status_[i]->status, fault_string);
-      fault_output = grizzly_msgs::nameFromDriveIndex(i);
-      fault_output = fault_output + "has" + fault_string + " faults";
-      stat.summary(fault_level, fault_output.c_str());
+      fault_level = lookForSeriousFault(last_received_status_[i]->status,stat,i);
+      if (fault_level == 1) 
+        fault_output = "Motor at " + grizzly_msgs::nameFromDriveIndex(i) + " is in a fault state";
+      else if (fault_level == 2) 
+        fault_output = "Motor at " + grizzly_msgs::nameFromDriveIndex(i) + " is in a serious fault state";
+      else
+        fault_output = "Motor at " + grizzly_msgs::nameFromDriveIndex(i) + " is cleared of faults";
+
+      stat.summary(fault_level,fault_output);
       return;
     }
   } 
 
 }
 
-//TODO: Definitely need a better way of doing this. May need to change roboteq_msgs::Status to include strings
-int MotorsMonitor::lookForSeriousFault(uint8_t status, std::string& faults)
+int MotorsMonitor::lookForSeriousFault(uint8_t status,diagnostic_updater::DiagnosticStatusWrapper& stat, const int motor_num)
 {
   int error_level = 0;
   roboteq_msgs::Status fault_def;
  
   //Warning level faults 
   if (status & fault_def.FAULT_UNDERVOLTAGE) {
-    faults = faults + std::string("undervoltage,");
+    stat.add (grizzly_msgs::nameFromDriveIndex(motor_num), "Undervoltage fault");
     error_level = 1;
   }
 
   if (status & fault_def.FAULT_EMERGENCY_STOP) {
-    faults = faults + std::string("emergency stop,");
+    stat.add (grizzly_msgs::nameFromDriveIndex(motor_num), "Emergency Stop fault");
     error_level = 1;
   }
 
   if (status & fault_def.FAULT_SEPEX_EXCITATION_FAULT) {
-    faults = faults + std::string("sepex excitation fault,");
+    stat.add (grizzly_msgs::nameFromDriveIndex(motor_num), "Sepex Excitation fault");
     error_level = 1;
   }
 
   if (status & fault_def.FAULT_STARTUP_CONFIG_FAULT) {
-    faults = faults + std::string("startup config fault,");
+    stat.add (grizzly_msgs::nameFromDriveIndex(motor_num), "Startup Configuration fault");
     error_level = 1;
   }
 
   //More serious faults 
   if (status & fault_def.FAULT_OVERHEAT) {
-    faults = faults + std::string("overheat,");
+    stat.add (grizzly_msgs::nameFromDriveIndex(motor_num), "Overheat fault");
     error_level = 2;
   }
 
   if (status & fault_def.FAULT_OVERVOLTAGE) {
-    faults = faults + std::string("overvoltage,");
+    stat.add (grizzly_msgs::nameFromDriveIndex(motor_num), "Overvoltage fault");
     error_level = 2;
   }
 
   if (status & fault_def.FAULT_SHORT_CIRCUIT) {
-    faults = faults + std::string("short circuit,");
+    stat.add (grizzly_msgs::nameFromDriveIndex(motor_num), "Short Circuit fault");
     error_level = 2;
   } 
 
   if (status & fault_def.FAULT_MOSFET_FAILURE) {
-    faults = faults + std::string("mosfet failure,");
+    stat.add (grizzly_msgs::nameFromDriveIndex(motor_num), "MOSFET Failure fault");
     error_level = 2;
   }
 
+  return error_level;
+
 }
 
-void MotorsMonitor::motor_feedback(const roboteq_msgs::FeedbackConstPtr& msg, const int motor_num) {
+void MotorsMonitor::motor_feedback(const roboteq_msgs::FeedbackConstPtr msg, const int motor_num) {
   last_received_feedback_[motor_num] = msg;
 }
 
