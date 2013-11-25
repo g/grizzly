@@ -6,21 +6,21 @@
  * Separate ROS initialization step for better testability.
  */
 EncodersMonitor::EncodersMonitor(ros::NodeHandle* nh)
-  : encoders_timeout_(0.05),
-    encoder_speed_error_diff_threshold_(0.5),
-    encoder_fault_time_to_failure_(1.0)
+  : encoders_timeout(0.05),
+    encoder_speed_error_diff_threshold(0.5),
+    encoder_fault_time_to_failure(0.5)
 {
   sub_encoders_ = nh->subscribe("motors/encoders", 1, &EncodersMonitor::encodersCallback, this);
   sub_drive_ = nh->subscribe("safe_cmd_drive", 1, &EncodersMonitor::driveCallback, this); 
 
   double encoders_timeout_seconds;
-  ros::param::param<double>("~encoders_timeout", encoders_timeout_seconds, encoders_timeout_.toSec());
-  encoders_timeout_ = ros::Duration(encoders_timeout_seconds);
+  ros::param::param<double>("~encoders_timeout", encoders_timeout_seconds, encoders_timeout.toSec());
+  encoders_timeout = ros::Duration(encoders_timeout_seconds);
 
   double encoder_fault_time_to_failure_seconds;
   ros::param::param<double>("~encoder_fault_time_to_failure",
-      encoder_fault_time_to_failure_seconds, encoder_fault_time_to_failure_.toSec());
-  encoder_fault_time_to_failure_ = ros::Duration(encoder_fault_time_to_failure_seconds);
+      encoder_fault_time_to_failure_seconds, encoder_fault_time_to_failure.toSec());
+  encoder_fault_time_to_failure = ros::Duration(encoder_fault_time_to_failure_seconds);
 }
 
 template<class M>
@@ -39,7 +39,7 @@ bool EncodersMonitor::detectFailedEncoderCandidate(VectorDrive::Index* candidate
   VectorDrive wheelSpeedMeasured = grizzly_msgs::vectorFromDriveMsg(*last_received_encoders_);
   VectorDrive wheelSpeedCommanded = grizzly_msgs::vectorFromDriveMsg(*last_received_drive_);
   VectorDrive wheelSpeedError = (wheelSpeedMeasured - wheelSpeedCommanded).cwiseAbs();
-  
+
   // Find the index with maximum error, which is our failed encoder candidate.
   double max_error = wheelSpeedError.maxCoeff(candidate);
 
@@ -53,7 +53,7 @@ bool EncodersMonitor::detectFailedEncoderCandidate(VectorDrive::Index* candidate
   if (wheelSpeedMeasured[*candidate] > 0.01) return false;
 
   // If the error difference does not exceed a threshold, then not an error.
-  if (max_error < encoder_speed_error_diff_threshold_) return false;
+  if (max_error_diff < encoder_speed_error_diff_threshold) return false;
 
   // Candidate failure is valid. Calling function will assert error if
   // this state persists for a set time period.
@@ -64,13 +64,13 @@ bool EncodersMonitor::detectFailedEncoder()
 {
   VectorDrive::Index candidate_failed_encoder;
   if (detectFailedEncoderCandidate(&candidate_failed_encoder)) {
-    if (last_received_encoders_->header.stamp - time_of_last_nonsuspect_encoders_ > encoder_fault_time_to_failure_) {
+    if (last_received_encoders_->header.stamp - time_of_last_nonsuspect_encoders_ > encoder_fault_time_to_failure) {
       return true;
-    }
+    } 
   } else {
-    time_of_last_nonsuspect_encoders_ = ros::Time::now();
-    return false;
+    time_of_last_nonsuspect_encoders_ = last_received_encoders_->header.stamp;
   }
+  return false;
 }
 
 /**
@@ -80,10 +80,10 @@ bool EncodersMonitor::detectFailedEncoder()
 bool EncodersMonitor::ok()
 {
   // If we have no encoder data, or its old, then definitely not okay.
-  if (!last_received_encoders_ || age(last_received_encoders_) > encoders_timeout_) return false;
+  if (!last_received_encoders_ || age(last_received_encoders_) > encoders_timeout) return false;
 
   // If we have no drive data, or it's old, then we're initializing; that's fine.
-  if (!last_received_drive_ || age(last_received_drive_) > encoders_timeout_) return true;
+  if (!last_received_drive_ || age(last_received_drive_) > encoders_timeout) return true;
 
   if (detectFailedEncoder()) {
     // Not a recoverable fault.
@@ -111,7 +111,7 @@ void EncodersMonitor::diagnostic(diagnostic_updater::DiagnosticStatusWrapper& st
     stat.summary(2, "No encoders messages received.");
     return;
   } 
-  if (age(last_received_encoders_) > encoders_timeout_)
+  if (age(last_received_encoders_) > encoders_timeout)
   {
     stat.summaryf(2, "Last encoders message is stale (%f seconds old). Check motor driver connectivity.",
         age(last_received_encoders_).toSec());

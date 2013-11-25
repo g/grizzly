@@ -43,28 +43,29 @@ public:
   bool moving();
   void diagnostic(diagnostic_updater::DiagnosticStatusWrapper&);
 
-protected:
   bool detectFailedEncoder();
   bool detectFailedEncoderCandidate(VectorDrive::Index* candidate);
 
   // Callbacks receive inbound data
   void encodersCallback(const grizzly_msgs::DriveConstPtr&);
   void driveCallback(const grizzly_msgs::DriveConstPtr&);
+
+  // Encoder data must be this fresh to not be considered out of date.
+  ros::Duration encoders_timeout;
+
+  // Threshold of rad/s difference between mean error and a singular wheel's error necessary
+  // to mark it as suspicious.
+  double encoder_speed_error_diff_threshold;
+
+  // Time lag between suspecting a failure and taking action.
+  ros::Duration encoder_fault_time_to_failure;
+
+protected:
   ros::Subscriber sub_encoders_, sub_drive_;
 
   grizzly_msgs::DriveConstPtr last_received_encoders_;
   grizzly_msgs::DriveConstPtr last_received_drive_;
   ros::Time time_of_last_nonsuspect_encoders_;
-
-  // Encoder data must be this fresh to not be considered out of date.
-  ros::Duration encoders_timeout_;
-
-  // Threshold of rad/s difference between mean error and a singular wheel's error necessary
-  // to mark it as suspicious.
-  double encoder_speed_error_diff_threshold_;
-
-  // Time lag between suspecting a failure and taking action.
-  ros::Duration encoder_fault_time_to_failure_;
 };
 
 #endif
