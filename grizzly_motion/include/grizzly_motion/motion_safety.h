@@ -19,6 +19,35 @@ class EncodersMonitor;
 
 typedef ChangeLimiter<grizzly_msgs::Drive> DriveChangeLimiter;
 
+namespace MotionStates
+{
+  enum MotionState
+  {
+    // State of non-error, non-moving vehicle. As soon as the vehicle has been
+    // stationary for a brief period, the Moving state transitions to this one.
+    // Certain errors that will trigger an MCU estop in the Moving or Startup
+    // states will not do so in the Stopped state.
+    Stopped,
+
+    // State when movement has been requested but is being held pending the
+    // mandatory delay period (and accompanying ambience).
+    Starting,
+
+    // State when vehicle is moving without error.
+    Moving,
+
+    // State when an estop has been triggered (by the MCU or otherwise). Wait for
+    // the encoders to report the vehicle as stationary, with no motion being
+    // commanded, then transition to Stopped.
+    PendingStopped,
+
+    // State when vehicle is faulted and will remain so until ROS is restarted.
+    // Assert and hold an MCU estop.
+    Fault
+  };
+}
+typedef MotionStates::MotionState MotionState;
+
 class MotionSafety
 {
 public:
@@ -28,7 +57,25 @@ public:
 protected:
   ros::NodeHandle* nh_;
 
-  // Topics directly monitored in this node.
+  // Main watchdog function, which takes care of calling the other components
+  // to assess overall system health (and thus safety of driving), and manage
+  // state transitions.
+  void watchdogCallback(const ros::TimerEvent&);
+  ros::Timer watchdog_timer_;
+  MotionState state_;
+
+  // Keeps the time of the last received command message with a non-stationary
+  // movement request to at least one of the wheels.
+  ros::Time last_commanded_movement_time_;
+
+  // Duration of time to spend in the Starting phase.
+  ros::Duration starting_duration_;
+
+  // Tracks the absolute time when we will transition from Starting to Moving,
+  // as that's a timed transition.
+  ros::Time transition_to_moving_time_;
+
+  // Topics directly monitored in this class.
   void driveCallback(const grizzly_msgs::DriveConstPtr&);
   void mcuStatusCallback(const grizzly_msgs::RawStatus&);
   ros::Subscriber sub_drive_, sub_mcu_status_; 
@@ -36,13 +83,12 @@ protected:
   // Publish cmd_drive through to safe_cmd_drive.
   ros::Publisher pub_safe_drive_;
     
-  // Publish light/sound warnings before allowing movement.
+  // Communication to the MCU.
   ros::Publisher pub_ambience_;
+  ros::Publisher pub_estop_;
 
-  // Publish diagnostics for the whole node from here. The update timer takes care of
-  // calling the Updater's update method.
+  // Publish diagnostics for the whole node from here.
   shared_ptr<diagnostic_updater::Updater> diagnostic_updater_;
-  ros::Timer diagnostic_update_timer_;
 
   // Monitor the frequency of the MCU status and incoming cmd_drive messages for
   // acceptable range.
@@ -56,7 +102,7 @@ protected:
 
   double width_;
   double radius_;
-  double max_accel_; 
+  double max_accel_;
 };
 
 

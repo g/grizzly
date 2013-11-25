@@ -40,6 +40,7 @@ public:
   EncodersMonitor(ros::NodeHandle* nh);
 
   bool ok();
+  bool moving();
   void diagnostic(diagnostic_updater::DiagnosticStatusWrapper&);
 
 protected:

@@ -27,12 +27,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "grizzly_motion/encoders_monitor.h"
 #include "grizzly_motion/change_limiter.h"
 
-#include <grizzly_msgs/Ambience.h>
-#include <grizzly_msgs/Drive.h>
-#include <grizzly_msgs/RawStatus.h>
+#include "grizzly_msgs/Ambience.h"
+#include "grizzly_msgs/Drive.h"
+#include "grizzly_msgs/RawStatus.h"
+#include "std_msgs/Bool.h"
 
-#include <diagnostic_updater/diagnostic_updater.h>
-#include <diagnostic_updater/publisher.h>
+#include "diagnostic_updater/diagnostic_updater.h"
+#include "diagnostic_updater/publisher.h"
 
 using diagnostic_updater::DiagnosticStatusWrapper;
 using diagnostic_updater::FrequencyStatusParam;
@@ -45,24 +46,28 @@ MotionSafety::MotionSafety(ros::NodeHandle* nh)
   ros::param::get("vehicle_width", width_);
   ros::param::get("wheel_radius", radius_);
   ros::param::get("max_acceleration", max_accel_);  // m/s^2
+  starting_duration_ = ros::Duration(2.0);
 
-  pub_safe_drive_ = nh_->advertise<grizzly_msgs::Drive>("safe_cmd_drive", 1);
-  pub_ambience_ = nh_->advertise<grizzly_msgs::Ambience>("mcu/ambience", 1);
+  // Drive pass-through
   sub_drive_ = nh_->subscribe("cmd_drive", 1, &MotionSafety::driveCallback, this);
-  sub_mcu_status_ = nh_->subscribe("mcu/status", 1, &MotionSafety::mcuStatusCallback, this);
+  pub_safe_drive_ = nh_->advertise<grizzly_msgs::Drive>("safe_cmd_drive", 1);
 
-  // Set up the diagnostic updater to run at 10Hz.
+  // MCU interface
+  pub_ambience_ = nh_->advertise<grizzly_msgs::Ambience>("mcu/ambience", 1);
+  pub_estop_ = nh_->advertise<std_msgs::Bool>("mcu/estop", 1);
+  sub_mcu_status_ = nh_->subscribe("mcu/status", 1, &MotionSafety::mcuStatusCallback, this);
+  watchdog_timer_ = nh_->createTimer(ros::Duration(0.05), &MotionSafety::watchdogCallback, this);
+
+  // Set up the diagnostic updater
   diagnostic_updater_.reset(new Updater());
   diagnostic_updater_->setHardwareID("grizzly");
-  diagnostic_update_timer_ = nh_->createTimer(ros::Duration(0.1),
-        boost::bind(&Updater::update, diagnostic_updater_));
 
   // Frequency report on statuses coming from the MCU.
   expected_mcu_status_frequency_ = 10;
   diag_mcu_status_freq_.reset(new HeaderlessTopicDiagnostic("MCU status", *diagnostic_updater_,
       FrequencyStatusParam(&expected_mcu_status_frequency_, &expected_mcu_status_frequency_, 0.01, 5.0)));
 
-  // Frequency report on drive messages coming from upstream.
+  // Frequency report on inbound drive messages.
   min_cmd_drive_freq_ = 10;
   max_cmd_drive_freq_ = 50;
   diag_cmd_drive_freq_.reset(new HeaderlessTopicDiagnostic("Drive command", *diagnostic_updater_, 
@@ -79,6 +84,53 @@ MotionSafety::MotionSafety(ros::NodeHandle* nh)
   accel_limiters_[3].reset(new DriveChangeLimiter(max_accel_ / radius_, &grizzly_msgs::Drive::rear_right));
 }
 
+void MotionSafety::watchdogCallback(const ros::TimerEvent&)
+{
+  // Messages to be published to the MCU at each run of this function.
+  grizzly_msgs::Ambience ambience;
+  std_msgs::Bool estop;
+  estop.data = false;
+
+  bool ok = encoders_monitor_->ok();  // && motor_drivers_monitor->ok(); 
+
+  if (state_ == MotionStates::Stopped)
+  {
+    if (ros::Time::now() - last_commanded_movement_time_ < ros::Duration(0.1))
+    {
+      state_ = MotionStates::Starting;
+      transition_to_moving_time_ = ros::Time::now() + starting_duration_;
+    }
+  }
+
+  if (state_ == MotionStates::Starting)
+  {
+    ambience.beacon = ambience.headlight = ambience.taillight = ambience.beep =
+      grizzly_msgs::Ambience::PATTERN_DFLASH;
+    if (ros::Time::now() > transition_to_moving_time_) state_ = MotionStates::Moving;
+    if (!ok) state_ = MotionStates::PendingStopped;
+  }
+
+  if (state_ == MotionStates::Moving)
+  {
+    if (!ok) state_ = MotionStates::PendingStopped;
+  }
+
+  if (state_ == MotionStates::PendingStopped)
+  {
+    estop.data = true;
+    if (!encoders_monitor_->moving()) state_ = MotionStates::Stopped;
+  }
+  
+  if (state_ == MotionStates::Fault)
+  {
+    estop.data = true;
+  }
+
+  diagnostic_updater_->update(); 
+  pub_ambience_.publish(ambience);
+  pub_estop_.publish(estop);
+}
+
 /**
  * Manages a pass-through of Grizzly Drive messages, ensuring that the appropriate
  * delays are observed before allowing the chassis to move, including activating
@@ -88,19 +140,18 @@ void MotionSafety::driveCallback(const grizzly_msgs::DriveConstPtr& drive_comman
 {
   diag_cmd_drive_freq_->tick();
 
-  // Sanity checks.
-  if (!encoders_monitor_->ok()) {
-    ROS_ERROR_THROTTLE(1, "Not passing drive message due to encoders not-ok.");
-    return;
-  }
-  //if (!mcu_monitor->ok()) return;
-  //if (!motor_drivers_monitor->ok()) return;
-  
-  ROS_INFO("drive!");
+  // This signals the main loop function to begin a transition to the Moving state.
+  if (!grizzly_msgs::isStationary(*drive_commanded.get()))
+    last_commanded_movement_time_ = drive_commanded->header.stamp;
+ 
   grizzly_msgs::Drive drive_safe;
   drive_safe.header = drive_commanded->header;
-  for (int wheel = 0; wheel < 4; wheel++) 
-    accel_limiters_[wheel]->apply(drive_commanded.get(), &drive_safe);
+
+  if (state_ == MotionStates::Moving)
+  {
+    for (int wheel = 0; wheel < 4; wheel++) 
+      accel_limiters_[wheel]->apply(drive_commanded.get(), &drive_safe);
+  }
 
   pub_safe_drive_.publish(drive_safe);
 }

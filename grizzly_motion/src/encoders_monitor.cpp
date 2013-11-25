@@ -82,7 +82,7 @@ bool EncodersMonitor::ok()
   // If we have no encoder data, or its old, then definitely not okay.
   if (!last_received_encoders_ || age(last_received_encoders_) > encoders_timeout_) return false;
 
-  // If we have no drive data, or it's old, then we're just getting rolling, that's fine.
+  // If we have no drive data, or it's old, then we're initializing; that's fine.
   if (!last_received_drive_ || age(last_received_drive_) > encoders_timeout_) return true;
 
   if (detectFailedEncoder()) {
@@ -91,6 +91,14 @@ bool EncodersMonitor::ok()
   }
  
   return true;
+}
+
+/**
+ * Called in the context of making sure the vehicle is stopped before releasing the estop assertion.
+ */
+bool EncodersMonitor::moving()
+{
+  return not grizzly_msgs::isStationary(*last_received_encoders_.get());
 }
 
 /**
