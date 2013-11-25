@@ -5,7 +5,7 @@ target_link_libraries(${PROJECT_NAME}_motion_generator ${catkin_LIBRARIES})
 set_target_properties(${PROJECT_NAME}_motion_generator
                       PROPERTIES OUTPUT_NAME motion_generator PREFIX "")
 
-add_executable(${PROJECT_NAME}_motion_safety motion_safety_node encoders_monitor)
+add_executable(${PROJECT_NAME}_motion_safety motion_safety_node encoders_monitor motors_monitor)
 add_dependencies(${PROJECT_NAME}_motion_safety grizzly_msgs_generate_messages_cpp)
 target_link_libraries(${PROJECT_NAME}_motion_safety ${catkin_LIBRARIES})
 set_target_properties(${PROJECT_NAME}_motion_safety
