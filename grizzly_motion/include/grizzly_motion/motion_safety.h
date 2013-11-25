@@ -3,6 +3,9 @@
 #include <ros/ros.h>
 #include "grizzly_motion/change_limiter.h"
 
+#include "diagnostic_updater/diagnostic_updater.h"
+#include "diagnostic_updater/publisher.h"
+
 using boost::shared_ptr;
 
 namespace grizzly_msgs {
@@ -58,6 +61,10 @@ public:
   MotionSafety() {}
   MotionSafety(ros::NodeHandle* nh);
 
+  bool isEstopped();
+  void setFault(const std::string reason);
+  void checkFaults();
+
 protected:
   ros::NodeHandle* nh_;
 
@@ -67,10 +74,12 @@ protected:
   void watchdogCallback(const ros::TimerEvent&);
   ros::Timer watchdog_timer_;
   MotionState state_;
+  std::string fault_reason_;
 
   // Keeps the time of the last received command message with a non-stationary
   // movement request to at least one of the wheels.
   ros::Time last_commanded_movement_time_;
+  ros::Time last_non_precharge_time_;
 
   // Duration of time to spend in the Starting phase.
   ros::Duration starting_duration_;
@@ -82,8 +91,9 @@ protected:
   // Topics directly monitored in this class.
   void driveCallback(const grizzly_msgs::DriveConstPtr&);
   void estopCallback(const std_msgs::BoolConstPtr&);
-  void mcuStatusCallback(const grizzly_msgs::RawStatus&);
+  void mcuStatusCallback(const grizzly_msgs::RawStatusConstPtr&);
   ros::Subscriber sub_drive_, sub_mcu_status_, sub_user_estop_; 
+  grizzly_msgs::RawStatusConstPtr last_mcu_status_; 
 
   // Publish cmd_drive through to safe_cmd_drive.
   ros::Publisher pub_safe_drive_;
@@ -94,6 +104,7 @@ protected:
 
   // Publish diagnostics for the whole node from here.
   shared_ptr<diagnostic_updater::Updater> diagnostic_updater_;
+  void diagnostic(diagnostic_updater::DiagnosticStatusWrapper& stat);
 
   // Monitor the frequency of the MCU status and incoming cmd_drive messages for
   // acceptable range.

@@ -6,9 +6,10 @@
  * Separate ROS initialization step for better testability.
  */
 EncodersMonitor::EncodersMonitor(ros::NodeHandle* nh)
-  : encoders_timeout(0.05),
+  : encoders_timeout(0.11),
     encoder_speed_error_diff_threshold(0.5),
-    encoder_fault_time_to_failure(0.5)
+    encoder_fault_time_to_failure(0.5),
+    failed_encoder_(-1)
 {
   sub_encoders_ = nh->subscribe("motors/encoders", 1, &EncodersMonitor::encodersCallback, this);
   sub_drive_ = nh->subscribe("safe_cmd_drive", 1, &EncodersMonitor::driveCallback, this); 
@@ -62,9 +63,12 @@ bool EncodersMonitor::detectFailedEncoderCandidate(VectorDrive::Index* candidate
 
 bool EncodersMonitor::detectFailedEncoder()
 {
+  if (!last_received_encoders_ || !last_received_drive_) return false;
+
   VectorDrive::Index candidate_failed_encoder;
   if (detectFailedEncoderCandidate(&candidate_failed_encoder)) {
     if (last_received_encoders_->header.stamp - time_of_last_nonsuspect_encoders_ > encoder_fault_time_to_failure) {
+      failed_encoder_ = candidate_failed_encoder;
       return true;
     } 
   } else {
@@ -73,10 +77,6 @@ bool EncodersMonitor::detectFailedEncoder()
   return false;
 }
 
-/**
- * Called in the context of whether cmd_vels may be passed through as safe. Therefore this is 
- * called per-cmd_vel, not upon receipt of encoder messages.
- */
 bool EncodersMonitor::ok()
 {
   // If we have no encoder data, or its old, then definitely not okay.
@@ -111,15 +111,23 @@ void EncodersMonitor::diagnostic(diagnostic_updater::DiagnosticStatusWrapper& st
     stat.summary(2, "No encoders messages received.");
     return;
   } 
+
+  stat.add("Age of last encoders message", age(last_received_encoders_).toSec());
   if (age(last_received_encoders_) > encoders_timeout)
   {
-    stat.summaryf(2, "Last encoders message is stale (%f seconds old). Check motor driver connectivity.",
-        age(last_received_encoders_).toSec());
+    stat.summaryf(2, "Last encoders message is stale.");
     return;
   }
 
-  stat.summary(1, "Encoders monitoring not implemented.");
-  //stat.summary(0, "Encoders look good.")
+  if (failed_encoder_ >= 0)
+  {
+    std::string wheel_str(grizzly_msgs::nameFromDriveIndex(failed_encoder_));
+    stat.summaryf(2, "Encoder failure detected in %s wheel. Not a recoverable error, please service system.", wheel_str.c_str());
+    return;
+  }
+
+  //stat.summary(1, "Encoders monitoring not implemented.");
+  stat.summary(0, "Encoders look good.");
 }
 
 /**

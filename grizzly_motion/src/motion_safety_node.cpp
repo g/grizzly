@@ -32,16 +32,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "grizzly_msgs/RawStatus.h"
 #include "std_msgs/Bool.h"
 
-#include "diagnostic_updater/diagnostic_updater.h"
-#include "diagnostic_updater/publisher.h"
-
 using diagnostic_updater::DiagnosticStatusWrapper;
 using diagnostic_updater::FrequencyStatusParam;
 using diagnostic_updater::HeaderlessTopicDiagnostic;
 using diagnostic_updater::Updater;
 
 MotionSafety::MotionSafety(ros::NodeHandle* nh)
-  : nh_(nh)
+  : nh_(nh), state_(MotionStates::Stopped)
 {
   ros::param::get("vehicle_width", width_);
   ros::param::get("wheel_radius", radius_);
@@ -66,7 +63,7 @@ MotionSafety::MotionSafety(ros::NodeHandle* nh)
   diagnostic_updater_->setHardwareID("grizzly");
 
   // Frequency report on statuses coming from the MCU.
-  expected_mcu_status_frequency_ = 10;
+  expected_mcu_status_frequency_ = 50;
   diag_mcu_status_freq_.reset(new HeaderlessTopicDiagnostic("MCU status", *diagnostic_updater_,
       FrequencyStatusParam(&expected_mcu_status_frequency_, &expected_mcu_status_frequency_, 0.01, 5.0)));
 
@@ -75,6 +72,8 @@ MotionSafety::MotionSafety(ros::NodeHandle* nh)
   max_cmd_drive_freq_ = 50;
   diag_cmd_drive_freq_.reset(new HeaderlessTopicDiagnostic("Drive command", *diagnostic_updater_, 
       FrequencyStatusParam(&min_cmd_drive_freq_, &max_cmd_drive_freq_, 0.01, 5.0)));
+
+  diagnostic_updater_->add("Motion Safety", this, &MotionSafety::diagnostic);
 
   // More specialized monitoring for encoders. 
   encoders_monitor_.reset(new EncodersMonitor(nh_));
@@ -87,6 +86,39 @@ MotionSafety::MotionSafety(ros::NodeHandle* nh)
   accel_limiters_[3].reset(new DriveChangeLimiter(max_accel_ / radius_, &grizzly_msgs::Drive::rear_right));
 }
 
+void MotionSafety::setFault(const std::string reason)
+{
+  std_msgs::Bool msg;
+  msg.data = true;
+  pub_estop_.publish(msg);
+  state_ = MotionStates::Fault;
+  fault_reason_ = reason;
+}
+
+void MotionSafety::checkFaults()
+{
+  // Precharge fault
+  if (last_mcu_status_)
+  {
+    if (!(last_mcu_status_->error & grizzly_msgs::RawStatus::ERROR_BRK_DET))
+      last_non_precharge_time_ = last_mcu_status_->header.stamp;
+    if (last_mcu_status_->header.stamp - last_non_precharge_time_ > ros::Duration(4.0))
+    {
+      // Pre-charging in excess of 4 seconds signals a serious electrical failure.
+      setFault("Precharge persisted for more than four seconds.");
+    }
+  }
+
+  // Encoders fault
+  if (encoders_monitor_->detectFailedEncoder())
+  {
+    setFault("Encoder failure detected.");
+  }
+
+  // Motor driver fault
+
+}
+
 void MotionSafety::watchdogCallback(const ros::TimerEvent&)
 {
   // Messages to be published to the MCU at each run of this function.
@@ -94,11 +126,14 @@ void MotionSafety::watchdogCallback(const ros::TimerEvent&)
   std_msgs::Bool estop;
   estop.data = false;
 
-  bool ok = encoders_monitor_->ok();  // && motor_drivers_monitor->ok(); 
+  checkFaults();
+ 
+  bool encoders_ok = encoders_monitor_->ok();  // && motor_drivers_monitor->ok(); 
 
   if (state_ == MotionStates::Stopped)
   {
-    if (ros::Time::now() - last_commanded_movement_time_ < ros::Duration(0.1))
+    if (ros::Time::now() - last_commanded_movement_time_ < ros::Duration(0.1) &&
+        !isEstopped())
     {
       state_ = MotionStates::Starting;
       transition_to_moving_time_ = ros::Time::now() + starting_duration_;
@@ -109,21 +144,35 @@ void MotionSafety::watchdogCallback(const ros::TimerEvent&)
   {
     ambience.beacon = ambience.headlight = ambience.taillight = ambience.beep =
       grizzly_msgs::Ambience::PATTERN_DFLASH;
-    if (ros::Time::now() > transition_to_moving_time_) state_ = MotionStates::Moving;
-    if (!ok) state_ = MotionStates::PendingStopped;
+    if (ros::Time::now() > transition_to_moving_time_)
+      state_ = MotionStates::Moving;
+    if (ros::Time::now() - last_commanded_movement_time_ > ros::Duration(0.1))
+      state_ = MotionStates::Stopped;
+    if (!encoders_ok || isEstopped()) state_ = MotionStates::PendingStopped;
   }
 
   if (state_ == MotionStates::Moving)
   {
-    if (!ok) state_ = MotionStates::PendingStopped;
+    if (!encoders_ok) state_ = MotionStates::PendingStopped;
+    if (ros::Time::now() - last_commanded_movement_time_ > ros::Duration(3.0))
+    {
+      state_ = MotionStates::Stopped;
+    }
   }
 
   if (state_ == MotionStates::PendingStopped)
   {
     estop.data = true;
-    // TODO: Also gate this transition on a confirmation from the MCU that
-    // an estop condition is active?
-    if (!encoders_monitor_->moving()) state_ = MotionStates::Stopped;
+    // Three conditions to exit this state:
+    //   - Vehicle must be nonmoving, according to the encoders
+    //   - Vehicle must not be receiving motion commands
+    //   - Vehicle must be in the estop state, requiring a reset
+    if (!encoders_monitor_->moving() &&
+        ros::Time::now() - last_commanded_movement_time_ > ros::Duration(1.0) &&
+        isEstopped())
+    {
+      state_ = MotionStates::Stopped;
+    }
   }
   
   if (state_ == MotionStates::Fault)
@@ -170,9 +219,54 @@ void MotionSafety::driveCallback(const grizzly_msgs::DriveConstPtr& drive_comman
   pub_safe_drive_.publish(drive_safe);
 }
 
-void MotionSafety::mcuStatusCallback(const grizzly_msgs::RawStatus& status)
+bool MotionSafety::isEstopped()
+{
+  return last_mcu_status_ && 
+    (last_mcu_status_->error & grizzly_msgs::RawStatus::ERROR_ESTOP_RESET);
+}
+
+void MotionSafety::mcuStatusCallback(const grizzly_msgs::RawStatusConstPtr& status)
 {
   diag_mcu_status_freq_->tick();
+  last_mcu_status_ = status;
+}
+
+void MotionSafety::diagnostic(diagnostic_updater::DiagnosticStatusWrapper& stat)
+{
+  std::string state_str;
+  int level = 0;
+  switch(state_) 
+  {
+    case MotionStates::Stopped:
+      state_str = "Stopped";
+      break;
+    case MotionStates::Starting:
+      state_str = "Starting";
+      break;
+    case MotionStates::Moving:
+      state_str = "Moving";
+      break;
+    case MotionStates::PendingStopped:
+      state_str = "PendingStopped";
+      level = 1;
+      break;
+    case MotionStates::Fault:
+      stat.summaryf(2, "Fault: %s", fault_reason_.c_str());
+      break;
+    default:
+      state_str = "Unknown";
+      level = 2;
+      break;
+  }
+
+  if (state_ != MotionStates::Fault)
+  {
+    stat.summaryf(level, "Motion state machine state is: %s", state_str.c_str());
+  }
+
+  stat.add("state", state_); 
+  stat.add("last move command (seconds)", (ros::Time::now() - last_commanded_movement_time_).toSec()); 
+  stat.add("vehicle in motion", encoders_monitor_->moving());
 }
 
 /**

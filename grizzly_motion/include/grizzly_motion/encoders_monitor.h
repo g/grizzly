@@ -62,6 +62,7 @@ public:
 
 protected:
   ros::Subscriber sub_encoders_, sub_drive_;
+  int failed_encoder_;
 
   grizzly_msgs::DriveConstPtr last_received_encoders_;
   grizzly_msgs::DriveConstPtr last_received_drive_;
