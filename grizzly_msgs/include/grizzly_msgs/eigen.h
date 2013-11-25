@@ -86,7 +86,7 @@ static inline std::string nameFromDriveIndex(VectorDrive::Index field)
 
 static inline bool isStationary(const VectorDrive& vec, float threshold=default_stationary_threshold)
 { 
-  return vec.cwiseAbs().maxCoeff() >= threshold;
+  return vec.cwiseAbs().maxCoeff() < threshold;
 }
 
 static inline bool isStationary(const Drive& msg, float threshold=default_stationary_threshold)
