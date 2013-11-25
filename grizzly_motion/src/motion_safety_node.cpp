@@ -58,6 +58,9 @@ MotionSafety::MotionSafety(ros::NodeHandle* nh)
   sub_mcu_status_ = nh_->subscribe("mcu/status", 1, &MotionSafety::mcuStatusCallback, this);
   watchdog_timer_ = nh_->createTimer(ros::Duration(0.05), &MotionSafety::watchdogCallback, this);
 
+  // Drive pass-through
+  sub_user_estop_ = nh_->subscribe("estop", 1, &MotionSafety::estopCallback, this);
+
   // Set up the diagnostic updater
   diagnostic_updater_.reset(new Updater());
   diagnostic_updater_->setHardwareID("grizzly");
@@ -118,6 +121,8 @@ void MotionSafety::watchdogCallback(const ros::TimerEvent&)
   if (state_ == MotionStates::PendingStopped)
   {
     estop.data = true;
+    // TODO: Also gate this transition on a confirmation from the MCU that
+    // an estop condition is active?
     if (!encoders_monitor_->moving()) state_ = MotionStates::Stopped;
   }
   
@@ -129,6 +134,15 @@ void MotionSafety::watchdogCallback(const ros::TimerEvent&)
   diagnostic_updater_->update(); 
   pub_ambience_.publish(ambience);
   pub_estop_.publish(estop);
+}
+
+void MotionSafety::estopCallback(const std_msgs::BoolConstPtr& msg)
+{
+  if (msg->data == true) {
+    // Publish an immediate message, then also signal the state transition.
+    pub_estop_.publish(msg);
+    if (state_ != MotionStates::Fault) state_ = MotionStates::PendingStopped;
+  }
 }
 
 /**

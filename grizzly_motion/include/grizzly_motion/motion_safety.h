@@ -10,6 +10,10 @@ ROS_DECLARE_MESSAGE(Drive);
 ROS_DECLARE_MESSAGE(RawStatus);
 }
 
+namespace std_msgs {
+ROS_DECLARE_MESSAGE(Bool);
+}
+
 namespace diagnostic_updater {
 class Updater;
 class HeaderlessTopicDiagnostic;
@@ -77,8 +81,9 @@ protected:
 
   // Topics directly monitored in this class.
   void driveCallback(const grizzly_msgs::DriveConstPtr&);
+  void estopCallback(const std_msgs::BoolConstPtr&);
   void mcuStatusCallback(const grizzly_msgs::RawStatus&);
-  ros::Subscriber sub_drive_, sub_mcu_status_; 
+  ros::Subscriber sub_drive_, sub_mcu_status_, sub_user_estop_; 
 
   // Publish cmd_drive through to safe_cmd_drive.
   ros::Publisher pub_safe_drive_;

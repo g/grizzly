@@ -98,7 +98,7 @@ bool EncodersMonitor::ok()
  */
 bool EncodersMonitor::moving()
 {
-  return not grizzly_msgs::isStationary(*last_received_encoders_.get());
+  return last_received_encoders_ && !grizzly_msgs::isStationary(*last_received_encoders_.get());
 }
 
 /**
