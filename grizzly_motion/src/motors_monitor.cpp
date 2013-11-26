@@ -23,6 +23,8 @@ MotorsMonitor::MotorsMonitor() : nh_("")
   stat_sub_[1] = nh_.subscribe<roboteq_msgs::Status>("/motors/front_left/status",1,boost::bind(&MotorsMonitor::motor_status,this,_1,(int)grizzly_msgs::Drives::FrontRight));
   stat_sub_[2] = nh_.subscribe<roboteq_msgs::Status>("/motors/rear_right/status",1,boost::bind(&MotorsMonitor::motor_status,this,_1,(int)grizzly_msgs::Drives::RearLeft));
   stat_sub_[3] = nh_.subscribe<roboteq_msgs::Status>("/motors/rear_left/status",1,boost::bind(&MotorsMonitor::motor_status,this,_1,(int)grizzly_msgs::Drives::RearRight));
+
+  fault_level_ = 0;
 }
 
 template<class M>
@@ -41,6 +43,9 @@ bool MotorsMonitor::ok()
     if (!last_received_status_[i] || !last_received_feedback_) return false;
     if (age(last_received_status_[i]) > motors_timeout_) return false;
   }
+
+  if (fault_level_ > 0)
+    return false;
 
   return true;
 }
@@ -63,20 +68,19 @@ void MotorsMonitor::diagnostic(diagnostic_updater::DiagnosticStatusWrapper& stat
     }
   }
 
-  int fault_level = 0;
   std::string fault_output = "";
 
   for (int i=grizzly_msgs::Drives::FrontLeft;i<=grizzly_msgs::Drives::RearRight;i++) {
     if(last_received_status_[i]->status != 0) {
-      fault_level = lookForSeriousFault(last_received_status_[i]->status,stat,i);
-      if (fault_level == 1) 
+      fault_level_ = lookForSeriousFault(last_received_status_[i]->status,stat,i);
+      if (fault_level_ == 1) 
         fault_output = "Motor at " + grizzly_msgs::nameFromDriveIndex(i) + " is in a fault state";
-      else if (fault_level == 2) 
+      else if (fault_level_ == 2) 
         fault_output = "Motor at " + grizzly_msgs::nameFromDriveIndex(i) + " is in a serious fault state";
       else
         fault_output = "Motor at " + grizzly_msgs::nameFromDriveIndex(i) + " is cleared of faults";
 
-      stat.summary(fault_level,fault_output);
+      stat.summary(fault_level_,fault_output);
       return;
     }
   } 

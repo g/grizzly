@@ -26,6 +26,7 @@ protected:
   void motor_status(const roboteq_msgs::StatusConstPtr&, const int);
   void msg_watchdog(const ros::TimerEvent&);
   int lookForSeriousFault(uint8_t, diagnostic_updater::DiagnosticStatusWrapper&, const int);
+  int fault_level_;
 
   ros::Subscriber fb_sub_[4], stat_sub_[4];
   ros::Publisher estop_pub_;  
