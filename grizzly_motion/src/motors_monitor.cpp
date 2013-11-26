@@ -1,6 +1,5 @@
 
 #include "grizzly_motion/motors_monitor.h"
-#include <diagnostic_updater/publisher.h>
 #include <roboteq_msgs/Feedback.h>
 #include <roboteq_msgs/Status.h>
 #include <grizzly_msgs/eigen.h>
@@ -48,94 +47,6 @@ bool MotorsMonitor::ok()
     return false;
 
   return true;
-}
-
-/**
- * Prepare diagnostics. Called at 1Hz by the Updater.
- */
-void MotorsMonitor::diagnostic(diagnostic_updater::DiagnosticStatusWrapper& stat)
-{
-  for (int i=grizzly_msgs::Drives::FrontLeft;i<=grizzly_msgs::Drives::RearRight;i++) {
-    if (!last_received_status_[i] || !last_received_feedback_[i])
-    {
-      stat.summary(2, "Motor " + grizzly_msgs::nameFromDriveIndex(i) + " driver status and/or feedback message not received");
-      return;
-    } 
-    if (age(last_received_status_[i]) > motors_timeout_)
-    {
-      stat.summaryf(2, "Last motor %s status message is stale (%f seconds old). Check motor driver connectivity.",grizzly_msgs::nameFromDriveIndex(i).c_str(),age(last_received_status_[i]).toSec());
-      return;
-    }
-  }
-
-  std::string fault_output = "";
-
-  for (int i=grizzly_msgs::Drives::FrontLeft;i<=grizzly_msgs::Drives::RearRight;i++) {
-    if(last_received_status_[i]->status != 0) {
-      fault_level_ = lookForSeriousFault(last_received_status_[i]->status,stat,i);
-      if (fault_level_ == 1) 
-        fault_output = "Motor at " + grizzly_msgs::nameFromDriveIndex(i) + " is in a fault state";
-      else if (fault_level_ == 2) 
-        fault_output = "Motor at " + grizzly_msgs::nameFromDriveIndex(i) + " is in a serious fault state";
-      else
-        fault_output = "Motor at " + grizzly_msgs::nameFromDriveIndex(i) + " is cleared of faults";
-
-      stat.summary(fault_level_,fault_output);
-      return;
-    }
-  } 
-
-}
-
-int MotorsMonitor::lookForSeriousFault(uint8_t status,diagnostic_updater::DiagnosticStatusWrapper& stat, const int motor_num)
-{
-  int error_level = 0;
-  roboteq_msgs::Status fault_def;
- 
-  //Warning level faults 
-  if (status & fault_def.FAULT_UNDERVOLTAGE) {
-    stat.add (grizzly_msgs::nameFromDriveIndex(motor_num), "Undervoltage fault");
-    error_level = 1;
-  }
-
-  if (status & fault_def.FAULT_EMERGENCY_STOP) {
-    stat.add (grizzly_msgs::nameFromDriveIndex(motor_num), "Emergency Stop fault");
-    error_level = 1;
-  }
-
-  if (status & fault_def.FAULT_SEPEX_EXCITATION_FAULT) {
-    stat.add (grizzly_msgs::nameFromDriveIndex(motor_num), "Sepex Excitation fault");
-    error_level = 1;
-  }
-
-  if (status & fault_def.FAULT_STARTUP_CONFIG_FAULT) {
-    stat.add (grizzly_msgs::nameFromDriveIndex(motor_num), "Startup Configuration fault");
-    error_level = 1;
-  }
-
-  //More serious faults 
-  if (status & fault_def.FAULT_OVERHEAT) {
-    stat.add (grizzly_msgs::nameFromDriveIndex(motor_num), "Overheat fault");
-    error_level = 2;
-  }
-
-  if (status & fault_def.FAULT_OVERVOLTAGE) {
-    stat.add (grizzly_msgs::nameFromDriveIndex(motor_num), "Overvoltage fault");
-    error_level = 2;
-  }
-
-  if (status & fault_def.FAULT_SHORT_CIRCUIT) {
-    stat.add (grizzly_msgs::nameFromDriveIndex(motor_num), "Short Circuit fault");
-    error_level = 2;
-  } 
-
-  if (status & fault_def.FAULT_MOSFET_FAILURE) {
-    stat.add (grizzly_msgs::nameFromDriveIndex(motor_num), "MOSFET Failure fault");
-    error_level = 2;
-  }
-
-  return error_level;
-
 }
 
 void MotorsMonitor::motor_feedback(const roboteq_msgs::FeedbackConstPtr msg, const int motor_num) {
