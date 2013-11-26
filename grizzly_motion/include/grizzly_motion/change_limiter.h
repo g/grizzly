@@ -1,7 +1,7 @@
 /**
 Software License Agreement (BSD)
 
-\file      acceleration_limiter.cpp
+\file      change_limiter.h
 \authors   Mike Purvis <mpurvis@clearpathrobotics.com
 \copyright Copyright (c) 2013, Clearpath Robotics, Inc., All rights reserved.
 
