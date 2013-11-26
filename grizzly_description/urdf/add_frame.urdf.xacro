@@ -66,5 +66,5 @@ incorporate collision.
 			</inertial>
 		</link>
 		
-  	</xacro:macro>
+  </xacro:macro>
 </robot>
