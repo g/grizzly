@@ -21,7 +21,9 @@ protected:
   void motor_feedback(const roboteq_msgs::FeedbackConstPtr, const int);
   void motor_status(const roboteq_msgs::StatusConstPtr&, const int);
   void msg_watchdog(const ros::TimerEvent&);
-  int fault_level_;
+  int lookForSeriousFault(uint8_t, const int);
+
+  int fault_level_[4];
 
   ros::Subscriber fb_sub_[4], stat_sub_[4];
   ros::Publisher estop_pub_;  
