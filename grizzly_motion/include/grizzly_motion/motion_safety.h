@@ -23,6 +23,7 @@ class HeaderlessTopicDiagnostic;
 }
 
 class EncodersMonitor;
+class MotorsMonitor;
 
 typedef ChangeLimiter<grizzly_msgs::Drive> DriveChangeLimiter;
 
@@ -114,6 +115,7 @@ protected:
 
   // Separate class for monitoring encoders for sanity.
   shared_ptr<EncodersMonitor> encoders_monitor_; 
+  shared_ptr<MotorsMonitor> motor_drivers_monitor_;
   shared_ptr<DriveChangeLimiter> accel_limiters_[4];
 
   double width_;

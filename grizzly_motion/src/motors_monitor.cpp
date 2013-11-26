@@ -6,7 +6,7 @@
 #include <boost/bind.hpp>
 
 
-MotorsMonitor::MotorsMonitor() : nh_("")
+MotorsMonitor::MotorsMonitor(ros::NodeHandle* nh) : nh_("")
 {
 
   double motors_timeout_seconds;

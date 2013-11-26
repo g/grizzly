@@ -10,7 +10,7 @@ ROS_DECLARE_MESSAGE(Status);
 
 class MotorsMonitor {
 public:
-  MotorsMonitor();
+  MotorsMonitor(ros::NodeHandle* nh);
 
   bool ok();
 

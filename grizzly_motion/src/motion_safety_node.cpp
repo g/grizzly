@@ -24,6 +24,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "grizzly_motion/motion_safety.h"
+#include "grizzly_motion/motors_monitor.h"
 #include "grizzly_motion/encoders_monitor.h"
 #include "grizzly_motion/change_limiter.h"
 
@@ -77,6 +78,7 @@ MotionSafety::MotionSafety(ros::NodeHandle* nh)
 
   // More specialized monitoring for encoders. 
   encoders_monitor_.reset(new EncodersMonitor(nh_));
+  motor_drivers_monitor_.reset(new MotorsMonitor(nh_));
   diagnostic_updater_->add("Encoders", encoders_monitor_.get(), &EncodersMonitor::diagnostic);
 
   // Rate-of-change limiter for wheel speed commands.
@@ -129,6 +131,7 @@ void MotionSafety::watchdogCallback(const ros::TimerEvent&)
   checkFaults();
  
   bool encoders_ok = encoders_monitor_->ok();  // && motor_drivers_monitor->ok(); 
+  bool motor_controllers_ok = motor_drivers_monitor_->ok();
 
   if (state_ == MotionStates::Stopped)
   {
@@ -148,12 +151,12 @@ void MotionSafety::watchdogCallback(const ros::TimerEvent&)
       state_ = MotionStates::Moving;
     if (ros::Time::now() - last_commanded_movement_time_ > ros::Duration(0.1))
       state_ = MotionStates::Stopped;
-    if (!encoders_ok || isEstopped()) state_ = MotionStates::PendingStopped;
+    if (!encoders_ok || !motor_controllers_ok || isEstopped()) state_ = MotionStates::PendingStopped;
   }
 
   if (state_ == MotionStates::Moving)
   {
-    if (!encoders_ok) state_ = MotionStates::PendingStopped;
+    if (!encoders_ok || !motor_controllers_ok) state_ = MotionStates::PendingStopped;
     if (ros::Time::now() - last_commanded_movement_time_ > ros::Duration(3.0))
     {
       state_ = MotionStates::Stopped;
