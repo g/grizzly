@@ -63,7 +63,7 @@ public:
   MotionSafety(ros::NodeHandle* nh);
 
   bool isEstopped();
-  void setFault(const std::string reason);
+  void setStop(const std::string reason, bool estop, bool fault);
   void checkFaults();
 
 protected:
@@ -75,7 +75,7 @@ protected:
   void watchdogCallback(const ros::TimerEvent&);
   ros::Timer watchdog_timer_;
   MotionState state_;
-  std::string fault_reason_;
+  std::string reason_;
 
   // Keeps the time of the last received command message with a non-stationary
   // movement request to at least one of the wheels.
