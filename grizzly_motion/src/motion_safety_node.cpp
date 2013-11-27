@@ -88,13 +88,21 @@ MotionSafety::MotionSafety(ros::NodeHandle* nh)
   accel_limiters_[3].reset(new DriveChangeLimiter(max_accel_ / radius_, &grizzly_msgs::Drive::rear_right));
 }
 
-void MotionSafety::setFault(const std::string reason)
+void MotionSafety::setStop(const std::string reason, bool estop=false, bool fault=false)
 {
-  std_msgs::Bool msg;
-  msg.data = true;
-  pub_estop_.publish(msg);
-  state_ = MotionStates::Fault;
-  fault_reason_ = reason;
+  ROS_ERROR_STREAM("Stop transition occurring for reason: " << reason);
+  if (estop || fault)
+  {
+    std_msgs::Bool msg;
+    msg.data = true;
+    pub_estop_.publish(msg);
+    state_ = fault ? MotionStates::Fault : MotionStates::PendingStopped;
+  }
+  else
+  {
+    state_ = MotionStates::Stopped;
+  }
+  reason_ = reason;
 }
 
 void MotionSafety::checkFaults()
@@ -107,14 +115,14 @@ void MotionSafety::checkFaults()
     if (last_mcu_status_->header.stamp - last_non_precharge_time_ > ros::Duration(4.0))
     {
       // Pre-charging in excess of 4 seconds signals a serious electrical failure.
-      setFault("Precharge persisted for more than four seconds.");
+      setStop("Precharge persisted for more than four seconds.", true, true);
     }
   }
 
   // Encoders fault
   if (encoders_monitor_->detectFailedEncoder())
   {
-    setFault("Encoder failure detected.");
+    setStop("Encoder failure detected.", true, true);
   }
 
   // Motor driver fault
@@ -130,7 +138,7 @@ void MotionSafety::watchdogCallback(const ros::TimerEvent&)
 
   checkFaults();
  
-  bool encoders_ok = encoders_monitor_->ok();  // && motor_drivers_monitor->ok(); 
+  bool encoders_ok = encoders_monitor_->ok();
   bool motor_controllers_ok = motor_drivers_monitor_->ok();
 
   if (state_ == MotionStates::Stopped)
@@ -150,17 +158,23 @@ void MotionSafety::watchdogCallback(const ros::TimerEvent&)
     if (ros::Time::now() > transition_to_moving_time_)
       state_ = MotionStates::Moving;
     if (ros::Time::now() - last_commanded_movement_time_ > ros::Duration(0.1))
-      state_ = MotionStates::Stopped;
-    if (!encoders_ok || !motor_controllers_ok || isEstopped()) state_ = MotionStates::PendingStopped;
+      setStop("Command messages stale.");
+    if (!encoders_ok)
+      setStop("Encoders not okay.");
+    if(!motor_controllers_ok)
+      setStop("Motor controllers not okay.");
+    if (isEstopped())
+      setStop("External estop.");
   }
 
   if (state_ == MotionStates::Moving)
   {
-    if (!encoders_ok || !motor_controllers_ok) state_ = MotionStates::PendingStopped;
+    if (!encoders_ok)
+      setStop("Encoders not okay.", true, true);
+    if (!motor_controllers_ok)
+      setStop("Motor controllers not okay.", true);
     if (ros::Time::now() - last_commanded_movement_time_ > ros::Duration(3.0))
-    {
-      state_ = MotionStates::Stopped;
-    }
+      setStop("Command messages stale.");
   }
 
   if (state_ == MotionStates::PendingStopped)
@@ -245,28 +259,30 @@ void MotionSafety::diagnostic(diagnostic_updater::DiagnosticStatusWrapper& stat)
       break;
     case MotionStates::Starting:
       state_str = "Starting";
+      reason_.clear();
       break;
     case MotionStates::Moving:
       state_str = "Moving";
+      reason_.clear();
       break;
     case MotionStates::PendingStopped:
       state_str = "PendingStopped";
       level = 1;
       break;
     case MotionStates::Fault:
-      stat.summaryf(2, "Fault: %s", fault_reason_.c_str());
+      state_str = "Faulted";
+      level = 2;
       break;
     default:
       state_str = "Unknown";
       level = 2;
       break;
   }
-
-  if (state_ != MotionStates::Fault)
-  {
-    stat.summaryf(level, "Motion state machine state is: %s", state_str.c_str());
+  stat.summaryf(level, "Vehicle State %s", state_str.c_str());
+  if (!reason_.empty()) {
+    stat.summaryf(level, "Vehicle State %s (Reason: %s)", state_str.c_str(), reason_.c_str());
   }
-
+  stat.add("reason", reason_);
   stat.add("state", state_); 
   stat.add("last move command (seconds)", (ros::Time::now() - last_commanded_movement_time_).toSec()); 
   stat.add("vehicle in motion", encoders_monitor_->moving());
