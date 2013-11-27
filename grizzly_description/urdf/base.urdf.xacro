@@ -179,8 +179,8 @@ This program contains the description of the robot base model for the Clearpath 
 
   <!-- Add a sensor anchor link for the imu -->
   <grizzly_tf parent="base_link" name="imu_link" 
-    translateX="0" translateY="0" translateZ="0.0" 
-    rotateX="0.0" rotateY="0.0" rotateZ="0.0"/>
+    translateX="-0.788" translateY="0" translateZ="0.118" 
+    rotateX="1.5701" rotateY="0" rotateZ="-1.5701" />
 
   <!-- DECORATIONS -->
   <!-- Bumpers -->
