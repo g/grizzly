@@ -161,8 +161,8 @@ void MotionSafety::watchdogCallback(const ros::TimerEvent&)
       setStop("Command messages stale.");
     if (!encoders_ok)
       setStop("Encoders not okay.");
-    if(!motor_controllers_ok)
-      setStop("Motor controllers not okay.");
+    //if(!motor_controllers_ok)
+    //  setStop("Motor controllers not okay.");
     if (isEstopped())
       setStop("External estop.");
   }
@@ -171,8 +171,8 @@ void MotionSafety::watchdogCallback(const ros::TimerEvent&)
   {
     if (!encoders_ok)
       setStop("Encoders not okay.", true, true);
-    if (!motor_controllers_ok)
-      setStop("Motor controllers not okay.", true);
+    //if (!motor_controllers_ok)
+    //  setStop("Motor controllers not okay.", true);
     if (ros::Time::now() - last_commanded_movement_time_ > ros::Duration(3.0))
       setStop("Command messages stale.");
   }
