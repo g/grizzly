@@ -31,8 +31,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 EncodersMonitor::EncodersMonitor(ros::NodeHandle* nh)
   : encoders_timeout(0.11),
-    encoder_speed_error_diff_threshold(0.5),
-    encoder_fault_time_to_failure(0.5),
+    encoder_speed_error_diff_threshold(0.8),
+    encoder_fault_time_to_failure(1.0),
     failed_encoder_(-1)
 {
   sub_encoders_ = nh->subscribe("motors/encoders", 1, &EncodersMonitor::encodersCallback, this);
