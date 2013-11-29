@@ -169,6 +169,8 @@ void MotionSafety::watchdogCallback(const ros::TimerEvent&)
 
   if (state_ == MotionStates::Moving)
   {
+    ambience.beacon = ambience.beep =
+      grizzly_msgs::Ambience::PATTERN_FLASH;
     if (!encoders_ok)
       setStop("Encoders not okay.", true, true);
     //if (!motor_controllers_ok)
