@@ -2,6 +2,9 @@
 Changelog for package grizzly_msgs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.1.1 (2013-11-30)
+------------------
+
 0.1.0 (2013-11-28)
 ------------------
 * Add a header with eigen-msg convenience functions for grizzly_msgs/Drive.
