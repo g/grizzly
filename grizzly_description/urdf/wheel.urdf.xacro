@@ -108,9 +108,6 @@ This program contains the description of the robot wheel model for Clearpath Gri
         <geometry>
           <cylinder length="${wheel_z_size}"
                     radius="${wheel_x_size/2}" />
-          <!--
-                    <mesh filename="package://husky_description/Media/models/wheel.stl" />
-                -->
         </geometry>
       </collision>
     </link>
