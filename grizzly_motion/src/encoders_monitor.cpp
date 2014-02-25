@@ -75,7 +75,7 @@ bool EncodersMonitor::detectFailedEncoderCandidate(VectorDrive::Index* candidate
 
   // If the measured speed is not small, then it's not a failure. A failed encoder will be either
   // still, or buzzing back and forth.
-  if (wheelSpeedMeasured[*candidate] > 0.01) return false;
+  if (fabs(wheelSpeedMeasured[*candidate]) > 0.01) return false;
 
   // If the error difference does not exceed a threshold, then not an error.
   if (max_error_diff < encoder_speed_error_diff_threshold) return false;
