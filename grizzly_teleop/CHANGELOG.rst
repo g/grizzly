@@ -2,6 +2,11 @@
 Changelog for package grizzly_teleop
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Add dependency on joy.
+* Contributors: Mike Purvis
+
 0.1.2 (2013-12-04)
 ------------------
 

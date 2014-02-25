@@ -2,6 +2,11 @@
 Changelog for package grizzly_motion
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Check absolute value of measured speed; fixes bug with spurious encoder faults when driving backwards.
+* Contributors: Mike Purvis
+
 0.1.2 (2013-12-04)
 ------------------
 * Install missing launch folder.
