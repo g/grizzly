@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
   <name>grizzly_navigation</name>
-  <version>0.1.3</version>
+  <version>0.1.4</version>
   <description>The grizzly_navigation package</description>
 
   <maintainer email="yanma@clearpathrobotics.com">Yan Ma</maintainer>

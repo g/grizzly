@@ -2,8 +2,8 @@
 Changelog for package grizzly_motion
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.1.4 (2014-02-27)
+------------------
 * Disable encoder check pending a better implementation.
 * Contributors: Mike Purvis
 
