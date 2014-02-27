@@ -90,7 +90,7 @@ bool EncodersMonitor::detectFailedEncoder()
   if (!last_received_encoders_ || !last_received_drive_) return false;
 
   // Disable check until motor model technique implemented and more test data available.
-  return true;
+  return false;
 
   VectorDrive::Index candidate_failed_encoder;
   if (detectFailedEncoderCandidate(&candidate_failed_encoder)) {
