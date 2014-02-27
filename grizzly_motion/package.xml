@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
   <name>grizzly_motion</name>
-  <version>0.1.4</version>
+  <version>0.1.5</version>
   <description>Low-level motion control nodes for Grizzly which are common to simulated and non-simulated Grizzly.</description>
 
   <maintainer email="mpurvis@clearpathrobotics.com">Mike Purvis</maintainer>
