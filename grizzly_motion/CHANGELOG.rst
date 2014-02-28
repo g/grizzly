@@ -2,8 +2,8 @@
 Changelog for package grizzly_motion
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.2.0 (2014-02-28)
+------------------
 * Change max acceleration from 0.5 to 1.5.
 * Contributors: Mike Purvis
 
