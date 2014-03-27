@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(grizzly_msgs)
-find_package(catkin REQUIRED COMPONENTS message_generation std_msgs)
+
+find_package(catkin REQUIRED COMPONENTS cmake_modules message_generation std_msgs)
 find_package(Eigen REQUIRED)
 
 add_message_files(
