@@ -175,6 +175,14 @@ void MotionSafety::watchdogCallback(const ros::TimerEvent&)
       setStop("Encoders not okay.", true, true);
     //if (!motor_controllers_ok)
     //  setStop("Motor controllers not okay.", true);
+
+    // There are two levels of timeout at work when Grizzly is in motion. The immediate
+    // timeout is 110ms, enforced in the Roboteq firmware:
+    //   https://github.com/g/roboteq/blob/master/roboteq_driver/mbs/script.mbs#L10
+    //
+    // This is the secondary timeout, which switches the statemachine back to the Stopped
+    // state, which requires the starting_duration_ wait before moving again. This delay
+    // is only necessary when the vehicle has been stationary/uncommanded for a short period.
     if (ros::Time::now() - last_commanded_movement_time_ > ros::Duration(3.0))
       setStop("Command messages stale.");
   }
@@ -184,7 +192,7 @@ void MotionSafety::watchdogCallback(const ros::TimerEvent&)
     estop.data = true;
     // Three conditions to exit this state:
     //   - Vehicle must be nonmoving, according to the encoders
-    //   - Vehicle must not be receiving motion commands
+    //   - Vehicle must not be receiving motion commands (none in the last second)
     //   - Vehicle must be in the estop state, requiring a reset
     if (!encoders_monitor_->moving() &&
         ros::Time::now() - last_commanded_movement_time_ > ros::Duration(1.0) &&
