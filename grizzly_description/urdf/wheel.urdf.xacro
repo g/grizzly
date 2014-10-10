@@ -50,9 +50,9 @@ This program contains the description of the robot wheel model for Clearpath Gri
             value="0.66" />
   <property name="wheel_z_size"
             value="0.252" />
-  <property name="wheel_mass"
-            value="2.63657000" />
-  <!-- in kg-->
+
+  <property name="wheel_mass" value="15" />
+
   <property name="wheel_ixx_com_cs"
             value="0.02466885" />
   <!-- at center of mass aligned with coordinate system, kg*m^2-->
@@ -119,6 +119,7 @@ This program contains the description of the robot wheel model for Clearpath Gri
       <fdir1 value="1 0 0" />
       <material>Gazebo/Grey</material>
       <turnGravityOff>false</turnGravityOff>
+      <selfCollide>true</selfCollide>
     </gazebo>
     <joint name="joint_${fb}_${lr}_wheel"
            type="continuous">
