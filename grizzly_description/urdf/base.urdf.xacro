@@ -156,7 +156,7 @@ This program contains the description of the robot base model for the Clearpath 
       <geometry>
         <mesh filename="package://grizzly_description/meshes/base_link.stl" />
       </geometry>
-      <material name="Black" />
+      <material name="DarkGrey" />
     </visual>
     <collision>
       <origin xyz="0 0 0.3"
@@ -168,7 +168,7 @@ This program contains the description of the robot base model for the Clearpath 
     </collision>
   </link>
   <gazebo reference="base_link">
-    <material>Gazebo/FlatBlack</material>
+    <material>Gazebo/DarkGrey</material>
     <turnGravityOff>false</turnGravityOff>
   </gazebo>
 
@@ -246,7 +246,7 @@ This program contains the description of the robot base model for the Clearpath 
       <geometry>
         <mesh filename="package://grizzly_description/meshes/front_axle.stl" />
       </geometry>
-      <material name="Black" />
+      <material name="DarkGrey" />
     </visual>
     <collision>
       <origin xyz="0 0 0"
@@ -259,7 +259,7 @@ This program contains the description of the robot base model for the Clearpath 
   </link>
 
   <gazebo reference="front_axle_link">
-    <material>Gazebo/FlatBlack</material>
+    <material>Gazebo/DarkGrey</material>
     <turnGravityOff>false</turnGravityOff>
   </gazebo>
 
