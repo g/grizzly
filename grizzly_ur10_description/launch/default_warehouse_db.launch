@@ -3,8 +3,8 @@
   <arg name="reset" default="false"/>
 
   <!-- Launch the warehouse with a default database location -->  
-  <include file="$(find ur10_moveit_config)/launch/warehouse.launch">
-    <arg name="moveit_warehouse_database_path" value="$(find ur10_moveit_config)/default_warehouse_mongo_db" />
+  <include file="$(find grizzly_ur10_description)/launch/warehouse.launch">
+    <arg name="moveit_warehouse_database_path" value="$(find grizzly_ur10_description)/default_warehouse_mongo_db" />
   </include>
 
   <!-- If we want to reset the database, run this node -->
