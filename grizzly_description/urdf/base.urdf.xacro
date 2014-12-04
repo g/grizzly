@@ -151,7 +151,7 @@ This program contains the description of the robot base model for the Clearpath 
   <gazebo reference="base_link">
     <material>Gazebo/DarkGrey</material>
     <turnGravityOff>false</turnGravityOff>
-    <selfCollide>true</selfCollide>
+    <selfCollide>false</selfCollide>
   </gazebo>
 
   <!-- Add a sensor anchor link that points to the center of the robot top plate -->
