@@ -25,6 +25,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "nav_msgs/Odometry.h"
 #include "grizzly_msgs/Drive.h"
+#include <grizzly_msgs/eigen.h>
 #include "sensor_msgs/JointState.h"
 
 #include <Eigen/Core>
@@ -82,9 +83,6 @@ protected:
   geometry_msgs::Twist twist_; 
   double yaw_;
   bool initialize;
-  std::vector<std::string> joint_name_;
-  std::vector<double> joint_pos_;
-  std::vector<double> joint_vel_;
   std::vector<double> last_joint_pos_;
 
   // Configuration
