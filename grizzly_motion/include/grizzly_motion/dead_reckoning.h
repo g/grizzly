@@ -85,7 +85,6 @@ protected:
   std::vector<std::string> joint_name_;
   std::vector<double> joint_pos_;
   std::vector<double> joint_vel_;
-  std::vector<>double joint_eff_;
   std::vector<double> last_joint_pos_;
 
   // Configuration
