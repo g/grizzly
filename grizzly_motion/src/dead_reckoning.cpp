@@ -34,9 +34,26 @@ using Eigen::Vector2f;
  * commands. Currently very naive, but in the future may provide some further
  * intelligence, though not closed-loop control.
  */
-bool DeadReckoning::next(const grizzly_msgs::DriveConstPtr& encoders, nav_msgs::Odometry* odom)
+void wrap_rad(double& r){ r = fabs(r) < M_PI ? r : (r -= copysignf(1.0, r) * 2.0 * M_PI);}
+
+bool DeadReckoning::next(const grizzly_msgs::DriveConstPtr& encoders, nav_msgs::Odometry* odom, sensor_msgs::JointState* joints)
 {
   bool success = false;
+
+  if(!initialize) { 
+    joint_name_.push_back("joint_back_left_wheel");
+    joint_name_.push_back("joint_back_right_wheel");
+    joint_name_.push_back("joint_front_left_wheel");
+    joint_name_.push_back("joint_front_right_wheel");
+    joint_pos_.resize(joint_name_.size(), 0.0);
+    joint_vel_.resize(joint_name_.size(), 0.0);
+    last_joint_pos_.resize(joint_name_.size(), 0.0); 
+    last_time_ = encoders->header.stamp; 
+    yaw_ = 0.0;  
+    initialize = true;
+
+    ROS_INFO("initialization complete.");
+  }
 
   // Angular velocity per-side in rad/s, velocity per-size in m/s
   Vector2f avg_rotations((encoders->front_left + encoders->rear_left) / 2,
@@ -55,7 +72,13 @@ bool DeadReckoning::next(const grizzly_msgs::DriveConstPtr& encoders, nav_msgs::
     // Update linear and angular velocity
     twist_.linear.x = vels.mean();
     twist_.angular.z = (vels[1] - vels[0]) / width_;
-    
+
+    //update joint's velocity
+    joint_vel_[0] = encoders->rear_left;
+    joint_vel_[1] = encoders->rear_right;
+    joint_vel_[2] = encoders->front_left;
+    joint_vel_[3] = encoders->front_right;
+
     // Timestamp from encoder message, set frames correctly.
     odom->header = encoders->header;
     odom->header.frame_id = "odom";
@@ -67,14 +90,25 @@ bool DeadReckoning::next(const grizzly_msgs::DriveConstPtr& encoders, nav_msgs::
     Eigen::Map<Eigen::MatrixXd> poseCov(odom->pose.covariance.data(), 6, 6);
     Eigen::Map<Eigen::MatrixXd> twistCov(odom->twist.covariance.data(), 6, 6);
 
-    if(twist_.linear.x <= 1e-3 && twist_.angular.z <= 1e-3) {
+    if(fabs(twist_.linear.x) <= 1e-3 && fabs(twist_.angular.z) <= 1e-3) {
       poseCov = ODOM_POSE_COVAR_NOMOVE;
       twistCov = ODOM_TWIST_COVAR_NOMOVE;
-    } else {
+      joint_pos_ = last_joint_pos_;
+    } 
+    else {
       poseCov = ODOM_POSE_COVAR_MOTION;
       twistCov = ODOM_TWIST_COVAR_MOTION;
-    }
 
+      // update joint's position
+      for(uint8_t i = 0; i < joint_name_.size(); i++) {
+        joint_pos_[i] = last_joint_pos_[i] + dt.toSec() * joint_vel_[i]; 
+        wrap_rad(joint_pos_[i]);
+      }
+    }
+    joints->name = joint_name_;
+    joints->velocity = joint_vel_;
+    joints->position = joint_pos_;
+    joints->header = encoders->header;
     success = true;
   } else {
     static bool first = true;
@@ -83,6 +117,7 @@ bool DeadReckoning::next(const grizzly_msgs::DriveConstPtr& encoders, nav_msgs::
   }
 
   last_time_ = encoders->header.stamp;
+  last_joint_pos_ = joint_pos_;
   last_vels_ = vels;
   return success;
 }

@@ -25,6 +25,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "nav_msgs/Odometry.h"
 #include "grizzly_msgs/Drive.h"
+#include "sensor_msgs/JointState.h"
 
 #include <Eigen/Core>
 #include <Eigen/Dense>
@@ -66,11 +67,11 @@ class DeadReckoning
 {
 public:
   DeadReckoning(double vehicle_width, double wheel_radius) 
-  : max_dt_(0.1), width_(vehicle_width), radius_(wheel_radius)
+  : max_dt_(0.1), width_(vehicle_width), radius_(wheel_radius), initialize(false)
   {
   }
 
-  bool next(const grizzly_msgs::DriveConstPtr& encoders, nav_msgs::Odometry* odom);
+  bool next(const grizzly_msgs::DriveConstPtr& encoders, nav_msgs::Odometry* odom, sensor_msgs::JointState* joints);
  
 protected:
   // Maintaining state between encoder updates.
@@ -80,6 +81,12 @@ protected:
   geometry_msgs::Point position_; 
   geometry_msgs::Twist twist_; 
   double yaw_;
+  bool initialize;
+  std::vector<std::string> joint_name_;
+  std::vector<double> joint_pos_;
+  std::vector<double> joint_vel_;
+  std::vector<>double joint_eff_;
+  std::vector<double> last_joint_pos_;
 
   // Configuration
   double width_, radius_;
