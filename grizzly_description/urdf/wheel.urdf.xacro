@@ -81,9 +81,9 @@ This program contains the description of the robot wheel model for Clearpath Gri
             value="0.2" />
   <!-- origin is offset in + z direction by 3.175mm, so need to bring it back down for visual and collision-->
   <xacro:macro name="grizzly_wheel"
-               params="fb lr parent translateX translateY translateZ flipY">
-    <!--fb : front, back ; lr: left, right -->
-    <link name="${fb}_${lr}_wheel">
+               params="fr lr parent translateX translateY translateZ flipY">
+    <!--fr : front, rear ; lr: left, right -->
+    <link name="${fr}_${lr}_wheel">
       <inertial>
         <mass value="${wheel_mass}" />
         <origin xyz="${wheel_x_com} ${wheel_y_com} ${wheel_z_com}" />
@@ -111,7 +111,7 @@ This program contains the description of the robot wheel model for Clearpath Gri
         </geometry>
       </collision>
     </link>
-    <gazebo reference="${fb}_${lr}_wheel">
+    <gazebo reference="${fr}_${lr}_wheel">
       <mu1 value="100.0" />
       <mu2 value="0.1" />
       <kp value="10000000.0" />
@@ -121,10 +121,10 @@ This program contains the description of the robot wheel model for Clearpath Gri
       <turnGravityOff>false</turnGravityOff>
       <selfCollide>true</selfCollide>
     </gazebo>
-    <joint name="joint_${fb}_${lr}_wheel"
+    <joint name="joint_${fr}_${lr}_wheel"
            type="continuous">
       <parent link="${parent}" />
-      <child link="${fb}_${lr}_wheel" />
+      <child link="${fr}_${lr}_wheel" />
       <origin xyz="${translateX * base_x_origin_to_wheel_origin} ${translateY * base_y_origin_to_wheel_origin} ${translateZ}"
               rpy="0 0 0" />
       <axis xyz="0 1 0"
@@ -135,10 +135,10 @@ This program contains the description of the robot wheel model for Clearpath Gri
                         friction="0.0" />
     </joint>
     <!-- Transmission is important to link the joints and the controller -->
-    <transmission name="joint_${fb}_${lr}_wheel_trans"
+    <transmission name="joint_${fr}_${lr}_wheel_trans"
                   type="SimpleTransmission">
-      <actuator name="joint_${fb}_${lr}_wheel_motor" />
-      <joint name="joint_${fb}_${lr}_wheel" />
+      <actuator name="joint_${fr}_${lr}_wheel_motor" />
+      <joint name="joint_${fr}_${lr}_wheel" />
       <mechanicalReduction>1</mechanicalReduction>
       <motorTorqueConstant>1</motorTorqueConstant>
     </transmission>
