@@ -180,15 +180,15 @@ This program contains the description of the robot base model for the Clearpath 
     <material>Gazebo/Yellow</material>
   </gazebo>
 
-  <!-- Back wheels -->
-  <grizzly_wheel fb="back"
+  <!-- rear wheels -->
+  <grizzly_wheel fr="rear"
                  lr="left"
                  parent="base_link"
                  translateX="-1.75"
                  translateY="1.75"
                  translateZ="0"
                  flipY="0" />
-  <grizzly_wheel fb="back"
+  <grizzly_wheel fr="rear"
                  lr="right"
                  parent="base_link"
                  translateX="-1.75"
@@ -246,14 +246,14 @@ This program contains the description of the robot base model for the Clearpath 
   </gazebo>
 
   <!-- Front wheels -->
-  <grizzly_wheel fb="front"
+  <grizzly_wheel fr="front"
                  lr="left"
                  parent="front_axle_link"
                  translateX="0"
                  translateY="1.75"
                  translateZ="0"
                  flipY="0" />
-  <grizzly_wheel fb="front"
+  <grizzly_wheel fr="front"
                  lr="right"
                  parent="front_axle_link"
                  translateX="0"
@@ -267,8 +267,8 @@ This program contains the description of the robot base model for the Clearpath 
             filename="libgrizzly_gazebo_plugins.so">
       <alwaysOn>true</alwaysOn>
       <updateRate>100.0</updateRate>
-      <backLeftJoint>joint_back_left_wheel</backLeftJoint>
-      <backRightJoint>joint_back_right_wheel</backRightJoint>
+      <rearLeftJoint>joint_rear_left_wheel</rearLeftJoint>
+      <rearRightJoint>joint_rear_right_wheel</rearRightJoint>
       <frontLeftJoint>joint_front_left_wheel</frontLeftJoint>
       <frontRightJoint>joint_front_right_wheel</frontRightJoint>
       <frontAxleJoint>front_axle_joint</frontAxleJoint>

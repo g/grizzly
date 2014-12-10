@@ -26,6 +26,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "ros/ros.h"
 #include "tf/transform_datatypes.h"
 #include "grizzly_motion/dead_reckoning.h"
+#include <angles/angles.h>
 
 using Eigen::Vector2f;
 
@@ -34,16 +35,35 @@ using Eigen::Vector2f;
  * commands. Currently very naive, but in the future may provide some further
  * intelligence, though not closed-loop control.
  */
-bool DeadReckoning::next(const grizzly_msgs::DriveConstPtr& encoders, nav_msgs::Odometry* odom)
+
+bool DeadReckoning::next(const grizzly_msgs::DriveConstPtr& encoders, nav_msgs::Odometry* odom, sensor_msgs::JointState* joints)
 {
   bool success = false;
+  VectorDrive wheels_speed_ = grizzly_msgs::vectorFromDriveMsg(*encoders);
+  uint8_t wheels_num_ = wheels_speed_.size();
+
+  if(!initialize) { 
+    last_joint_pos_.resize(wheels_num_, 0.0); 
+    last_time_ = encoders->header.stamp; 
+    yaw_ = 0.0;  
+    initialize = true;
+    ROS_INFO("initialization complete.");
+  }
 
   // Angular velocity per-side in rad/s, velocity per-size in m/s
   Vector2f avg_rotations((encoders->front_left + encoders->rear_left) / 2,
                          (encoders->front_right + encoders->rear_right) / 2);
   Vector2f vels = avg_rotations * radius_;
 
+  joints->position.resize(wheels_num_, 0.0);
+
+  for(uint8_t i = 0; i < wheels_num_; i++){
+    joints->velocity.push_back(wheels_speed_[i]);
+    joints->name.push_back(grizzly_msgs::nameFromDriveIndex(i));
+  }
+
   ros::Duration dt = encoders->header.stamp - last_time_;
+
   if (dt <= max_dt_) {
     // Integrate position based on previous yaw and speed
      position_.x += cos(yaw_) * twist_.linear.x * dt.toSec();
@@ -55,7 +75,7 @@ bool DeadReckoning::next(const grizzly_msgs::DriveConstPtr& encoders, nav_msgs::
     // Update linear and angular velocity
     twist_.linear.x = vels.mean();
     twist_.angular.z = (vels[1] - vels[0]) / width_;
-    
+
     // Timestamp from encoder message, set frames correctly.
     odom->header = encoders->header;
     odom->header.frame_id = "odom";
@@ -67,14 +87,23 @@ bool DeadReckoning::next(const grizzly_msgs::DriveConstPtr& encoders, nav_msgs::
     Eigen::Map<Eigen::MatrixXd> poseCov(odom->pose.covariance.data(), 6, 6);
     Eigen::Map<Eigen::MatrixXd> twistCov(odom->twist.covariance.data(), 6, 6);
 
-    if(twist_.linear.x <= 1e-3 && twist_.angular.z <= 1e-3) {
+    if(fabs(twist_.linear.x) <= 1e-3 && fabs(twist_.angular.z) <= 1e-3) {
       poseCov = ODOM_POSE_COVAR_NOMOVE;
       twistCov = ODOM_TWIST_COVAR_NOMOVE;
-    } else {
+      joints->position = last_joint_pos_;
+    } 
+    else {
       poseCov = ODOM_POSE_COVAR_MOTION;
       twistCov = ODOM_TWIST_COVAR_MOTION;
+
+      // update joint's position
+      for(uint8_t i = 0; i < wheels_num_; i++) {
+        joints->position[i] = last_joint_pos_[i] + dt.toSec() * joints->velocity[i]; 
+        joints->position[i] = angles::normalize_angle(joints->position[i]);
+      }
     }
 
+    joints->header = encoders->header;
     success = true;
   } else {
     static bool first = true;
@@ -83,6 +112,7 @@ bool DeadReckoning::next(const grizzly_msgs::DriveConstPtr& encoders, nav_msgs::
   }
 
   last_time_ = encoders->header.stamp;
+  last_joint_pos_ = joints->position;
   last_vels_ = vels;
   return success;
 }

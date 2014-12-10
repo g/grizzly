@@ -26,11 +26,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "ros/ros.h"
 #include "grizzly_motion/dead_reckoning.h"
 
-void encodersCallback(DeadReckoning* dr, ros::Publisher* pub, const grizzly_msgs::DriveConstPtr encoders)
+void encodersCallback(DeadReckoning* dr, ros::Publisher* pub_odom, 
+  ros::Publisher* pub_joints,  const grizzly_msgs::DriveConstPtr encoders)
 {
   nav_msgs::Odometry odom;
-  if (dr->next(encoders, &odom)) {
-    pub->publish(odom);
+  sensor_msgs::JointState joints;
+  if (dr->next(encoders, &odom, &joints)) {
+    pub_odom->publish(odom);
+    pub_joints->publish(joints);
   }
 }
 
@@ -47,9 +50,10 @@ int main(int argc, char ** argv)
 
   DeadReckoning dr(vehicle_width, wheel_radius);
   ros::NodeHandle nh("");
-  ros::Publisher pub(nh.advertise<nav_msgs::Odometry>("odom", 1));
+  ros::Publisher pub_odom(nh.advertise<nav_msgs::Odometry>("odom", 1));
+  ros::Publisher pub_joints(nh.advertise<sensor_msgs::JointState>("joint_states",1));
   ros::Subscriber sub(nh.subscribe<grizzly_msgs::Drive>("motors/encoders", 1, boost::bind(
-    encodersCallback, &dr, &pub, _1)));
+    encodersCallback, &dr, &pub_odom, &pub_joints, _1)));
 
   ros::spin();
 }
