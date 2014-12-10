@@ -28,26 +28,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 This program contains the description of the robot base model for the Clearpath Grizzly
 -->
 
-<robot xmlns:xi="http://www.w3.org/2001/XInclude"
-       xmlns:gazebo="http://playerstage.sourceforge.net/gazebo/xmlschema/#gz"
-       xmlns:model="http://playerstage.sourceforge.net/gazebo/xmlschema/#model"
-       xmlns:sensor="http://playerstage.sourceforge.net/gazebo/xmlschema/#sensor"
-       xmlns:body="http://playerstage.sourceforge.net/gazebo/xmlschema/#body"
-       xmlns:geom="http://playerstage.sourceforge.net/gazebo/xmlschema/#geom"
-       xmlns:joint="http://playerstage.sourceforge.net/gazebo/xmlschema/#joint"
-       xmlns:controller="http://playerstage.sourceforge.net/gazebo/xmlschema/#controller"
-       xmlns:interface="http://playerstage.sourceforge.net/gazebo/xmlschema/#interface"
-       xmlns:rendering="http://playerstage.sourceforge.net/gazebo/xmlschema/#rendering"
-       xmlns:renderable="http://playerstage.sourceforge.net/gazebo/xmlschema/#renderable"
-       xmlns:physics="http://playerstage.sourceforge.net/gazebo/xmlschema/#physics"
-       xmlns:xacro="http://ros.org/wiki/xacro"
-       name="grizzly">
+<robot name="grizzly" xmlns:xacro="http://www.ros.org/wiki/xacro">
 
   <!-- Included URDF/XACRO Files -->
-  <xacro:include filename="$(find grizzly_description)/urdf/materials.urdf.xacro" />
-  <xacro:include filename="$(find grizzly_description)/urdf/wheel.urdf.xacro" />
-  <xacro:include filename="$(find grizzly_description)/urdf/parts.urdf.xacro" />
-  <xacro:include filename="$(find grizzly_description)/urdf/add_frame.urdf.xacro" />
+  <xacro:include filename="materials.urdf.xacro" />
+  <xacro:include filename="wheel.urdf.xacro" />
+  <xacro:include filename="parts.urdf.xacro" />
+  <xacro:include filename="add_frame.urdf.xacro" />
+  <xacro:include filename="grizzly.gazebo" />
 
   <!-- PROPERTY LIST -->
   <!--All units in m-kg-s-radians unit system -->
@@ -105,9 +93,6 @@ This program contains the description of the robot base model for the Clearpath 
   <!-- BASE-FOOTPRINT -->
   <!-- base_footprint is a fictitious link(frame) that is on the ground right below base_link origin, navigation stack depends on this frame -->
   <link name="base_footprint" />
-  <gazebo reference="base_footprint">
-    <turnGravityOff>false</turnGravityOff>
-  </gazebo>
   <joint name="base_footprint_joint"
          type="fixed">
     <origin xyz="0 0 ${wheel_x_size/2}"
@@ -148,11 +133,6 @@ This program contains the description of the robot base model for the Clearpath 
       </geometry>
     </collision>
   </link>
-  <gazebo reference="base_link">
-    <material>Gazebo/DarkGrey</material>
-    <turnGravityOff>false</turnGravityOff>
-    <selfCollide>false</selfCollide>
-  </gazebo>
 
   <!-- Add a sensor anchor link that points to the center of the robot top plate -->
   <grizzly_tf parent="base_link" name="sensor_anchor_link" 
@@ -176,9 +156,6 @@ This program contains the description of the robot base model for the Clearpath 
                 rotateX="${M_PI/2}"
                 rotateY="0.0"
                 rotateZ="${M_PI/2}" />
-  <gazebo reference="base_footprint_bumper_part">
-    <material>Gazebo/Yellow</material>
-  </gazebo>
 
   <!-- rear wheels -->
   <grizzly_wheel fr="rear"
@@ -240,11 +217,6 @@ This program contains the description of the robot base model for the Clearpath 
     </collision>
   </link>
 
-  <gazebo reference="front_axle_link">
-    <material>Gazebo/DarkGrey</material>
-    <turnGravityOff>false</turnGravityOff>
-  </gazebo>
-
   <!-- Front wheels -->
   <grizzly_wheel fr="front"
                  lr="left"
@@ -261,20 +233,4 @@ This program contains the description of the robot base model for the Clearpath 
                  translateZ="0"
                  flipY="1" />
 
-  <!-- Grizzly Plugin -->
-  <gazebo>
-    <plugin name="grizzly_diff_controller"
-            filename="libgrizzly_gazebo_plugins.so">
-      <alwaysOn>true</alwaysOn>
-      <updateRate>100.0</updateRate>
-      <rearLeftJoint>joint_rear_left_wheel</rearLeftJoint>
-      <rearRightJoint>joint_rear_right_wheel</rearRightJoint>
-      <frontLeftJoint>joint_front_left_wheel</frontLeftJoint>
-      <frontRightJoint>joint_front_right_wheel</frontRightJoint>
-      <frontAxleJoint>front_axle_joint</frontAxleJoint>
-      <wheelSeparation>${base_y_size}</wheelSeparation>
-      <wheelDiameter>${wheel_x_size}</wheelDiameter>
-      <torque>35</torque>
-    </plugin>
-  </gazebo>
 </robot>

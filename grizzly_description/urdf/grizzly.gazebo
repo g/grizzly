@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<robot>
+  <gazebo>
+    <plugin name="grizzly_diff_controller"
+            filename="libgrizzly_gazebo_plugins.so">
+      <alwaysOn>true</alwaysOn>
+      <updateRate>100.0</updateRate>
+      <rearLeftJoint>joint_rear_left_wheel</rearLeftJoint>
+      <rearRightJoint>joint_rear_right_wheel</rearRightJoint>
+      <frontLeftJoint>joint_front_left_wheel</frontLeftJoint>
+      <frontRightJoint>joint_front_right_wheel</frontRightJoint>
+      <frontAxleJoint>front_axle_joint</frontAxleJoint>
+      <wheelSeparation>${base_y_size}</wheelSeparation>
+      <wheelDiameter>${wheel_x_size}</wheelDiameter>
+      <torque>1000</torque>
+    </plugin>
+  </gazebo>
+
+  <gazebo reference="base_footprint">
+    <turnGravityOff>false</turnGravityOff>
+  </gazebo>
+
+  <gazebo reference="base_link">
+    <material>Gazebo/DarkGrey</material>
+    <turnGravityOff>false</turnGravityOff>
+    <selfCollide>false</selfCollide>
+  </gazebo>
+
+  <gazebo reference="base_footprint_bumper_part">
+    <material>Gazebo/Yellow</material>
+  </gazebo>
+
+  <gazebo reference="front_axle_link">
+    <material>Gazebo/DarkGrey</material>
+    <turnGravityOff>false</turnGravityOff>
+  </gazebo>
+
+</robot>

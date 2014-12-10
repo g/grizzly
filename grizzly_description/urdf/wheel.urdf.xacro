@@ -27,11 +27,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 This program contains the description of the robot wheel model for Clearpath Grizzly
 -->
-<robot xmlns:sensor="http://playerstage.sourceforge.net/gazebo/xmlschema/#sensor"
-       xmlns:controller="http://playerstage.sourceforge.net/gazebo/xmlschema/#controller"
-       xmlns:interface="http://playerstage.sourceforge.net/gazebo/xmlschema/#interface"
-       xmlns:xacro="http://ros.org/wiki/xacro"
-       name="grizzly_wheel">
+<robot name="grizzly_wheel" xmlns:xacro="http://ros.org/wiki/xacro">
   <property name="M_PI"
             value="3.14159" />
   <!-- Wheel -->
