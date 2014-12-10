@@ -41,9 +41,10 @@ bool DeadReckoning::next(const grizzly_msgs::DriveConstPtr& encoders, nav_msgs::
   bool success = false;
   VectorDrive wheels_speed_ = grizzly_msgs::vectorFromDriveMsg(*encoders);
   uint8_t wheels_num_ = wheels_speed_.size();
+  uint8_t joints_num_ = wheels_num_ + 1; // add front_axle_joint
 
   if(!initialize) { 
-    last_joint_pos_.resize(wheels_num_, 0.0); 
+    last_joint_pos_.resize(joints_num_, 0.0); 
     last_time_ = encoders->header.stamp; 
     yaw_ = 0.0;  
     initialize = true;
@@ -55,12 +56,16 @@ bool DeadReckoning::next(const grizzly_msgs::DriveConstPtr& encoders, nav_msgs::
                          (encoders->front_right + encoders->rear_right) / 2);
   Vector2f vels = avg_rotations * radius_;
 
-  joints->position.resize(wheels_num_, 0.0);
+  joints->position.resize(joints_num_, 0.0);
+  joints->effort.resize(joints_num_,0);
 
   for(uint8_t i = 0; i < wheels_num_; i++){
     joints->velocity.push_back(wheels_speed_[i]);
-    joints->name.push_back(grizzly_msgs::nameFromDriveIndex(i));
+    joints->name.push_back("joint_"+grizzly_msgs::nameFromDriveIndex(i)+"_wheel");
   }
+  joints->velocity.push_back(0);
+  joints->name.push_back("front_axle_joint");
+
 
   ros::Duration dt = encoders->header.stamp - last_time_;
 
