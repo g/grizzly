@@ -75,10 +75,10 @@ static inline std::string nameFromDriveIndex(VectorDrive::Index field)
 {
   switch(field)
   {
-    case Drives::FrontLeft: return "front-left";
-    case Drives::FrontRight: return "front-right";
-    case Drives::RearLeft: return "rear-left";
-    case Drives::RearRight: return "rear-right";
+    case Drives::FrontLeft: return "front_left";
+    case Drives::FrontRight: return "front_right";
+    case Drives::RearLeft: return "rear_left";
+    case Drives::RearRight: return "rear_right";
     default:
       throw std::out_of_range("Passed field number not in range 0..3");
   }
