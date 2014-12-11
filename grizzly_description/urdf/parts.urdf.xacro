@@ -30,11 +30,8 @@ It is assumed that such parts are fixed to others, and those other parts' inerti
 parameters account for the decorative parts. Decorative parts currently do not 
 incorporate collision.
 -->
-<robot xmlns:sensor="http://playerstage.sourceforge.net/gazebo/xmlschema/#sensor"
-       xmlns:controller="http://playerstage.sourceforge.net/gazebo/xmlschema/#controller"
-       xmlns:interface="http://playerstage.sourceforge.net/gazebo/xmlschema/#interface"
-       xmlns:xacro="http://ros.org/wiki/xacro"
-       name="grizzly_part">
+<robot name="grizzly_part" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
   <property name="x_com"
             value="0.00000000" />
   <!-- com : center of mass -->
