@@ -144,6 +144,11 @@ This program contains the description of the robot base model for the Clearpath 
     translateX="-0.788" translateY="0" translateZ="-0.118" 
     rotateX="3.1415" rotateY="1.5701" rotateZ="0" />
 
+  <!-- Add a sensor anchor link for the gps -->
+  <grizzly_tf parent="sensor_anchor_link" name="navsat_link" 
+    translateX="-0.788" translateY="0" translateZ="-0.118" 
+    rotateX="3.1415" rotateY="1.5701" rotateZ="0" />
+
   <!-- DECORATIONS -->
   <!-- Bumpers -->
   <grizzly_part parent="base_footprint"
