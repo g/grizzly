@@ -171,22 +171,22 @@ This program contains the description of the robot base model for the Clearpath 
   <grizzly_wheel fr="rear"
                  lr="left"
                  parent="base_link"
-                 translateX="-1.75"
-                 translateY="1.75"
+                 translateX="-1"
+                 translateY="1"
                  translateZ="0"
                  flipY="0" />
   <grizzly_wheel fr="rear"
                  lr="right"
                  parent="base_link"
-                 translateX="-1.75"
-                 translateY="-1.75"
+                 translateX="-1"
+                 translateY="-1"
                  translateZ="0"
                  flipY="1" />
 
   <!-- Front axle link -->
   <joint name="front_axle_joint"
          type="revolute">
-    <origin xyz="0.4375 0 0"
+    <origin xyz="${base_x_origin_to_wheel_origin} 0 0"
             rpy="0 0 0" />
     <parent link="base_link" />
     <child link="front_axle_link" />
@@ -232,14 +232,14 @@ This program contains the description of the robot base model for the Clearpath 
                  lr="left"
                  parent="front_axle_link"
                  translateX="0"
-                 translateY="1.75"
+                 translateY="1"
                  translateZ="0"
                  flipY="0" />
   <grizzly_wheel fr="front"
                  lr="right"
                  parent="front_axle_link"
                  translateX="0"
-                 translateY="-1.75"
+                 translateY="-1"
                  translateZ="0"
                  flipY="1" />
 
