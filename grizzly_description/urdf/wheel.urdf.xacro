@@ -32,13 +32,13 @@ This program contains the description of the robot wheel model for Clearpath Gri
             value="3.14159" />
   <!-- Wheel -->
   <property name="wheel_x_com"
-            value="0.00000000" />
+            value="0.003" />
   <!-- com : center of mass -->
   <property name="wheel_y_com"
-            value="0.00000000" />
+            value="-0.002" />
   <!-- com : center of mass -->
   <property name="wheel_z_com"
-            value="0.00019000" />
+            value="-0.198" />
   <!-- com : center of mass -->
   <property name="wheel_x_size"
             value="0.66" />
@@ -50,22 +50,22 @@ This program contains the description of the robot wheel model for Clearpath Gri
   <property name="wheel_mass" value="15" />
 
   <property name="wheel_ixx_com_cs"
-            value="0.02466885" />
+            value="15.623432013" />
   <!-- at center of mass aligned with coordinate system, kg*m^2-->
   <property name="wheel_ixy_com_cs"
-            value="0.00000000" />
+            value="-0.070019196" />
   <!-- at center of mass aligned with coordinate system, kg*m^2-->
   <property name="wheel_ixz_com_cs"
-            value="0.00000000" />
+            value="0.049274723" />
   <!-- at center of mass aligned with coordinate system, kg*m^2-->
   <property name="wheel_iyy_com_cs"
-            value="0.02466885" />
+            value="13.724122132" />
   <!-- at center of mass aligned with coordinate system, kg*m^2-->
   <property name="wheel_iyz_com_cs"
-            value="0.00000000" />
+            value="-0.032576878" />
   <!-- at center of mass aligned with coordinate system, kg*m^2-->
   <property name="wheel_izz_com_cs"
-            value="0.04410576" />
+            value="26.608616993" />
   <!-- at center of mass aligned with coordinate system, kg*m^2-->
   <property name="base_x_origin_to_wheel_origin"
             value="0.25600006" />

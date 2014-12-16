@@ -41,14 +41,15 @@ This program contains the description of the robot base model for the Clearpath 
   <!--All units in m-kg-s-radians unit system -->
   <property name="M_PI"
             value="3.1415926535897931" />
+
   <!-- Main Body-base-->
   <!-- Location of com : center of mass -->
   <property name="base_x_com"
-            value="-0.08748000" />
+            value="-0.013" />
   <property name="base_y_com"
-            value="-0.00085000" />
+            value="-0.061" />
   <property name="base_z_com"
-            value="0.09947000" />
+            value="-0.0205" />
   <!-- Size of the base-->
   <property name="base_x_size"
             value="0.708" />
@@ -63,32 +64,35 @@ This program contains the description of the robot base model for the Clearpath 
   <!-- Mass of the front axle-->
   <property name="front_axle_mass" value="113" />
 
-  <!--Inertial values for the front_axle at center of mass, aligned with coordinate system. Units are kg*m^2-->
+  <!--Inertial values for the front_axle at center of mass, aligned with coordinate system. Units are kg*m^2--> 
+  <!-- Ix = Iz = m*(3r^2 + h^2)/12 -->
+  <!-- Iy = m*r^2/2 -->
   <property name="front_axle_ixx_com_cs"
-            value="0.60216370" />
+            value="9.9" />
   <property name="front_axle_ixy_com_cs"
-            value="-0.02364198" />
+            value="0.0" />
   <property name="front_axle_ixz_com_cs"
-            value="-0.11972132" />
+            value="0.0" />
   <property name="front_axle_iyy_com_cs"
-            value="1.73859574" />
+            value="0.95" />
   <property name="front_axle_iyz_com_cs"
-            value="-0.00154437" />
+            value="0.0" />
   <property name="front_axle_izz_com_cs"
-            value="2.02955229" />
+            value="9.9" />
+
   <!--Inertial values for the base at center of mass, aligned with coordinate system. Units are kg*m^2-->
   <property name="base_ixx_com_cs"
-            value="0.60216370" />
+            value="64.010712692" />
   <property name="base_ixy_com_cs"
-            value="-0.02364198" />
+            value="0.214224647" />
   <property name="base_ixz_com_cs"
-            value="-0.11972132" />
+            value="-1.636784296" />
   <property name="base_iyy_com_cs"
-            value="1.73859574" />
+            value="200.87" />
   <property name="base_iyz_com_cs"
-            value="-0.00154437" />
+            value="-0.048325439" />
   <property name="base_izz_com_cs"
-            value="2.02955229" />
+            value="229.831441333" />
 
   <!-- BASE-FOOTPRINT -->
   <!-- base_footprint is a fictitious link(frame) that is on the ground right below base_link origin, navigation stack depends on this frame -->
@@ -96,7 +100,7 @@ This program contains the description of the robot base model for the Clearpath 
   <joint name="base_footprint_joint"
          type="fixed">
     <origin xyz="0 0 ${wheel_x_size/2}"
-            rpy="0 0 0" />
+            rpy="0 0 0"/>
     <parent link="base_footprint" />
     <child link="base_link" />
   </joint>
@@ -107,6 +111,7 @@ This program contains the description of the robot base model for the Clearpath 
     <inertial>
       <mass value="${base_mass}" />
       <!--This is the pose of the inertial reference frame, relative to the link reference frame. The origin of the inertial reference frame needs to be at the center of gravity. The axes of the inertial reference frame do not need to be aligned with the principal axes of the inertia.-->
+      <!-- Center of mass -->
       <origin xyz="${base_x_com} ${base_y_com} ${base_z_com}" />
       <!--The 3x3 rotational inertia matrix. Because the rotational inertia matrix is symmetric, only 6 above-diagonal elements of this matrix are specified here, using the attributes ixx, ixy, ixz, iyy, iyz, izz.-->
       <inertia ixx="${base_ixx_com_cs}"
@@ -142,12 +147,12 @@ This program contains the description of the robot base model for the Clearpath 
   <!-- Add a sensor anchor link for the imu -->
   <grizzly_tf parent="sensor_anchor_link" name="imu_link" 
     translateX="-0.788" translateY="0" translateZ="-0.118" 
-    rotateX="3.1415" rotateY="1.5701" rotateZ="0" />
+    rotateX="${M_PI}" rotateY="${M_PI/2}" rotateZ="0" />
 
   <!-- Add a sensor anchor link for the gps -->
   <grizzly_tf parent="sensor_anchor_link" name="navsat_link" 
     translateX="-0.788" translateY="0" translateZ="-0.118" 
-    rotateX="3.1415" rotateY="1.5701" rotateZ="0" />
+    rotateX="${M_PI}" rotateY="${M_PI/2}" rotateZ="0" />
 
   <!-- DECORATIONS -->
   <!-- Bumpers -->
