@@ -32,42 +32,29 @@ incorporate collision.
 -->
 <robot name="grizzly_part" xmlns:xacro="http://www.ros.org/wiki/xacro">
 
-  <property name="x_com"
-            value="0.00000000" />
-  <!-- com : center of mass -->
-  <property name="y_com"
-            value="0.00000000" />
-  <!-- com : center of mass -->
-  <property name="z_com"
-            value="0.00000000" />
-  <!-- com : center of mass -->
   <property name="x_size"
-            value="1.0" />
+            value="0.01" />
   <property name="y_size"
-            value="1.0" />
+            value="0.01" />
   <property name="z_size"
-            value="1.0" />
+            value="0.01" />
   <property name="mass"
             value="0.1" />
   <!-- in kg-->
+  <!-- Moments of inertia. Taken at center of mass aligned with coordinate system, kg*m^2-->
   <property name="ixx_com_cs"
             value="0.01" />
-  <!-- at center of mass aligned with coordinate system, kg*m^2-->
   <property name="ixy_com_cs"
             value="0.0" />
-  <!-- at center of mass aligned with coordinate system, kg*m^2-->
   <property name="ixz_com_cs"
             value="0.0" />
-  <!-- at center of mass aligned with coordinate system, kg*m^2-->
   <property name="iyy_com_cs"
             value="0.01" />
-  <!-- at center of mass aligned with coordinate system, kg*m^2-->
   <property name="iyz_com_cs"
             value="0.00" />
-  <!-- at center of mass aligned with coordinate system, kg*m^2-->
   <property name="izz_com_cs"
             value="0.01" />
-  <!-- at center of mass aligned with coordinate system, kg*m^2-->
+
   <xacro:macro name="grizzly_part"
                params="parent name mesh colour translateX translateY translateZ rotateX rotateY rotateZ">
     <joint name="${parent}_${name}_joint"
@@ -80,8 +67,9 @@ incorporate collision.
     <link name="${parent}_${name}_part">
       <inertial>
         <mass value="${mass}" />
-        <origin xyz="${x_com} ${y_com} ${z_com}" />
-        <inertia ixx="${ixx_com_cs}"
+        <origin xyz="0 0 0"
+                rpy="0 0 0" />        
+      <inertia ixx="${ixx_com_cs}"
                  ixy="${ixy_com_cs}"
                  ixz="${ixz_com_cs}"
                  iyy="${iyy_com_cs}"

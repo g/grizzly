@@ -47,26 +47,24 @@ This program contains the description of the robot base model for the Clearpath 
   <property name="base_x_com"
             value="-0.013" />
   <property name="base_y_com"
-            value="-0.061" />
+            value="-0.00061" />
   <property name="base_z_com"
             value="-0.0205" />
-  <!-- Size of the base-->
-  <property name="base_x_size"
-            value="0.708" />
-  <property name="base_y_size"
-            value="0.3" />
-  <property name="base_z_size"
-            value="1.826" />
+
+  <property name="chassis_length" value="1.75" />  
+  <property name="chassis_width" value="0.711" /> 
+  <property name="chassis_height" value="0.495" /> 
 
   <!-- Mass of the base-->
   <property name="base_mass" value="487" />
 
   <!-- Mass of the front axle-->
   <property name="front_axle_mass" value="113" />
+  <property name="front_axle_radius" value="0.13" />
+  <property name="front_axle_length" value="1.0" />
 
-  <!--Inertial values for the front_axle at center of mass, aligned with coordinate system. Units are kg*m^2--> 
-  <!-- Ix = Iz = m*(3r^2 + h^2)/12 -->
-  <!-- Iy = m*r^2/2 -->
+  <!-- Moments of inertia. Taken at center of mass aligned with coordinate system, kg*m^2-->
+  <!-- Ix = Iz = m*(3r^2 + h^2)/12   Iy = m*r^2/2-->
   <property name="front_axle_ixx_com_cs"
             value="9.9" />
   <property name="front_axle_ixy_com_cs"
@@ -74,13 +72,12 @@ This program contains the description of the robot base model for the Clearpath 
   <property name="front_axle_ixz_com_cs"
             value="0.0" />
   <property name="front_axle_iyy_com_cs"
-            value="0.95" />
+            value="9.9" />
   <property name="front_axle_iyz_com_cs"
             value="0.0" />
   <property name="front_axle_izz_com_cs"
-            value="9.9" />
+            value="0.95" />
 
-  <!--Inertial values for the base at center of mass, aligned with coordinate system. Units are kg*m^2-->
   <property name="base_ixx_com_cs"
             value="64.010712692" />
   <property name="base_ixy_com_cs"
@@ -94,26 +91,23 @@ This program contains the description of the robot base model for the Clearpath 
   <property name="base_izz_com_cs"
             value="229.831441333" />
 
-  <!-- BASE-FOOTPRINT -->
-  <!-- base_footprint is a fictitious link(frame) that is on the ground right below base_link origin, navigation stack depends on this frame -->
-  <link name="base_footprint" />
-  <joint name="base_footprint_joint"
+  <!-- BASE-LINK -->
+  <link name="base_link" />
+  <joint name="base_link_joint"
          type="fixed">
-    <origin xyz="0 0 ${wheel_x_size/2}"
-            rpy="0 0 0"/>
-    <parent link="base_footprint" />
-    <child link="base_link" />
+    <origin xyz="0 0 0"
+            rpy="0 0 ${ground_clearance}"/>
+    <parent link="base_link" />
+    <child link="chassis_link" />
   </joint>
 
-  <!-- BASE-LINK -->
+  <!-- CHASSIS-LINK -->
   <!--Actual body/chassis of the robot-->
-  <link name="base_link">
+  <link name="chassis_link">
     <inertial>
       <mass value="${base_mass}" />
-      <!--This is the pose of the inertial reference frame, relative to the link reference frame. The origin of the inertial reference frame needs to be at the center of gravity. The axes of the inertial reference frame do not need to be aligned with the principal axes of the inertia.-->
       <!-- Center of mass -->
       <origin xyz="${base_x_com} ${base_y_com} ${base_z_com}" />
-      <!--The 3x3 rotational inertia matrix. Because the rotational inertia matrix is symmetric, only 6 above-diagonal elements of this matrix are specified here, using the attributes ixx, ixy, ixz, iyy, iyz, izz.-->
       <inertia ixx="${base_ixx_com_cs}"
                ixy="${base_ixy_com_cs}"
                ixz="${base_ixz_com_cs}"
@@ -122,7 +116,7 @@ This program contains the description of the robot base model for the Clearpath 
                izz="${base_izz_com_cs}" />
     </inertial>
     <visual>
-      <origin xyz="0 0 ${base_z_origin_offset}"
+      <origin xyz="0 0 ${ground_clearance}"
               rpy="${M_PI/2} 0 ${M_PI/2}" />
       <geometry>
         <mesh filename="package://grizzly_description/meshes/base_link.stl" />
@@ -130,54 +124,56 @@ This program contains the description of the robot base model for the Clearpath 
       <material name="DarkGrey" />
     </visual>
     <collision>
-      <origin xyz="0 0 0.3"
+      <origin xyz="0 0 ${ground_clearance}"
               rpy="${M_PI/2} 0 ${M_PI/2}" />
       <geometry>
-        <box size="${base_x_size} ${base_y_size} ${base_z_size}" />
-        <!--making it slightly bigger in x and z direction-->
+         <box size="${chassis_width} ${chassis_height} ${chassis_length}"/>
       </geometry>
     </collision>
   </link>
 
   <!-- Add a sensor anchor link that points to the center of the robot top plate -->
   <grizzly_tf parent="base_link" name="sensor_anchor_link" 
-    translateX="0" translateY="0" translateZ="0.45" 
-    rotateX="0.0" rotateY="0.0" rotateZ="0.0"/>
+    translateX="0" translateY="0" translateZ="${chassis_height}" 
+    rotateX="0" rotateY="0" rotateZ="0"/>
 
   <!-- Add a sensor anchor link for the imu -->
   <grizzly_tf parent="sensor_anchor_link" name="imu_link" 
-    translateX="-0.788" translateY="0" translateZ="-0.118" 
+    translateX="-${chassis_length/2}" translateY="0" translateZ="0" 
     rotateX="${M_PI}" rotateY="${M_PI/2}" rotateZ="0" />
 
   <!-- Add a sensor anchor link for the gps -->
   <grizzly_tf parent="sensor_anchor_link" name="navsat_link" 
-    translateX="-0.788" translateY="0" translateZ="-0.118" 
+    translateX="-${chassis_length/2}" translateY="0" translateZ="0" 
     rotateX="${M_PI}" rotateY="${M_PI/2}" rotateZ="0" />
 
   <!-- DECORATIONS -->
-  <!-- Bumpers -->
-  <grizzly_part parent="base_footprint"
-                name="bumper"
-                mesh="bumper"
-                colour="Yellow"
-                translateX="0.0"
-                translateY="0.0"
-                translateZ="0.5"
-                rotateX="${M_PI/2}"
-                rotateY="0.0"
-                rotateZ="${M_PI/2}" />
+  <!-- Fenders -->
+  <link name="fenders_link">
+    <visual>
+      <origin xyz="0 0 ${ground_clearance}" rpy="${M_PI/2} 0 ${M_PI/2}"/>
+      <geometry>
+        <mesh filename="package://grizzly_description/meshes/bumper.stl" />
+      </geometry>
+      <material name="Yellow" />
+    </visual>
+  </link>
+  <joint name="fenders_joint" type="fixed">
+    <parent link="chassis_link" />
+    <child link="fenders_link" />
+  </joint>
 
   <!-- rear wheels -->
   <grizzly_wheel fr="rear"
                  lr="left"
-                 parent="base_link"
+                 parent="chassis_link"
                  translateX="-1"
                  translateY="1"
                  translateZ="0"
                  flipY="0" />
   <grizzly_wheel fr="rear"
                  lr="right"
-                 parent="base_link"
+                 parent="chassis_link"
                  translateX="-1"
                  translateY="-1"
                  translateZ="0"
@@ -188,7 +184,7 @@ This program contains the description of the robot base model for the Clearpath 
          type="revolute">
     <origin xyz="${base_x_origin_to_wheel_origin} 0 0"
             rpy="0 0 0" />
-    <parent link="base_link" />
+    <parent link="chassis_link" />
     <child link="front_axle_link" />
     <axis xyz="1 0 0"
           rpy="0 0 0" />
@@ -210,7 +206,7 @@ This program contains the description of the robot base model for the Clearpath 
                izz="${front_axle_izz_com_cs}" />
     </inertial>
     <visual>
-      <origin xyz="-0.2 0 0.45"
+      <origin xyz="-${ground_clearance} 0 ${base_y_origin_to_wheel_origin}"
               rpy="0 ${M_PI} ${M_PI/2}" />
       <geometry>
         <mesh filename="package://grizzly_description/meshes/front_axle.stl" />
@@ -221,8 +217,8 @@ This program contains the description of the robot base model for the Clearpath 
       <origin xyz="0 0 0"
               rpy="${M_PI/2} 0 0" />
       <geometry>
-        <cylinder length="1.0"
-                  radius="0.13" />
+        <cylinder length="${front_axle_length}"
+                  radius="${front_axle_radius}" />
       </geometry>
     </collision>
   </link>

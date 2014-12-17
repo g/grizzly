@@ -32,36 +32,9 @@ incorporate collision.
 -->
 <robot name="grizzly_tf" xmlns:xacro="http://www.ros.org/wiki/xacro">
 
-  <property name="x_com"
-            value="0.00000000" />
-  <!-- com : center of mass -->
-  <property name="y_com"
-            value="0.00000000" />
-  <!-- com : center of mass -->
-  <property name="z_com"
-            value="0.00000000" />
-  <!-- com : center of mass -->
-  <property name="mass"
-            value="0.1" />
-  <!-- in kg-->
-  <property name="ixx_com_cs"
-            value="0.01" />
-  <!-- at center of mass aligned with coordinate system, kg*m^2-->
-  <property name="ixy_com_cs"
-            value="0.0" />
-  <!-- at center of mass aligned with coordinate system, kg*m^2-->
-  <property name="ixz_com_cs"
-            value="0.0" />
-  <!-- at center of mass aligned with coordinate system, kg*m^2-->
-  <property name="iyy_com_cs"
-            value="0.01" />
-  <!-- at center of mass aligned with coordinate system, kg*m^2-->
-  <property name="iyz_com_cs"
-            value="0.00" />
-  <!-- at center of mass aligned with coordinate system, kg*m^2-->
-  <property name="izz_com_cs"
-            value="0.01" />
-  <!-- at center of mass aligned with coordinate system, kg*m^2-->
+  <property name="mass" value="0.01" />
+  <property name="dummy_inertia" value="1e-09"/>
+
   <xacro:macro name="grizzly_tf"
                params="parent name translateX translateY translateZ rotateX rotateY rotateZ">
     <joint name="${parent}_${name}_joint"
@@ -74,13 +47,13 @@ incorporate collision.
     <link name="${name}">
       <inertial>
         <mass value="${mass}" />
-        <origin xyz="${x_com} ${y_com} ${z_com}" />
-        <inertia ixx="${ixx_com_cs}"
-                 ixy="${ixy_com_cs}"
-                 ixz="${ixz_com_cs}"
-                 iyy="${iyy_com_cs}"
-                 iyz="${iyz_com_cs}"
-                 izz="${izz_com_cs}" />
+        <origin xyz="0 0 0" />
+        <inertia ixx="${dummy_inertia}"
+                 ixy="0.0"
+                 ixz="0.0"
+                 iyy="${dummy_inertia}"
+                 iyz="0.0"
+                 izz="${dummy_inertia}" />
       </inertial>
     </link>
   </xacro:macro>
