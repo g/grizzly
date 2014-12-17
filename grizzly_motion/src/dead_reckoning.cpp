@@ -84,7 +84,7 @@ bool DeadReckoning::next(const grizzly_msgs::DriveConstPtr& encoders, nav_msgs::
     // Timestamp from encoder message, set frames correctly.
     odom->header = encoders->header;
     odom->header.frame_id = "odom";
-    odom->child_frame_id = "base_footprint"; 
+    odom->child_frame_id = "base_link"; 
     odom->pose.pose.position = position_;
     odom->pose.pose.orientation = tf::createQuaternionMsgFromRollPitchYaw(0, 0, yaw_);
     odom->twist.twist = twist_;
