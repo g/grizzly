@@ -124,13 +124,13 @@ This program contains the description of the robot wheel model for Clearpath Gri
                         friction="0.0" />
     </joint>
     <!-- Transmission is important to link the joints and the controller -->
-    <transmission name="joint_${fr}_${lr}_wheel_trans"
+<!--     <transmission name="joint_${fr}_${lr}_wheel_trans"
                   type="SimpleTransmission">
       <actuator name="joint_${fr}_${lr}_wheel_motor" >
           <mechanicalReduction>1</mechanicalReduction>
           <motorTorqueConstant>1</motorTorqueConstant>
       </actuator>
       <joint name="joint_${fr}_${lr}_wheel" />
-    </transmission>
+    </transmission> -->
   </xacro:macro>
 </robot>
