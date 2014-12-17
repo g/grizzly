@@ -10,8 +10,8 @@
       <frontLeftJoint>joint_front_left_wheel</frontLeftJoint>
       <frontRightJoint>joint_front_right_wheel</frontRightJoint>
       <frontAxleJoint>front_axle_joint</frontAxleJoint>
-      <wheelSeparation>${base_y_size}</wheelSeparation>
-      <wheelDiameter>${wheel_x_size}</wheelDiameter>
+      <wheelSeparation>${base_y_origin_to_wheel_origin*2}</wheelSeparation>
+      <wheelDiameter>${wheel_radius*2.0}</wheelDiameter>
       <torque>1000</torque>
     </plugin>
   </gazebo>
@@ -37,6 +37,7 @@
       <robotNamespace>/</robotNamespace>
       <updateRate>50.0</updateRate> 
       <bodyName>imu_link</bodyName>
+      <frameId>imu_link</frameId>
       <topicName>imu/data</topicName>
       <accelDrift>0.005 0.005 0.005</accelDrift>
       <accelGaussianNoise>0.005 0.005 0.005</accelGaussianNoise>
@@ -47,23 +48,25 @@
     </plugin>
   </gazebo>
 
-  <gazebo reference="base_footprint">
+  <gazebo reference="base_link">
     <turnGravityOff>false</turnGravityOff>
   </gazebo>
 
-  <gazebo reference="base_link">
+  <gazebo reference="chassis_link">
     <material>Gazebo/DarkGrey</material>
     <turnGravityOff>false</turnGravityOff>
-    <selfCollide>false</selfCollide>
-  </gazebo>
-
-  <gazebo reference="base_footprint_bumper_part">
-    <material>Gazebo/Yellow</material>
   </gazebo>
 
   <gazebo reference="front_axle_link">
     <material>Gazebo/DarkGrey</material>
     <turnGravityOff>false</turnGravityOff>
   </gazebo>
+
+  <gazebo reference="fenders_link">
+    <material>Gazebo/Yellow</material>
+  </gazebo>
+
+  <gazebo reference="imu_link"/>
+  <gazebo reference="navsat_link"/>
 
 </robot>
