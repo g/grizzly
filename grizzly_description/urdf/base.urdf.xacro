@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <!--
 Copyright (c) 2012, Siddhant Ahuja (Sid), Ryan Gariepy
+Copyright (c) 2014, Clearpath Robotics
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -29,65 +30,25 @@ This program contains the description of the robot base model for the Clearpath 
 -->
 
 <robot name="grizzly" xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <property name="M_PI" value="3.1415926535897931" />
+  <property name="ground_clearance" value="0.203" />
 
   <!-- Included URDF/XACRO Files -->
   <xacro:include filename="materials.urdf.xacro" />
   <xacro:include filename="wheel.urdf.xacro" />
   <xacro:include filename="grizzly.gazebo" />
 
-  <!-- PROPERTY LIST -->
-  <!--All units in m-kg-s-radians unit system -->
-  <property name="M_PI"
-            value="3.1415926535897931" />
-
-  <!-- Main Body-base-->
-  <!-- Location of com : center of mass -->
-  <property name="base_x_com"
-            value="-0.013" />
-  <property name="base_y_com"
-            value="-0.00061" />
-  <property name="base_z_com"
-            value="-0.0205" />
-
+  <!-- Key Dimensions -->
   <property name="chassis_length" value="1.75" />  
   <property name="chassis_width" value="0.711" /> 
   <property name="chassis_height" value="0.495" /> 
-
-  <!-- Mass of the base-->
-  <property name="base_mass" value="487" />
-
-  <!-- Mass of the front axle-->
+  <property name="chassis_mass" value="487" />
   <property name="front_axle_mass" value="113" />
   <property name="front_axle_radius" value="0.13" />
   <property name="front_axle_length" value="1.0" />
-
-  <!-- Moments of inertia. Taken at center of mass aligned with coordinate system, kg*m^2-->
-  <!-- Ix = Iz = m*(3r^2 + h^2)/12   Iy = m*r^2/2-->
-  <property name="front_axle_ixx_com_cs"
-            value="9.9" />
-  <property name="front_axle_ixy_com_cs"
-            value="0.0" />
-  <property name="front_axle_ixz_com_cs"
-            value="0.0" />
-  <property name="front_axle_iyy_com_cs"
-            value="9.9" />
-  <property name="front_axle_iyz_com_cs"
-            value="0.0" />
-  <property name="front_axle_izz_com_cs"
-            value="0.95" />
-
-  <property name="base_ixx_com_cs"
-            value="64.010712692" />
-  <property name="base_ixy_com_cs"
-            value="0.214224647" />
-  <property name="base_ixz_com_cs"
-            value="-1.636784296" />
-  <property name="base_iyy_com_cs"
-            value="200.87" />
-  <property name="base_iyz_com_cs"
-            value="-0.048325439" />
-  <property name="base_izz_com_cs"
-            value="229.831441333" />
+  <property name="base_x_origin_to_wheel_origin" value="0.448" /> <!-- 240/2 + 660/2-->
+  <property name="base_y_origin_to_wheel_origin" value="0.499" /> <!--(1282-711)/4 + 711/2--> 
+  <property name="base_z_origin_to_wheel_origin" value="0.0" />
 
   <!-- BASE-LINK -->
   <link name="base_link" />
@@ -103,15 +64,10 @@ This program contains the description of the robot base model for the Clearpath 
   <!--Actual body/chassis of the robot-->
   <link name="chassis_link">
     <inertial>
-      <mass value="${base_mass}" />
-      <!-- Center of mass -->
-      <origin xyz="${base_x_com} ${base_y_com} ${base_z_com}" />
-      <inertia ixx="${base_ixx_com_cs}"
-               ixy="${base_ixy_com_cs}"
-               ixz="${base_ixz_com_cs}"
-               iyy="${base_iyy_com_cs}"
-               iyz="${base_iyz_com_cs}"
-               izz="${base_izz_com_cs}" />
+      <mass value="${chassis_mass}"/>
+      <origin xyz="-0.013 -0.00061 -0.0205"/>
+      <inertia ixx="64.010712692" ixy="0.214224647" ixz="-1.636784296"
+               iyy="200.87" iyz="-0.048325439" izz="229.831441333" />
     </inertial>
     <visual>
       <origin xyz="0 0 ${ground_clearance}"
@@ -172,20 +128,10 @@ This program contains the description of the robot base model for the Clearpath 
   </joint>
 
   <!-- rear wheels -->
-  <grizzly_wheel fr="rear"
-                 lr="left"
-                 parent="chassis_link"
-                 translateX="-1"
-                 translateY="1"
-                 translateZ="0"
-                 flipY="0" />
-  <grizzly_wheel fr="rear"
-                 lr="right"
-                 parent="chassis_link"
-                 translateX="-1"
-                 translateY="-1"
-                 translateZ="0"
-                 flipY="1" />
+  <grizzly_wheel fr="rear" lr="left" flipY="0" parent="chassis_link"
+                 translateX="-1" translateY="1" />
+  <grizzly_wheel fr="rear" lr="right" flipY="1" parent="chassis_link"
+                 translateX="-1" translateY="-1" />
 
   <!-- Front axle link -->
   <joint name="front_axle_joint"
@@ -205,13 +151,8 @@ This program contains the description of the robot base model for the Clearpath 
   <link name="front_axle_link">
     <inertial>
       <mass value="${front_axle_mass}" />
-      <origin xyz="0 0 0" />
-      <inertia ixx="${front_axle_ixx_com_cs}"
-               ixy="${front_axle_ixy_com_cs}"
-               ixz="${front_axle_ixz_com_cs}"
-               iyy="${front_axle_iyy_com_cs}"
-               iyz="${front_axle_iyz_com_cs}"
-               izz="${front_axle_izz_com_cs}" />
+      <origin xyz="0 0 0"/>
+      <inertia ixx="9.9" ixy="0.0" ixz="0.0" iyy="9.9" iyz="0.0" izz="0.95" />
     </inertial>
     <visual>
       <origin xyz="-${ground_clearance} 0 ${base_y_origin_to_wheel_origin}"
@@ -232,19 +173,9 @@ This program contains the description of the robot base model for the Clearpath 
   </link>
 
   <!-- Front wheels -->
-  <grizzly_wheel fr="front"
-                 lr="left"
-                 parent="front_axle_link"
-                 translateX="0"
-                 translateY="1"
-                 translateZ="0"
-                 flipY="0" />
-  <grizzly_wheel fr="front"
-                 lr="right"
-                 parent="front_axle_link"
-                 translateX="0"
-                 translateY="-1"
-                 translateZ="0"
-                 flipY="1" />
+  <grizzly_wheel fr="front" lr="left" parent="front_axle_link"
+                 translateX="0" translateY="1" flipY="0" />
+  <grizzly_wheel fr="front" lr="right" parent="front_axle_link"
+                 translateX="0" translateY="-1" flipY="1" />
 
 </robot>
