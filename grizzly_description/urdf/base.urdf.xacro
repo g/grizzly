@@ -33,8 +33,6 @@ This program contains the description of the robot base model for the Clearpath 
   <!-- Included URDF/XACRO Files -->
   <xacro:include filename="materials.urdf.xacro" />
   <xacro:include filename="wheel.urdf.xacro" />
-  <xacro:include filename="parts.urdf.xacro" />
-  <xacro:include filename="add_frame.urdf.xacro" />
   <xacro:include filename="grizzly.gazebo" />
 
   <!-- PROPERTY LIST -->
@@ -133,19 +131,29 @@ This program contains the description of the robot base model for the Clearpath 
   </link>
 
   <!-- Add a sensor anchor link that points to the center of the robot top plate -->
-  <grizzly_tf parent="base_link" name="sensor_anchor_link" 
-    translateX="0" translateY="0" translateZ="${chassis_height}" 
-    rotateX="0" rotateY="0" rotateZ="0"/>
+  <link name="sensor_anchor_link"/>
+  <joint name="sensor_anchor_joint" type="fixed">
+    <origin xyz="0 0 ${chassis_height}"
+            rpy="0 0 0" />
+    <parent link="base_link" />
+    <child link="sensor_anchor_link" />
+  </joint>
 
-  <!-- Add a sensor anchor link for the imu -->
-  <grizzly_tf parent="sensor_anchor_link" name="imu_link" 
-    translateX="-${chassis_length/2}" translateY="0" translateZ="0" 
-    rotateX="${M_PI}" rotateY="${M_PI/2}" rotateZ="0" />
+  <link name="navsat_link" />
+  <joint name="navsat_joint" type="fixed">
+    <origin xyz="-${chassis_length/2} 0 0"
+            rpy="${M_PI} ${M_PI/2} 0" />
+    <parent link="sensor_anchor_link" />
+    <child link="navsat_link" />
+  </joint>
 
-  <!-- Add a sensor anchor link for the gps -->
-  <grizzly_tf parent="sensor_anchor_link" name="navsat_link" 
-    translateX="-${chassis_length/2}" translateY="0" translateZ="0" 
-    rotateX="${M_PI}" rotateY="${M_PI/2}" rotateZ="0" />
+  <link name="imu_link" />
+  <joint name="imu_joint" type="fixed">
+    <origin xyz="-${chassis_length/2} 0 0"
+            rpy="${M_PI} ${M_PI/2} 0" />
+    <parent link="sensor_anchor_link" />
+    <child link="imu_link" />
+  </joint>
 
   <!-- DECORATIONS -->
   <!-- Fenders -->
