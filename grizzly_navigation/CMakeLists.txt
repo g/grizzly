@@ -4,15 +4,16 @@ project(grizzly_navigation)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED)
+find_package(catkin REQUIRED roslaunch)
 
 catkin_package()
+roslaunch_add_file_check(launch/control.launch)
 
 #############
 ## Install ##
 #############
 install(
-  DIRECTORY launch
+  DIRECTORY launch config
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )
 
