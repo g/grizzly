@@ -2,6 +2,11 @@
 Changelog for package grizzly_navigation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Replace robot_pose_ekf with robot_localization.
+* Contributors: Shokoofeh Pourmehr, Mike Purvis
+
 0.2.0 (2014-02-28)
 ------------------
 

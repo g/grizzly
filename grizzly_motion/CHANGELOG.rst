@@ -2,6 +2,16 @@
 Changelog for package grizzly_motion
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Replace robot_pose_ekf with robot_localization.
+* add front axle publisher.
+* added publisher for wheel joints.
+* Fix dependency on roboteq_msgs.
+* Clarify timeout statemachine logic.
+* Use the FindEigen from cmake_modules.
+* Contributors: Mike Purvis, Shokoofeh Pourmehr
+
 0.2.0 (2014-02-28)
 ------------------
 * Change max acceleration from 0.5 to 1.5.

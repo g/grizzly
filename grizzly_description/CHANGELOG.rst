@@ -2,6 +2,18 @@
 Changelog for package grizzly_description
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fix IMU origin.
+* Update physical and collision properties
+* update position of wheel's joints
+* add hector gps contoller
+* add hector imu controller
+* change joint names. use rear instead of back
+* Aesthetic fixes to grizzly URDF.
+* Remove vestigial vcg file.
+* Contributors: Mike Purvis, Shokoofeh Pourmehr, dash
+
 0.2.0 (2014-02-28)
 ------------------
 

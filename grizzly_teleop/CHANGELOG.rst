@@ -2,6 +2,9 @@
 Changelog for package grizzly_teleop
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 0.2.0 (2014-02-28)
 ------------------
 
