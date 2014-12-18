@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
   <name>grizzly_teleop</name>
-  <version>0.2.0</version>
+  <version>0.3.0</version>
   <description>Nodes to republish joystick messages as a cmd_vel topic suitable for use with real or simulated Grizzly.</description>
 
   <maintainer email="rgariepy@clearpathrobotics.com">Ryan Gariepy</maintainer>

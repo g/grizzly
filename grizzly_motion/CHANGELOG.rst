@@ -2,8 +2,8 @@
 Changelog for package grizzly_motion
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.3.0 (2014-12-18)
+------------------
 * Replace robot_pose_ekf with robot_localization.
 * add front axle publisher.
 * added publisher for wheel joints.

@@ -2,8 +2,8 @@
 Changelog for package grizzly_description
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.3.0 (2014-12-18)
+------------------
 * Fix IMU origin.
 * Update physical and collision properties
 * update position of wheel's joints

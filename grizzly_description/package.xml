@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
   <name>grizzly_description</name>
-  <version>0.2.0</version>
+  <version>0.3.0</version>
   <description>grizzly_description package to hold urdf and related model files</description>
 
   <maintainer email="yanma@clearpathrobotics.com">Yan Ma</maintainer>
