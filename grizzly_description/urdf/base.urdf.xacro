@@ -93,8 +93,8 @@ This program contains the description of the robot base model for the Clearpath 
   <link name="base_link" />
   <joint name="base_link_joint"
          type="fixed">
-    <origin xyz="0 0 0"
-            rpy="0 0 ${ground_clearance}"/>
+    <origin xyz="0 0 ${ground_clearance}"
+            rpy="0 0 0"/>
     <parent link="base_link" />
     <child link="chassis_link" />
   </joint>
