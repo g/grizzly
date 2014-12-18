@@ -135,7 +135,7 @@ This program contains the description of the robot base model for the Clearpath 
   <joint name="sensor_anchor_joint" type="fixed">
     <origin xyz="0 0 ${chassis_height}"
             rpy="0 0 0" />
-    <parent link="base_link" />
+    <parent link="chassis_link" />
     <child link="sensor_anchor_link" />
   </joint>
 
@@ -149,8 +149,8 @@ This program contains the description of the robot base model for the Clearpath 
 
   <link name="imu_link" />
   <joint name="imu_joint" type="fixed">
-    <origin xyz="-${chassis_length/2} 0 0"
-            rpy="0 0 0" />
+    <origin xyz="-${chassis_length/2} 0 -${chassis_height/2}"
+             rpy="${M_PI} ${M_PI/2} 0" />
     <parent link="sensor_anchor_link" />
     <child link="imu_link" />
   </joint>
