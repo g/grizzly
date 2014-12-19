@@ -1,0 +1,6 @@
+<launch>
+	<include file="$(find grizzly_gazebo)/launch/grizzly_empty_world.launch"/>
+	<include file="$(find grizzly_viz)/launch/view_robot.launch"/>
+	<node pkg="rostopic" type="rostopic" name="rostpic_pub"
+        args="pub cmd_vel geometry_msgs/Twist ['0.75, 0.0, 0.0'] ['0.0, 0.0, 1.5'] -r 10"/>
+</launch>
