@@ -8,7 +8,7 @@ ekf_localization:
                  false, false, false]
   odom0_differential: false
 
-  imu0: imu/data
+  imu0: imu/data_compass
   imu0_config: [false, false, false,
                 true, true, true,
                 false, false, false,
