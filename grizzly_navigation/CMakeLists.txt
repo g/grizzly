@@ -7,7 +7,7 @@ project(grizzly_navigation)
 find_package(catkin REQUIRED roslaunch)
 
 catkin_package()
-roslaunch_add_file_check(launch/control.launch)
+roslaunch_add_file_check(launch/localization.launch)
 
 #############
 ## Install ##
