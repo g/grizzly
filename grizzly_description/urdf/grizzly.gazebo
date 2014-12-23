@@ -37,7 +37,7 @@
       <robotNamespace>/</robotNamespace>
       <updateRate>50.0</updateRate> 
       <bodyName>imu_link</bodyName>
-      <frameId>imu_link</frameId>
+      <frameId>base_link</frameId>
       <topicName>imu/data</topicName>
       <accelDrift>0.005 0.005 0.005</accelDrift>
       <accelGaussianNoise>0.005 0.005 0.005</accelGaussianNoise>
