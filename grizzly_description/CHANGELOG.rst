@@ -2,6 +2,15 @@
 Changelog for package grizzly_description
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Find includes in URDF relative to package locations.
+* Remove unneeded joint_state_publisher dependency.
+* fix imu topic in simulator
+* In navigation pkg, rename config and launch files to localization
+* set imu frame ID as imu_link
+* Contributors: Mike Purvis, Shokoofeh Pourmehr
+
 0.3.0 (2014-12-18)
 ------------------
 * Fix IMU origin.

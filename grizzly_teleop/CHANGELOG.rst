@@ -2,6 +2,15 @@
 Changelog for package grizzly_teleop
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Add modified sixpair to grizzly_teleop.
+  This version supports the Navigation controller, and a wrapper
+  is included which allows it to be run easily from ROS while
+  wrapped in sudo.
+* Add queue_size to rospy.Publisher.
+* Contributors: Mike Purvis
+
 0.3.0 (2014-12-18)
 ------------------
 

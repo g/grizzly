@@ -2,6 +2,13 @@
 Changelog for package grizzly_navigation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* fix imu topic
+* change imu topic to imu/data_combined
+* In navigation pkg, rename config and launch files to localization
+* Contributors: Shokoofeh Pourmehr
+
 0.3.0 (2014-12-18)
 ------------------
 * Replace robot_pose_ekf with robot_localization.

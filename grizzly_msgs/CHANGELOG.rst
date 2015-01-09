@@ -2,6 +2,9 @@
 Changelog for package grizzly_msgs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 0.3.0 (2014-12-18)
 ------------------
 * add front axle publisher.

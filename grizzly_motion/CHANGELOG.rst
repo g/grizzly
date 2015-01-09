@@ -2,6 +2,11 @@
 Changelog for package grizzly_motion
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fix grizzly_motion/tests bugs
+* Contributors: Shokoofeh Pourmehr
+
 0.3.0 (2014-12-18)
 ------------------
 * Replace robot_pose_ekf with robot_localization.
