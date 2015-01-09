@@ -26,7 +26,6 @@
 via the switch on the front. That will map the buttons to "Green=GO, 
 Red=E-Stop"""
 
-import roslib; roslib.load_manifest('grizzly_teleop')
 import rospy
 
 from sensor_msgs.msg import Joy
@@ -48,9 +47,9 @@ class Teleop:
         self.turn_axis = rospy.get_param('~turn_axis', 0)
 
         self.cmd = None
-        cmd_pub = rospy.Publisher('cmd_vel', Twist)
+        cmd_pub = rospy.Publisher('cmd_vel', Twist, queue_size=1)
         self.estop = False
-        cmd_estop = rospy.Publisher('estop', Bool)
+        cmd_estop = rospy.Publisher('estop', Bool, queue_size=1)
 
         rospy.Subscriber("joy", Joy, self.callback)
         rate = rospy.Rate(rospy.get_param('~hz', 20))
