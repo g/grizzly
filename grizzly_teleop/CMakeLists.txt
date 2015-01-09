@@ -5,9 +5,18 @@ find_package(catkin)
 
 catkin_package()
 
+add_executable(_sixpair src/sixpair.c)
+target_link_libraries(_sixpair usb)
+
+install(TARGETS 
+  _sixpair
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+
 install(PROGRAMS
-  nodes/teleop
-  nodes/teleop_incremental
+  scripts/teleop
+  scripts/teleop_incremental
+  scripts/sixpair
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
