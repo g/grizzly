@@ -2,8 +2,8 @@
 Changelog for package grizzly_motion
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.3.1 (2015-01-09)
+------------------
 * Fix grizzly_motion/tests bugs
 * Contributors: Shokoofeh Pourmehr
 

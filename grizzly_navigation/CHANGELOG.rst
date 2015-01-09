@@ -2,8 +2,8 @@
 Changelog for package grizzly_navigation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.3.1 (2015-01-09)
+------------------
 * fix imu topic
 * change imu topic to imu/data_combined
 * In navigation pkg, rename config and launch files to localization

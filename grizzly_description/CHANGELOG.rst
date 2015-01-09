@@ -2,8 +2,8 @@
 Changelog for package grizzly_description
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.3.1 (2015-01-09)
+------------------
 * Find includes in URDF relative to package locations.
 * Remove unneeded joint_state_publisher dependency.
 * fix imu topic in simulator

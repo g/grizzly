@@ -2,8 +2,8 @@
 Changelog for package grizzly_teleop
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.3.1 (2015-01-09)
+------------------
 * Add modified sixpair to grizzly_teleop.
   This version supports the Navigation controller, and a wrapper
   is included which allows it to be run easily from ROS while
