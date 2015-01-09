@@ -34,9 +34,9 @@ This program contains the description of the robot base model for the Clearpath 
   <property name="ground_clearance" value="0.203" />
 
   <!-- Included URDF/XACRO Files -->
-  <xacro:include filename="materials.urdf.xacro" />
-  <xacro:include filename="wheel.urdf.xacro" />
-  <xacro:include filename="grizzly.gazebo" />
+  <xacro:include filename="$(find grizzly_description)/urdf/materials.urdf.xacro" />
+  <xacro:include filename="$(find grizzly_description)/urdf/wheel.urdf.xacro" />
+  <xacro:include filename="$(find grizzly_description)/urdf/grizzly.gazebo" />
 
   <!-- Key Dimensions -->
   <property name="chassis_length" value="1.75" />  
