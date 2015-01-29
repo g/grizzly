@@ -50,7 +50,7 @@ const Eigen::MatrixXd ODOM_POSE_COVAR_NOMOVE = (Eigen::MatrixXd(6, 6) <<
 const Eigen::MatrixXd ODOM_TWIST_COVAR_MOTION = (Eigen::MatrixXd(6, 6) << 
   1e-3, 0,    0,   0,   0,   0, 
   0,    1e-1, 0,   0,   0,   0,
-  0,    0,    1e6, 0,   0,   0,
+  0,    0,    1e-9, 0,   0,   0,
   0,    0,    0,   1e6, 0,   0,
   0,    0,    0,   0,   1e6, 0,
   0,    0,    0,   0,   0,   0.174).finished();
@@ -58,7 +58,7 @@ const Eigen::MatrixXd ODOM_TWIST_COVAR_MOTION = (Eigen::MatrixXd(6, 6) <<
 const Eigen::MatrixXd ODOM_TWIST_COVAR_NOMOVE = (Eigen::MatrixXd(6, 6) << 
   1e-9, 0,    0,   0,   0,   0, 
   0,    1e-9, 0,   0,   0,   0,
-  0,    0,    1e6, 0,   0,   0,
+  0,    0,    1e-9, 0,   0,   0,
   0,    0,    0,   1e6, 0,   0,
   0,    0,    0,   0,   1e6, 0,
   0,    0,    0,   0,   0,   1e-9).finished();
@@ -89,4 +89,3 @@ protected:
   double width_, radius_;
   ros::Duration max_dt_;
 };
-
