@@ -112,6 +112,15 @@ This program contains the description of the robot base model for the Clearpath 
     <child link="imu_link" />
   </joint>
 
+  <!-- Adding a LIDAR sensor. -->
+  <xacro:if value="$(arg spawn_lidar)">
+    <xacro:include filename="$(find grizzly_description)/urdf/lidar.urdf.xacro"/>
+    <xacro:lidar_sensor name="lidar" parent="sensor_anchor_link" ros_topic="lidar_scan"
+      update_rate="20" x="0" y="0" z="${chassis_height/2-0.2}" r="0" p="0" yaw="0" samples="500"
+      min_angle="-1.57" max_angle="1.57" min_range="0.3" max_range="20" resolution="0.05" 
+      visible="true"/>
+  </xacro:if>
+
   <!-- Purely decorative visual component. -->
   <link name="fenders_link">
     <visual>
@@ -126,7 +135,8 @@ This program contains the description of the robot base model for the Clearpath 
     <parent link="chassis_link" />
     <child link="fenders_link" />
   </joint>
-
+  
+  <!--
   <link name="front_axle_link">
     <inertial>
       <mass value="${front_axle_mass}" />
@@ -163,11 +173,18 @@ This program contains the description of the robot base model for the Clearpath 
            upper="0.2"
            velocity="0.5" />
   </joint>
+  -->
 
+  <!--
   <grizzly_wheel fr="front" lr="left" parent="front_axle_link"
                  translateX="0" translateY="1" flipY="0" />
   <grizzly_wheel fr="front" lr="right" parent="front_axle_link"
                  translateX="0" translateY="-1" flipY="1" />
+  -->
+  <grizzly_wheel fr="front" lr="left" parent="chassis_link"
+                 translateX="1" translateY="1" flipY="0" />
+  <grizzly_wheel fr="front" lr="right" parent="chassis_link"
+                 translateX="1" translateY="-1" flipY="1" />
   <grizzly_wheel fr="rear" lr="left" parent="chassis_link"
                  translateX="-1" translateY="1" flipY="0" />
   <grizzly_wheel fr="rear" lr="right" parent="chassis_link"
