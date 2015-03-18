@@ -2,7 +2,7 @@
 
 <robot xmlns:xacro="http://ros.org/wiki/xacro">
   <xacro:macro name="lidar_sensor_gazebo" params="name ros_topic update_rate samples min_angle max_angle min_range max_range resolution visible">
-    <gazebo reference="${name}_link">
+    <gazebo reference="laser">
       <sensor type="ray" name="${name}">
         <always_on>true</always_on>
         <update_rate>${update_rate}</update_rate>
@@ -28,7 +28,7 @@
           <alwaysOn>true</alwaysOn>
           <updateRate>${update_rate}</updateRate>
           <topicName>${ros_topic}</topicName>
-          <frameName>${name}_link</frameName>
+          <frameName>laser</frameName>
         </plugin>
       </sensor>
     </gazebo>

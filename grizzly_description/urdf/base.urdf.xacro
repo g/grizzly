@@ -115,7 +115,7 @@ This program contains the description of the robot base model for the Clearpath 
   <!-- Adding a LIDAR sensor. -->
   <xacro:if value="$(arg spawn_lidar)">
     <xacro:include filename="$(find grizzly_description)/urdf/lidar.urdf.xacro"/>
-    <xacro:lidar_sensor name="lidar" parent="sensor_anchor_link" ros_topic="lidar_scan"
+    <xacro:lidar_sensor name="lidar" parent="sensor_anchor_link" ros_topic="scan"
       update_rate="20" x="0" y="0" z="${chassis_height/2-0.2}" r="0" p="0" yaw="0" samples="500"
       min_angle="-1.57" max_angle="1.57" min_range="0.3" max_range="20" resolution="0.05" 
       visible="true"/>

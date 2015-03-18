@@ -5,7 +5,7 @@
 
   <xacro:macro name="lidar_sensor" params="name parent ros_topic update_rate x y z r p yaw samples min_angle max_angle min_range max_range resolution visible">
 
-  <link name="${name}_link">
+    <link name="laser">
     <inertial>
       <mass value = "0.2" />
       <origin xyz="0 0 0"/>
@@ -21,9 +21,9 @@
   <joint name="${name}_jnt" type="fixed">
     <origin xyz="${x} ${y} ${z}" rpy="${r} ${p} ${yaw}"/>
     <parent link="${parent}"/>
-    <child link="${name}_link"/>
+    <child link="laser"/>
   </joint>
-  <gazebo reference="${name}_link">
+  <gazebo reference="laser">
     <material>Gazebo/Blue</material>
   </gazebo>
 

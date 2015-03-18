@@ -173,6 +173,8 @@ void MotionSafety::watchdogCallback(const ros::TimerEvent&)
       grizzly_msgs::Ambience::PATTERN_FLASH;
     if (!encoders_ok)
       setStop("Encoders not okay.", true, true);
+    if (isEstopped())
+      setStop("External estop.");
     //if (!motor_controllers_ok)
     //  setStop("Motor controllers not okay.", true);
 
