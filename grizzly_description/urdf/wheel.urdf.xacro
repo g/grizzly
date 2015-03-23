@@ -54,22 +54,22 @@ This program contains the description of the robot wheel model for Clearpath Gri
   <property name="wheel_mass" value="15" />
 
   <property name="wheel_ixx_com_cs"
-            value="0.02466885" />
+            value="14.68" />
   <!-- at center of mass aligned with coordinate system, kg*m^2-->
   <property name="wheel_ixy_com_cs"
-            value="0.00000000" />
+            value="-0.033" />
   <!-- at center of mass aligned with coordinate system, kg*m^2-->
   <property name="wheel_ixz_com_cs"
-            value="0.00000000" />
+            value="0.07" />
   <!-- at center of mass aligned with coordinate system, kg*m^2-->
   <property name="wheel_iyy_com_cs"
-            value="0.02466885" />
+            value="26.7" />
   <!-- at center of mass aligned with coordinate system, kg*m^2-->
   <property name="wheel_iyz_com_cs"
-            value="0.00000000" />
+            value="-0.05" />
   <!-- at center of mass aligned with coordinate system, kg*m^2-->
   <property name="wheel_izz_com_cs"
-            value="0.04410576" />
+            value="14.68" />
   <!-- at center of mass aligned with coordinate system, kg*m^2-->
   <property name="base_x_origin_to_wheel_origin"
             value="0.25600006" />
@@ -112,8 +112,8 @@ This program contains the description of the robot wheel model for Clearpath Gri
       </collision>
     </link>
     <gazebo reference="${fb}_${lr}_wheel">
-      <mu1 value="100.0" />
-      <mu2 value="0.1" />
+      <mu1 value="1.0" />
+      <mu2 value="0.5" />
       <kp value="10000000.0" />
       <kd value="1.0" />
       <fdir1 value="1 0 0" />

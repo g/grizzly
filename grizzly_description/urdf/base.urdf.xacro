@@ -77,30 +77,30 @@ This program contains the description of the robot base model for the Clearpath 
 
   <!--Inertial values for the front_axle at center of mass, aligned with coordinate system. Units are kg*m^2-->
   <property name="front_axle_ixx_com_cs"
-            value="0.60216370" />
+            value="9.9" />
   <property name="front_axle_ixy_com_cs"
-            value="-0.02364198" />
+            value="0.0" />
   <property name="front_axle_ixz_com_cs"
-            value="-0.11972132" />
+            value="0.0" />
   <property name="front_axle_iyy_com_cs"
-            value="1.73859574" />
+            value="9.9" />
   <property name="front_axle_iyz_com_cs"
-            value="-0.00154437" />
+            value="0.0" />
   <property name="front_axle_izz_com_cs"
-            value="2.02955229" />
+            value="0.95" />
   <!--Inertial values for the base at center of mass, aligned with coordinate system. Units are kg*m^2-->
   <property name="base_ixx_com_cs"
-            value="0.60216370" />
+            value="64.010712692" />
   <property name="base_ixy_com_cs"
-            value="-0.02364198" />
+            value="0.214224647" />
   <property name="base_ixz_com_cs"
-            value="-0.11972132" />
+            value="-1.636784296" />
   <property name="base_iyy_com_cs"
-            value="1.73859574" />
+            value="200.87" />
   <property name="base_iyz_com_cs"
-            value="-0.00154437" />
+            value="-0.048325439" />
   <property name="base_izz_com_cs"
-            value="2.02955229" />
+            value="229.831441333" />
 
   <!-- BASE-FOOTPRINT -->
   <!-- base_footprint is a fictitious link(frame) that is on the ground right below base_link origin, navigation stack depends on this frame -->
@@ -274,7 +274,7 @@ This program contains the description of the robot base model for the Clearpath 
       <frontAxleJoint>front_axle_joint</frontAxleJoint>
       <wheelSeparation>${base_y_size}</wheelSeparation>
       <wheelDiameter>${wheel_x_size}</wheelDiameter>
-      <torque>35</torque>
+      <torque>500</torque>
     </plugin>
   </gazebo>
 </robot>
