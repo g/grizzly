@@ -35,7 +35,7 @@
   <gazebo>
     <plugin name="imu_controller" filename="libhector_gazebo_ros_imu.so">
       <robotNamespace>/</robotNamespace>
-      <updateRate>50.0</updateRate> 
+      <updateRate>50.0</updateRate>
       <bodyName>imu_link</bodyName>
       <frameId>base_link</frameId>
       <topicName>imu/data_compass</topicName>
