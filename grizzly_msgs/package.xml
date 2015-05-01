@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <package>
-  <name>grizzly_msgs</name>
+  <name>Common messages for Grizzly.</name>
   <version>0.3.1</version>
   <description>grizzly_msgs</description>
   <maintainer email="mpurvis@clearpathrobotics.com">Mike Purvis</maintainer>
