@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <!--
+    As you add args to this xacro, please ensure that they
+    are included with default values in each of the following
+    launch files:
+
+    grizzly_viz/launch/view_model.launch
+    grizzly_gazebo/launch/grizzly.launch
+    grizzly_base/launch/base.launch
+  TODO: Grizzly-robot uses another way of doing things. Revise?
+  -->
+
+  <xacro:include filename="accessories/sick_lms100.urdf.xacro" />
+
+  <xacro:if value="$(arg front_laser)">
+    <xacro:sick_lms100 prefix="front" />
+    <joint name="front_laser_joint" type="fixed">
+      <!-- TODO: Get proper measurements here -->
+      <origin xyz="0.80 0 0.1" rpy="0 0 0" />
+      <parent link="sensor_anchor_link" />
+      <child link="front_laser" />
+    </joint>
+  </xacro:if>
+
+</robot>

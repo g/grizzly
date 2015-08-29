@@ -1,3 +1,4 @@
+<?xml version="1.0"?>
 <launch>
   <rosparam>
     vehicle_width: 1.01      # meters

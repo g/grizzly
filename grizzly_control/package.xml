@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package>
-  <name>grizzly_navigation</name>
+  <name>grizzly_control</name>
   <version>0.3.1</version>
-  <description>The grizzly_navigation package</description>
+  <description>The grizzly_control package</description>
 
   <maintainer email="mpurvis@clearpathrobotics.com">Mike Purvis</maintainer>
   <license>BSD</license>
