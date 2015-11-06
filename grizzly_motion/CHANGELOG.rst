@@ -2,8 +2,8 @@
 Changelog for package grizzly_motion
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.3.2 (2015-11-06)
+------------------
 * Added a precharge check before transitioning into MOVING state. Without this,
   precharges that take longer than 2.0 seconds will cause stuttering issues if
   there is already a cmd_vel being sent.
