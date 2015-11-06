@@ -2,6 +2,9 @@
 Changelog for package grizzly_navigation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 0.3.1 (2015-01-09)
 ------------------
 * fix imu topic

@@ -2,6 +2,9 @@
 Changelog for package grizzly_teleop
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 0.3.1 (2015-01-09)
 ------------------
 * Add modified sixpair to grizzly_teleop.

@@ -2,6 +2,16 @@
 Changelog for package grizzly_motion
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Added a precharge check before transitioning into MOVING state. Without this,
+  precharges that take longer than 2.0 seconds will cause stuttering issues if
+  there is already a cmd_vel being sent.
+* Added estop check in watchdog callback for the Moving state. Without this, the
+  state machine will get stuck in the Moving state if the vehicle is estopped while
+  there is still a stream of motion commands being sent.
+* Contributors: Mike Purvis, Peiyi Chen
+
 0.3.1 (2015-01-09)
 ------------------
 * Fix grizzly_motion/tests bugs
