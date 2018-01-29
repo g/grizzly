@@ -1,12 +1,10 @@
-uint8 PATTERN_ON=255
-uint8 PATTERN_FLASH=15
-uint8 PATTERN_DFLASH=9
-uint8 PATTERN_QUICKFLASH=1
-uint8 PATTERN_OFF=0
+# Represents a command for the four corner body lights, indicators on the rear
+# and beeper/beacon combination on the arch.
+uint8 LIGHTS_FRONT_LEFT=0   # Only white
+uint8 LIGHTS_FRONT_RIGHT=1  # Only white
+uint8 LIGHTS_REAR_LEFT=2    # Only red
+uint8 LIGHTS_REAR_RIGHT=3   # Only red
 
-uint8 position_light    # Signal the status of the GPS system
-uint8 autopilot_light   # Signal if the system is under automatic or manual control
-uint8 beacon     # Overhead beacon flash pattern
-uint8 headlight  # Headlight flash pattern
-uint8 taillight  # Taillight flash pattern
-uint8 beep   # Noisemaker sound pattern
+uint8[4] body_lights    # Body lights on the Grizzly
+uint8 beacon            # Overhead beacon light
+uint8 beep              # Noisemaker sound
