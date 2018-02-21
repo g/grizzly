@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<robot name="grizzly_accessories" xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <xacro:macro name="grizzly_decorate">
+
+<!-- Purely decorative visual component. -->
+  <link name="fenders_link">
+    <visual>
+      <origin xyz="0 0 ${ground_clearance}" rpy="${M_PI/2} 0 ${M_PI/2}"/>
+      <geometry>
+        <mesh filename="package://grizzly_description/meshes/bumper.stl" />
+      </geometry>
+      <material name="Yellow" />
+    </visual>
+  </link>
+
+  <joint name="fenders_joint" type="fixed">
+    <parent link="chassis_link" />
+    <child link="fenders_link" />
+  </joint>
+
+  </xacro:macro>
+
+  <material name="Black">
+    <color rgba="0.0 0.0 0.0 1.0" />
+  </material>
+  <material name="Blue">
+    <color rgba="0.0 0.0 0.8 1.0" />
+  </material>
+  <material name="Green">
+    <color rgba="0.0 0.8 0.0 1.0" />
+  </material>
+  <material name="Grey">
+    <color rgba="0.3 0.3 0.3 1.0" />
+  </material>
+  <material name="DarkGrey">
+    <color rgba="0.2 0.2 0.2 1.0" />
+  </material>
+  <material name="Red">
+    <color rgba="0.8 0.0 0.0 1.0" />
+  </material>
+  <material name="White">
+    <color rgba="1.0 1.0 1.0 1.0" />
+  </material>
+  <material name="Yellow">
+    <color rgba="0.8 0.8 0.0 1.0" />
+  </material>
+
+</robot>
