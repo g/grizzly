@@ -1,0 +1,194 @@
+<?xml version="1.0"?>
+
+<robot name="grizzly" xmlns:xacro="http://ros.org/wiki/xacro">
+  <xacro:property name="ground_clearance" value="0.203" />
+
+  <xacro:arg name="robot_namespace" default="/" />
+  <xacro:arg name="urdf_extras" default="empty.urdf" />
+
+  <!-- Included URDF/XACRO Files -->
+  <xacro:include filename="$(find grizzly_description)/urdf/accessories.urdf.xacro" />
+
+  <xacro:property name="M_PI" value="3.14159"/>
+
+  <!-- Base Size -->
+  <xacro:property name="base_x_size" value="1.75000000" />
+  <xacro:property name="base_y_size" value="0.71100000" />
+  <xacro:property name="base_z_size" value="0.4950000" />
+
+  <!-- Key Dimensions -->
+  <xacro:property name="chassis_mass" value="487" />
+  <xacro:property name="front_axle_mass" value="113" />
+  <xacro:property name="front_axle_radius" value="0.13" />
+  <xacro:property name="front_axle_length" value="1.0" />
+  <xacro:property name="wheelbase" value="0.896" />
+  <xacro:property name="track" value="0.499" /> 
+
+  <!-- Wheel Mounting Positions -->
+  <xacro:property name="wheel_vertical_offset" value="0.03282" />
+
+  <!-- Wheel Properties -->
+  <xacro:property name="wheel_width" value="0.252" />
+  <xacro:property name="wheel_radius" value="0.33" />
+  <xacro:property name="wheel_mass" value="15" />
+
+  <!-- Root link of Grizzly -->
+  <link name="base_link" />
+
+  <!-- Base link is the center of the robot's bottom plate -->
+  <link name="chassis_link">
+    <inertial>
+      <mass value="${chassis_mass}"/>
+      <origin xyz="-0.013 -0.00061 -0.0205"/>
+      <inertia ixx="64.010712692" ixy="0.214224647" ixz="-1.636784296"
+               iyy="200.87" iyz="-0.048325439" izz="229.831441333" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 ${ground_clearance}" rpy="${M_PI/2} 0 ${M_PI/2}" />
+      <geometry>
+        <mesh filename="package://grizzly_description/meshes/base_link.stl" />
+      </geometry>
+      <material name="DarkGrey" />
+    </visual>
+    <collision>
+      <origin xyz="0 0 ${ground_clearance}" rpy="${M_PI/2} 0 ${M_PI/2}" />
+      <geometry>
+         <box size="${base_y_size} ${base_z_size} ${base_x_size}" />
+      </geometry>
+    </collision>
+  </link>
+
+  <link name="front_axle_link">
+    <inertial>
+      <mass value="${front_axle_mass}" />
+      <origin xyz="0 0 0"/>
+      <inertia ixx="9.9" ixy="0.0" ixz="0.0" iyy="9.9" iyz="0.0" izz="1.75" />
+    </inertial>
+    <visual>
+      <origin xyz="-${ground_clearance} 0.01 ${track}"
+              rpy="0 ${M_PI} ${M_PI/2}" />
+      <geometry>
+        <mesh filename="package://grizzly_description/meshes/front_axle.stl" />
+      </geometry>
+      <material name="DarkGrey" />
+    </visual>
+    <collision>
+      <origin xyz="0 0 0"
+              rpy="${M_PI/2} 0 0" />
+      <geometry>
+        <cylinder length="${front_axle_length}"
+                  radius="${front_axle_radius}" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="front_axle_joint"
+         type="fixed">
+    <origin xyz="${wheelbase/2} 0 0"
+            rpy="0 0 0" />
+    <parent link="chassis_link" />
+    <child link="front_axle_link" />
+    <axis xyz="0 1 0"
+          rpy="0 0 0" />
+    <limit effort="10"
+           lower="0"
+           upper="0"
+           velocity="0.5" />
+  </joint>   
+
+
+  <joint name="chassis_joint"
+         type="fixed">
+    <origin xyz="0 0 ${ground_clearance}" rpy="0 0 0"/>
+    <parent link="base_link" />
+    <child link="chassis_link" />
+  </joint>
+
+  <!-- Add a sensor anchor link that points to the center of the robot top plate -->
+  <link name="sensor_anchor_link"/>
+  <joint name="sensor_anchor_joint" type="fixed">
+    <origin xyz="0 0 ${base_z_size}"
+            rpy="0 0 0" />
+    <parent link="chassis_link" />
+    <child link="sensor_anchor_link" />
+  </joint>
+
+  <!-- This is the approximate position of the GPS antenna on the standard configuration. -->
+  <link name="navsat_link" />
+  <joint name="navsat_joint" type="fixed">
+    <origin xyz="-${base_x_size/2} 0 0"
+            rpy="0 0 0" />
+    <parent link="sensor_anchor_link" />
+    <child link="navsat_link" />
+  </joint>
+
+  <!-- The position and orientation of the IMU in the rear compartment. -->
+  <link name="imu_link" />
+  <joint name="imu_joint" type="fixed">
+    <origin xyz="-${base_x_size/2} 0 -${base_z_size/2}"
+             rpy="${M_PI} ${M_PI/2} 0" />
+    <parent link="sensor_anchor_link" />
+    <child link="imu_link" />
+  </joint>
+
+	<xacro:macro name="grizzly_wheel" params="wheel_prefix parent *joint_pose flipY">
+		<link name="${wheel_prefix}_wheel_link">
+			<inertial>
+			  <mass value="${wheel_mass}" />
+			  <origin xyz="-0.002 -0.198 0.003" />
+			  <inertia  ixx="14.68" ixy="-0.033" ixz="0.07" iyy="26.7" iyz="-0.05" izz="14.68" />
+			</inertial>
+			<visual>
+			  <origin xyz="0 0 0" rpy="${M_PI/2} ${flipY*M_PI} ${M_PI/2}" />
+			  <geometry>
+			    <mesh filename="package://grizzly_description/meshes/wheel.stl" />
+			  </geometry>
+			</visual>
+			<collision>
+			  <origin xyz="0 0 0" rpy="${M_PI/2} ${flipY*M_PI} 0" />
+			  <geometry>
+		  	    <cylinder length="${wheel_width}" radius="${wheel_radius}" />
+			  </geometry>
+			</collision>
+		</link>
+
+		<joint name="${wheel_prefix}_wheel" type="continuous">
+			<parent link="${parent}"/>
+			<child link="${wheel_prefix}_wheel_link"/>
+			<xacro:insert_block name="joint_pose"/>
+			<axis xyz="0 1 0" rpy="0 0 0" />
+			<joint_properties damping="0.0" friction="0.0" />
+		</joint>
+
+		<transmission name="${wheel_prefix}_wheel_trans" type="SimpleTransmission">
+			<type>transmission_interface/SimpleTransmission</type>
+			<actuator name="${wheel_prefix}_wheel_motor">
+				<mechanicalReduction>1</mechanicalReduction>
+			</actuator>
+			<joint name="${wheel_prefix}_wheel">
+				<hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+			</joint>
+		</transmission>
+	</xacro:macro>
+
+  <!-- Grizzly wheel macros -->
+  <xacro:grizzly_wheel wheel_prefix="front_left" parent="front_axle_link" flipY="0">
+    <origin xyz="0 0.499 ${wheel_vertical_offset}" rpy="0 0 0" />
+  </xacro:grizzly_wheel>
+  <xacro:grizzly_wheel wheel_prefix="front_right" parent="front_axle_link" flipY="1">
+    <origin xyz="0 -0.499 ${wheel_vertical_offset}" rpy="0 0 0" />
+  </xacro:grizzly_wheel>
+  <xacro:grizzly_wheel wheel_prefix="rear_left" parent="chassis_link" flipY="0">
+    <origin xyz="-0.448 0.499 ${wheel_vertical_offset}" rpy="0 0 0" />
+  </xacro:grizzly_wheel>
+  <xacro:grizzly_wheel wheel_prefix="rear_right" parent="chassis_link" flipY="1">
+    <origin xyz="-0.448 -0.499 ${wheel_vertical_offset}" rpy="0 0 0" />
+  </xacro:grizzly_wheel>
+
+  <xacro:grizzly_decorate />
+
+  <!-- Bring in simulation data for Gazebo. -->
+  <xacro:include filename="$(find grizzly_description)/urdf/grizzly.gazebo" />
+
+  <!-- Optional custom includes. -->
+  <xacro:include filename="$(arg urdf_extras)" />
+</robot>

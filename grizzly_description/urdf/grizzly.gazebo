@@ -1,38 +1,10 @@
 <?xml version="1.0"?>
 <robot>
   <gazebo>
-    <plugin name="grizzly_diff_controller"
-            filename="libgrizzly_gazebo_plugins.so">
-      <alwaysOn>true</alwaysOn>
-      <updateRate>100.0</updateRate>
-      <rearLeftJoint>joint_rear_left_wheel</rearLeftJoint>
-      <rearRightJoint>joint_rear_right_wheel</rearRightJoint>
-      <frontLeftJoint>joint_front_left_wheel</frontLeftJoint>
-      <frontRightJoint>joint_front_right_wheel</frontRightJoint>
-      <frontAxleJoint>front_axle_joint</frontAxleJoint>
-      <wheelSeparation>${base_y_origin_to_wheel_origin*2}</wheelSeparation>
-      <wheelDiameter>${wheel_radius*2.0}</wheelDiameter>
-      <torque>1000</torque>
+    <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+      <robotNamespace>$(arg robot_namespace)</robotNamespace>
     </plugin>
-  </gazebo>
 
-  <gazebo>
-    <plugin name="gps_controller" filename="libhector_gazebo_ros_gps.so">
-      <updateRate>10</updateRate>
-      <robotNamespace>/</robotNamespace>
-      <bodyName>navsat_link</bodyName>
-      <frameId>navsat_link</frameId>
-      <topicName>/navsat/fix</topicName>
-      <velocityTopicName>/navsat/vel</velocityTopicName>
-      <referenceLatitude>43.45</referenceLatitude>
-      <referenceLongitude>-80.48</referenceLongitude>
-      <referenceHeading>0</referenceHeading>
-      <referenceAltitude>0</referenceAltitude>
-      <drift>0.0001 0.0001 0.0001</drift>
-    </plugin>
-  </gazebo>
-
-  <gazebo>
     <plugin name="imu_controller" filename="libhector_gazebo_ros_imu.so">
       <robotNamespace>/</robotNamespace>
       <updateRate>50.0</updateRate> 
@@ -46,6 +18,60 @@
       <headingDrift>0.005</headingDrift>
       <headingGaussianNoise>0.005</headingGaussianNoise>
     </plugin>
+
+    <plugin name="gps_controller" filename="libhector_gazebo_ros_gps.so">
+      <updateRate>10</updateRate>
+      <robotNamespace>$(arg robot_namespace)</robotNamespace>
+      <bodyName>navsat_link</bodyName>
+      <frameId>navsat_link</frameId>
+      <topicName>/navsat/fix</topicName>
+      <velocityTopicName>/navsat/vel</velocityTopicName>
+      <referenceLatitude>43.45</referenceLatitude>
+      <referenceLongitude>-80.48</referenceLongitude>
+      <referenceHeading>0</referenceHeading>
+      <referenceAltitude>0</referenceAltitude>
+      <drift>0.0001 0.0001 0.0001</drift>
+    </plugin>
+  </gazebo>
+
+  <gazebo reference="front_left_wheel_link">
+    <mu1 value="1.0"/>
+    <mu2 value="1.0"/>
+    <kp value="10000000.0" />
+    <kd value="1.0" />
+    <fdir1 value="1 0 0"/>
+    <material>Gazebo/Grey</material>
+          <selfCollide>true</selfCollide>
+  </gazebo>
+
+  <gazebo reference="front_right_wheel_link">
+    <mu1 value="1.0"/>
+    <mu2 value="1.0"/>
+    <kp value="10000000.0" />
+    <kd value="1.0" />
+    <fdir1 value="1 0 0"/>
+    <material>Gazebo/Grey</material>
+          <selfCollide>true</selfCollide>
+  </gazebo>
+
+  <gazebo reference="rear_left_wheel_link">
+    <mu1 value="1.0"/>
+    <mu2 value="1.0"/>
+    <kp value="10000000.0" />
+    <kd value="1.0" />
+    <fdir1 value="1 0 0"/>
+    <material>Gazebo/Grey</material>
+          <selfCollide>true</selfCollide>
+  </gazebo>
+
+  <gazebo reference="rear_right_wheel_link">
+    <mu1 value="1.0"/>
+    <mu2 value="1.0"/>
+    <kp value="10000000.0" />
+    <kd value="1.0" />
+    <fdir1 value="1 0 0"/>
+    <material>Gazebo/Grey</material>
+          <selfCollide>true</selfCollide>
   </gazebo>
 
   <gazebo reference="base_link">
@@ -68,5 +94,6 @@
 
   <gazebo reference="imu_link"/>
   <gazebo reference="navsat_link"/>
+
 
 </robot>
