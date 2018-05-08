@@ -22,14 +22,14 @@
   <xacro:property name="front_axle_radius" value="0.13" />
   <xacro:property name="front_axle_length" value="1.0" />
   <xacro:property name="wheelbase" value="0.896" />
-  <xacro:property name="track" value="0.499" /> 
+  <xacro:property name="track" value="0.537" />
 
   <!-- Wheel Mounting Positions -->
   <xacro:property name="wheel_vertical_offset" value="0.03282" />
 
   <!-- Wheel Properties -->
-  <xacro:property name="wheel_width" value="0.252" />
-  <xacro:property name="wheel_radius" value="0.33" />
+  <xacro:property name="wheel_width" value="0.2667" />
+  <xacro:property name="wheel_radius" value="0.3175" />
   <xacro:property name="wheel_mass" value="15" />
 
   <!-- Root link of Grizzly -->
@@ -65,8 +65,8 @@
       <inertia ixx="9.9" ixy="0.0" ixz="0.0" iyy="9.9" iyz="0.0" izz="1.75" />
     </inertial>
     <visual>
-      <origin xyz="-${ground_clearance} 0.01 ${track}"
-              rpy="0 ${M_PI} ${M_PI/2}" />
+      <origin xyz="0 0 0"
+              rpy="0 0 0" />
       <geometry>
         <mesh filename="package://grizzly_description/meshes/front_axle.stl" />
       </geometry>
@@ -93,7 +93,7 @@
            lower="0"
            upper="0"
            velocity="0.5" />
-  </joint>   
+  </joint>
 
 
   <joint name="chassis_joint"
@@ -172,16 +172,16 @@
 
   <!-- Grizzly wheel macros -->
   <xacro:grizzly_wheel wheel_prefix="front_left" parent="front_axle_link" flipY="0">
-    <origin xyz="0 0.499 ${wheel_vertical_offset}" rpy="0 0 0" />
+    <origin xyz="0 ${track} ${wheel_vertical_offset}" rpy="0 0 0" />
   </xacro:grizzly_wheel>
   <xacro:grizzly_wheel wheel_prefix="front_right" parent="front_axle_link" flipY="1">
-    <origin xyz="0 -0.499 ${wheel_vertical_offset}" rpy="0 0 0" />
+    <origin xyz="0 ${-track} ${wheel_vertical_offset}" rpy="0 0 0" />
   </xacro:grizzly_wheel>
   <xacro:grizzly_wheel wheel_prefix="rear_left" parent="chassis_link" flipY="0">
-    <origin xyz="-0.448 0.499 ${wheel_vertical_offset}" rpy="0 0 0" />
+    <origin xyz="${-wheelbase/2} ${track} ${wheel_vertical_offset}" rpy="0 0 0" />
   </xacro:grizzly_wheel>
   <xacro:grizzly_wheel wheel_prefix="rear_right" parent="chassis_link" flipY="1">
-    <origin xyz="-0.448 -0.499 ${wheel_vertical_offset}" rpy="0 0 0" />
+    <origin xyz="${-wheelbase/2} ${-track} ${wheel_vertical_offset}" rpy="0 0 0" />
   </xacro:grizzly_wheel>
 
   <xacro:grizzly_decorate />
