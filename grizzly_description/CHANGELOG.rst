@@ -2,6 +2,13 @@
 Changelog for package grizzly_description
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Minor package.xml and CMakeList.txt clean-up.
+* Fix vehicle dimensions for roscontrol
+* Added urdf files and control config files for base.launch to run. Updated package.xml files and changelogs to match current version.
+* Contributors: Michael Hosmar, Mohamed Elshatshat, Tony Baltovski
+
 0.3.2 (2015-11-06)
 ------------------
 
