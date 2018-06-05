@@ -12,18 +12,18 @@
   <url type="repository">https://github.com/g/grizzly</url>
 
   <buildtool_depend>catkin</buildtool_depend>
-  <build_depend>roslaunch</build_depend>
 
+  <exec_depend>controller_manager</exec_depend>
   <exec_depend>grizzly_description</exec_depend>
-  <exec_depend>interactive_marker_twist_server</exec_depend>
   <exec_depend>diff_drive_controller</exec_depend>
+  <exec_depend>interactive_marker_twist_server</exec_depend>
   <exec_depend>joint_state_controller</exec_depend>
-  <exec_depend>joint_trajectory_controller</exec_depend>
   <exec_depend>robot_localization</exec_depend>
   <exec_depend>rostopic</exec_depend>
   <exec_depend>robot_state_publisher</exec_depend>
-  <exec_depend>controller_manager</exec_depend>
   <exec_depend>twist_mux</exec_depend>
+
+  <test_depend>roslaunch</test_depend>
 
   <export>
   </export>
