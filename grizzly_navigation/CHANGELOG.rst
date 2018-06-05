@@ -2,8 +2,8 @@
 Changelog for package grizzly_navigation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.4.0 (2018-06-05)
+------------------
 * Minor package.xml and CMakeList.txt clean-up.
 * [grizzly_navigation] Updated the footprint and padding.
 * Added urdf files and control config files for base.launch to run. Updated package.xml files and changelogs to match current version.
