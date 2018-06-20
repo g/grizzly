@@ -15,6 +15,9 @@
 
   <exec_depend>urdf</exec_depend>
   <exec_depend>xacro</exec_depend>
+  <exec_depend>velodyne_description</exec_depend>
+  <exec_depend>pointgrey_camera_description</exec_depend>
+  <exec_depend>lms1xx</exec_depend>
 
   <test_depend>roslaunch</test_depend>
 

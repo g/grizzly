@@ -35,6 +35,14 @@
   <!-- Root link of Grizzly -->
   <link name="base_link" />
 
+  <!-- Sensor Arch Options -->
+  <xacro:arg name="front_sensor_arch_enabled" default="$(optenv GRIZZLY_FRONT_SENSOR_ARCH_ENABLED false)" />
+  <xacro:arg name="front_tower_xyz" default="$(optenv GRIZZLY_FRONT_SENSOR_ARCH_XYZ 0.495 0.0 0.0)" />
+  <xacro:arg name="front_tower_rpy" default="$(optenv GRIZZLY_FRONT_SENSOR_ARCH_RPY 0.0 0.0 0.0)" />
+  <xacro:arg name="rear_sensor_arch_enabled" default="$(optenv GRIZZLY_REAR_SENSOR_ARCH_ENABLED true)" />
+  <xacro:arg name="rear_tower_xyz" default="$(optenv GRIZZLY_REAR_SENSOR_ARCH_XYZ -0.63 0.0 0.0)" />
+  <xacro:arg name="rear_tower_rpy" default="$(optenv GRIZZLY_REAR_SENSOR_ARCH_RPY 0.0 0.0 0.0)" />
+
   <!-- Base link is the center of the robot's bottom plate -->
   <link name="chassis_link">
     <inertial>
@@ -112,15 +120,6 @@
     <child link="sensor_anchor_link" />
   </joint>
 
-  <!-- This is the approximate position of the GPS antenna on the standard configuration. -->
-  <link name="navsat_link" />
-  <joint name="navsat_joint" type="fixed">
-    <origin xyz="-${base_x_size/2} 0 0"
-            rpy="0 0 0" />
-    <parent link="sensor_anchor_link" />
-    <child link="navsat_link" />
-  </joint>
-
   <!-- The position and orientation of the IMU in the rear compartment. -->
   <link name="imu_link" />
   <joint name="imu_joint" type="fixed">
@@ -142,6 +141,7 @@
 			  <geometry>
 			    <mesh filename="package://grizzly_description/meshes/wheel.stl" />
 			  </geometry>
+        <material name="DarkGrey" />
 			</visual>
 			<collision>
 			  <origin xyz="0 0 0" rpy="${M_PI/2} ${flipY*M_PI} 0" />
@@ -183,6 +183,137 @@
   <xacro:grizzly_wheel wheel_prefix="rear_right" parent="chassis_link" flipY="1">
     <origin xyz="${-wheelbase/2} ${-track} ${wheel_vertical_offset}" rpy="0 0 0" />
   </xacro:grizzly_wheel>
+
+  <!-- Front Sensor Arch -->
+  <xacro:if value="$(arg front_sensor_arch_enabled)">
+    <link name="front_sensor_base_link">
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://grizzly_description/meshes/sensor_risers.stl" />
+        </geometry>
+        <material name="DarkGrey" />
+      </visual>
+      <collision>
+        <geometry>
+          <mesh filename="package://grizzly_description/meshes/sensor_risers.stl" />
+        </geometry>
+      </collision>
+    </link>
+    <joint name="front_sensor_base_joint" type="fixed">
+      <origin xyz="$(arg front_tower_xyz)" rpy="$(arg rear_tower_rpy)" />
+      <parent link="sensor_anchor_link" />
+      <child link="front_sensor_base_link" />
+    </joint>
+
+    <link name="front_sensor_arch_link">
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://grizzly_description/meshes/sensor_arch.stl" />
+        </geometry>
+        <material name="DarkGrey" />
+      </visual>
+      <collision>
+        <geometry>
+          <mesh filename="package://grizzly_description/meshes/sensor_arch.stl" />
+        </geometry>
+      </collision>
+    </link>
+    <joint name="front_sensor_arch_joint" type="fixed">
+      <origin xyz="0 0 0.3" rpy="0 0 0" />
+      <parent link="front_sensor_base_link" />
+      <child link="front_sensor_arch_link" />
+    </joint>
+
+    <link name="front_sensor_mount_link"/>
+    <joint name="front_sensor_mount_joint" type="fixed">
+      <origin xyz="0 0 0.15" rpy="0 0 0" />
+      <parent link="front_sensor_arch_link" />
+      <child link="front_sensor_mount_link" />
+    </joint>
+  </xacro:if>
+
+  <link name="navsat_link" />
+
+  <!-- Rear Sensor Arch -->
+  <xacro:if value="$(arg rear_sensor_arch_enabled)">
+    <link name="rear_sensor_base_link">
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://grizzly_description/meshes/sensor_risers.stl" />
+        </geometry>
+        <material name="DarkGrey" />
+      </visual>
+      <collision>
+        <geometry>
+          <mesh filename="package://grizzly_description/meshes/sensor_risers.stl" />
+        </geometry>
+      </collision>
+    </link>
+    <joint name="rear_sensor_base_joint" type="fixed">
+      <origin xyz="$(arg rear_tower_xyz)" rpy="$(arg rear_tower_rpy)" />
+      <parent link="sensor_anchor_link" />
+      <child link="rear_sensor_base_link" />
+    </joint>
+
+    <link name="rear_sensor_plate_link">
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://grizzly_description/meshes/sensor_plate.stl" />
+        </geometry>
+        <material name="DarkGrey" />
+      </visual>
+      <collision>
+        <geometry>
+          <mesh filename="package://grizzly_description/meshes/sensor_plate.stl" />
+        </geometry>
+      </collision>
+    </link>
+    <joint name="rear_sensor_plate_joint" type="fixed">
+      <origin xyz="0 0 0.3" rpy="0 0 0" />
+      <parent link="rear_sensor_base_link" />
+      <child link="rear_sensor_plate_link" />
+    </joint>
+
+    <link name="rear_antenna_link">
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://grizzly_description/meshes/antennas.stl" />
+        </geometry>
+        <material name="Grey" />
+      </visual>
+      <collision>
+        <geometry>
+          <mesh filename="package://grizzly_description/meshes/antennas.stl" />
+        </geometry>
+      </collision>
+    </link>
+    <joint name="rear_antenna_joint" type="fixed">
+      <origin xyz="0 0 0.003175" rpy="0 0 0" />
+      <parent link="rear_sensor_plate_link" />
+      <child link="rear_antenna_link" />
+    </joint>
+
+    <!-- This is the approximate position of the GPS antenna on the standard configuration. -->
+    <joint name="navsat_joint" type="fixed">
+      <origin xyz="0 0 0.4" rpy="0 0 0" />
+      <parent link="rear_sensor_plate_link" />
+      <child link="navsat_link" />
+    </joint>
+  </xacro:if>
+
+  <xacro:unless value="$(arg rear_sensor_arch_enabled)">
+    <joint name="navsat_joint" type="fixed">
+      <origin xyz="-${base_x_size/2} 0 0"
+              rpy="0 0 0" />
+      <parent link="sensor_anchor_link" />
+      <child link="navsat_link" />
+    </joint>
+  </xacro:unless>
 
   <xacro:grizzly_decorate />
 
