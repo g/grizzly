@@ -2,8 +2,8 @@
 Changelog for package grizzly_description
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.4.1 (2018-06-21)
+------------------
 * Updated urdf (`#21 <https://github.com/g/grizzly/issues/21>`_)
   * Updated urdf to have both sensor arches, all standard sensors, and some non-standard sensors
   * URDF formatting
