@@ -2,6 +2,9 @@
 Changelog for package grizzly_msgs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 0.4.0 (2018-06-05)
 ------------------
 * Updated Indicators.msg
