@@ -2,6 +2,9 @@
 Changelog for package grizzly_control
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 0.4.1 (2018-06-21)
 ------------------
 
