@@ -2,8 +2,8 @@
 Changelog for package grizzly_description
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.4.2 (2018-06-22)
+------------------
 * [grizzly_description] Installed env_run script.
 * Contributors: Tony Baltovski
 

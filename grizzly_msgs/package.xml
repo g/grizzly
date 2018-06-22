@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>grizzly_msgs</name>
-  <version>0.4.1</version>
+  <version>0.4.2</version>
   <description>Common messages for Grizzly.</description>
   <maintainer email="tbaltovski@clearpathrobotics.com">Tony Baltovski</maintainer>
   <license>BSD</license>
